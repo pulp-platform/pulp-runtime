@@ -1,4 +1,4 @@
-TARGET_BUILD_DIR = $(CURDIR)/build
+TARGET_BUILD_DIR = $(CURDIR)/build$(build_dir_ext)
 ifndef VERBOSE
 V = @
 endif
@@ -27,6 +27,10 @@ endif
 PULP_APP_CFLAGS += -I$(PULPRT_HOME)/include -I$(PULPRT_HOME)/kernel -I$(PULPOS_ARCHI)/include -I$(PULPOS_HAL)/include -I$(PMSIS_API)/include
 
 PULP_APP_CFLAGS += $(foreach inc,$(PULPOS_MODULES),-I$(inc)/include)
+
+ifdef PULPRUN_PLATFORM
+platform=$(PULPRUN_PLATFORM)
+endif
 
 
 ifndef platform
@@ -171,7 +175,7 @@ clean:
 	$(V)rm -rf $(TARGET_BUILD_DIR)
 
 run:
-	pulp-run --platform=$(platform) --config=$(PULPRUN_TARGET) --binary=$(TARGETS) $(runner_args) prepare run
+	pulp-run --platform=$(platform) --config=$(PULPRUN_TARGET) --dir=$(TARGET_BUILD_DIR) --binary=$(TARGETS) $(runner_args) prepare run
 
 dis:
 	$(PULP_OBJDUMP) $(PULP_ARCH_OBJDFLAGS) $(disopt) $(TARGETS)

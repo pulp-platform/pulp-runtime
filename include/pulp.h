@@ -53,6 +53,8 @@ void uart_close(int uart_id);
 int uart_write(int uart_id, void *buffer, uint32_t size);
 int uart_read(int uart_id, void *buffer, uint32_t size);
 
+void synch_barrier();
+
 
 
 #endif

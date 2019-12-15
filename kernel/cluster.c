@@ -35,6 +35,11 @@ static void pos_wait_forever()
 
 void cluster_entry_stub()
 {
+
+    eu_evt_maskSet((1<<PULP_DISPATCH_EVENT) | (1<<PULP_MUTEX_EVENT) | (1<<PULP_HW_BAR_EVENT));
+
+    eu_bar_setup(eu_bar_addr(0), (1<<ARCHI_CLUSTER_NB_PE) - 1);
+
     int retval = ((int (*)())cluster_entry)();
 
     if (hal_core_id() == 0)
@@ -76,4 +81,10 @@ int cluster_wait(int cid)
     printf("%s %d\n", __FILE__, __LINE__);
     while(1);
     return 0;
+}
+
+void synch_barrier()
+{
+    if (hal_cluster_id() != ARCHI_FC_CID)
+        eu_bar_trig_wait_clr(eu_bar_addr(0));
 }

@@ -42,6 +42,12 @@
 #define L1_GLOBAL_DATA __attribute__((section(".data_l1")))
 #define L1_DATA L1_GLOBAL_DATA
 
+#ifdef USE_CLUSTER
+#define RT_LOCAL_DATA L1_DATA
+#else
+#define RT_LOCAL_DATA FC_DATA
+#endif
+
 #endif
 
 
@@ -54,7 +60,9 @@
 #endif
 #endif
 
-
+#ifdef ARCHI_CLUSTER_NB_PE
+#define ARCHI_NB_PE ARCHI_CLUSTER_NB_PE
+#endif
 
 
 #include "alloc.h"

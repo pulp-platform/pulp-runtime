@@ -3,9 +3,9 @@ PULP_CFLAGS       +=  -D__riscv__
 PULP_ARCH_CFLAGS ?=  -march=rv32imcxgap9
 PULP_ARCH_LDFLAGS ?=  -march=rv32imcxgap9
 PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imcxgap9
-PULP_CFLAGS    += -Werror -Wextra -Wall -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wundef -fdata-sections -ffunction-sections -include chips/pulp/config.h -I$(PULPRT_HOME)/include/chips/pulpissimo
+PULP_CFLAGS    += -fdata-sections -ffunction-sections -include chips/pulp/config.h -I$(PULPRT_HOME)/include/chips/pulpissimo
 PULP_OMP_CFLAGS    += -fopenmp -mnativeomp
-PULP_LDFLAGS = -nostartfiles -nostdlib -Wl,--gc-sections -L$(PULPRT_HOME)/kernel -Tchips/pulpissimo/link.ld -lgcc
+PULP_LDFLAGS += -nostartfiles -nostdlib -Wl,--gc-sections -L$(PULPRT_HOME)/kernel -Tchips/pulpissimo/link.ld -lgcc
 
 PULP_CC = riscv32-unknown-elf-gcc 
 PULP_AR ?= riscv32-unknown-elf-ar
