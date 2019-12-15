@@ -59,6 +59,8 @@ static inline void pmsis_exit(int err)
     pos_kernel_pmsis_exit_value = err;
 }
 
+#ifdef ARCHI_HAS_CLUSTER
+
 static inline unsigned int tas_addr(unsigned int addr)
 {
   return addr | (1<<ARCHI_L1_TAS_BIT);
@@ -79,6 +81,7 @@ static inline void tas_unlock_32(unsigned int addr, signed int value)
   __asm__ __volatile__ ("" : : : "memory");
 }
 
+#endif
 
 #include "alloc.h"
 #include "irq.h"

@@ -33,10 +33,6 @@ platform=$(PULPRUN_PLATFORM)
 endif
 
 
-ifndef platform
-platform=gvsoc
-endif
-
 override disopt ?= -d
 
 ifeq '$(platform)' 'gvsoc'

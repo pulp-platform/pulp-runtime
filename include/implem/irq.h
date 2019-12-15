@@ -63,8 +63,6 @@ static inline void pos_irq_mask_clr(unsigned int mask)
 #if defined(__RISCV_GENERIC__)
     hal_spr_read_then_clr_from_reg(0x304, mask);
 
-    #error 1
-
 #elif defined(ITC_VERSION) && defined(EU_VERSION)
     if (hal_is_fc())
         hal_itc_enable_clr(mask);
@@ -72,12 +70,10 @@ static inline void pos_irq_mask_clr(unsigned int mask)
         eu_irq_maskClr(mask);
 
 #elif defined(ITC_VERSION)
-    #error 2
 
     hal_itc_enable_clr(mask);
 
 #elif defined(EU_VERSION)
-    #error 3
     eu_irq_maskClr(mask);
     if (hal_is_fc())
         eu_evt_maskClr(mask);

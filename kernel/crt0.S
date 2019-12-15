@@ -143,6 +143,7 @@ pos_semihosting_call:
 
 
 
+#if defined(ARCHI_HAS_CLUSTER)
 pe_start:
     la   x2, cluster_stacks
     li   x3, CLUSTER_STACK_SIZE
@@ -150,3 +151,4 @@ pe_start:
     mul  x1, x3, a1
     add  x2, x2, x1
     j    cluster_entry_stub
+#endif
