@@ -5,6 +5,4 @@ export PULPRUN_TARGET=pulpissimo
 
 scriptDir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 
-if [ -e ${scriptDir}/../init.sh ]; then
-    source ${scriptDir}/../init.sh
-fi
+source $scriptDir/common.sh

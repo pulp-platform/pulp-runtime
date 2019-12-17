@@ -23,6 +23,9 @@ volatile void *cluster_entry;
 L1_DATA char cluster_stacks[ARCHI_CLUSTER_NB_PE*CLUSTER_STACK_SIZE];
 
 
+static volatile int cluster_running;
+static volatile int cluster_retval;
+
 
 static void pos_wait_forever()
 {
@@ -35,7 +38,6 @@ static void pos_wait_forever()
 
 void cluster_entry_stub()
 {
-
     eu_evt_maskSet((1<<PULP_DISPATCH_EVENT) | (1<<PULP_MUTEX_EVENT) | (1<<PULP_HW_BAR_EVENT));
 
     eu_bar_setup(eu_bar_addr(0), (1<<ARCHI_CLUSTER_NB_PE) - 1);
@@ -44,10 +46,11 @@ void cluster_entry_stub()
 
     if (hal_core_id() == 0)
     {
-        exit(retval);
+        cluster_retval = retval;
+        cluster_running = 0;
     }
-    else
-        pos_wait_forever();
+
+    pos_wait_forever();
 }
 
 
@@ -65,6 +68,7 @@ void cluster_start(int cid, int (*entry)(void *))
     // Activate icache
     hal_icache_cluster_enable(cid);
 
+    cluster_running = 1;
 
     // Fetch all cores
     for (int i=0; i<ARCHI_CLUSTER_NB_PE; i++)
@@ -78,9 +82,9 @@ void cluster_start(int cid, int (*entry)(void *))
 
 int cluster_wait(int cid)
 {
-    printf("%s %d\n", __FILE__, __LINE__);
-    while(1);
-    return 0;
+    while(cluster_running);
+
+    return cluster_retval;
 }
 
 void synch_barrier()
