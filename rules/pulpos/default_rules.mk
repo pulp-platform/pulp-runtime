@@ -5,6 +5,17 @@ endif
 
 platform ?= rtl
 
+
+ifdef PULP_RUNTIME_GCC_TOOLCHAIN
+PULP_CC := $(PULP_RUNTIME_GCC_TOOLCHAIN)/bin/$(PULP_CC)
+else
+ifdef PULP_RISCV_GCC_TOOLCHAIN
+PULP_CC := $(PULP_RISCV_GCC_TOOLCHAIN)/bin/$(PULP_CC)
+else
+endif
+endif
+
+
 ifdef gui
 override runner_args += --config-opt=**/vsim/gui=true
 endif
