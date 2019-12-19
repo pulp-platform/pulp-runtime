@@ -46,8 +46,9 @@ void _start();
 #define rt_core_id hal_core_id
 #define rt_cluster_id hal_cluster_id
 
+#ifdef ARCHI_CLUSTER_NB_PE
 static inline int get_core_num() { return ARCHI_CLUSTER_NB_PE; }
-
+#endif
 
 
 int uart_open(int uart_id, int baudrate);
