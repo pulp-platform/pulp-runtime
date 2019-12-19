@@ -22,7 +22,9 @@
  * FPGA
  */
 
+#ifndef ARCHI_FPGA_FREQUENCY
 #define ARCHI_FPGA_FREQUENCY 5000000
+#endif
 
 
 /*
