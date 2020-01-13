@@ -12,6 +12,8 @@ else
 ifdef PULP_RISCV_GCC_TOOLCHAIN
 PULP_CC := $(PULP_RISCV_GCC_TOOLCHAIN)/bin/$(PULP_CC)
 else
+$(warning "Warning: Neither PULP_RUNTIME_GCC_TOOLCHAIN nor PULP_RISCV_GCC_TOOLCHAIN is set.\
+Using defaults.")
 endif
 endif
 
