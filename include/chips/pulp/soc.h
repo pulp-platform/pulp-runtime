@@ -22,7 +22,7 @@
 #define POS_FLL_PERIPH 1
 #define POS_FLL_FC 0
 
-extern PI_FC_TINY int pos_freq_domains[ARCHI_NB_FLL];
+extern int pos_freq_domains[ARCHI_NB_FLL];
 
 
 void pos_soc_init();

@@ -30,7 +30,7 @@ static L1_DATA int io_lock = 0;
 
 
 #if defined(CONFIG_IO_UART) && CONFIG_IO_UART == 1
-static PI_FC_TINY int pos_io_uart_enabled = 0;
+static int pos_io_uart_enabled = 0;
 static PI_L2 uint8_t pos_io_uart_buffer;
 #endif
 

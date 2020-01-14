@@ -31,7 +31,7 @@
 #endif
 
 
-#define FC_GLOBAL_DATA __attribute__((section(".data_fc")))
+#define FC_GLOBAL_DATA __attribute__((section(".l2_data")))
 #define FC_DATA FC_GLOBAL_DATA
 
 #define PI_FC_TINY FC_DATA

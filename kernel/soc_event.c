@@ -16,7 +16,7 @@
 
 #include "pulp.h"
 
-volatile PI_FC_TINY unsigned int pos_soc_event_status[ARCHI_SOC_EVENT_NB_TOTAL/32];
+volatile unsigned int pos_soc_event_status[ARCHI_SOC_EVENT_NB_TOTAL/32];
 
 extern void pos_soc_event_handler_asm();
 

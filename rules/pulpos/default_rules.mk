@@ -3,6 +3,10 @@ ifndef VERBOSE
 V = @
 endif
 
+ifdef VERBOSE
+override runner_args += --config-opt=**/runner/verbose=true
+endif
+
 platform ?= rtl
 
 
