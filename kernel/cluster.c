@@ -54,7 +54,7 @@ void cluster_entry_stub()
 }
 
 
-void cluster_start(int cid, int (*entry)(void *))
+void cluster_start(int cid, int (*entry)())
 {
     // Store cluster entry point, ctr0 will jump here
     cluster_entry = entry;

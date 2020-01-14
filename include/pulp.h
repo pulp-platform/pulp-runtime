@@ -34,7 +34,7 @@ typedef enum {
   PI_FREQ_DOMAIN_PERIPH = 2
 } pi_freq_domain_e;
 
-void cluster_start(int cid, int (*entry)(void *));
+void cluster_start(int cid, int (*entry)());
 
 int cluster_wait(int cid);
 
@@ -45,6 +45,7 @@ void _start();
 #define get_core_id hal_core_id
 #define rt_core_id hal_core_id
 #define rt_cluster_id hal_cluster_id
+#define get_cluster_id hal_cluster_id
 
 #ifdef ARCHI_CLUSTER_NB_PE
 static inline int get_core_num() { return ARCHI_CLUSTER_NB_PE; }

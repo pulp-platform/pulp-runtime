@@ -46,3 +46,20 @@ environment variable must point to the folder where the platform was installed (
 
     $ export VSIM_PATH=<pulpissimo root folder>/sim
 
+### Examples
+
+Some examples can be found here: git@github.com:pulp-platform/pulp-runtime-examples.git
+
+### Useful options
+
+The vsim gui can be opened with this option:
+
+    $ make run gui=1
+
+The uart can be selected for the printf with this option:
+
+    $ make all run io=uart
+
+The baudrate can also be specified with:
+
+    $ make all run io=uart CONFIG_IO_UART_BAUDRATE=9600
