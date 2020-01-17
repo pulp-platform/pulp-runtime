@@ -48,6 +48,8 @@ runtest.version = '0.2'
 
 runtest.add_argument('test_file', type=str,
                      help='file defining tests to be run')
+runtest.add_argument('--version', action='version',
+                     version='%(prog)s ' + runtest.version)
 runtest.add_argument('-p', '--max-procs', type=int,
                      default=multiprocessing.cpu_count(),
                      help="""Number of parallel
