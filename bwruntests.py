@@ -275,15 +275,14 @@ the pyyaml library which is not installed.""",
         testcount = sum(1 for x in tests)
         testfailcount = sum(1 for p in procresults if p.returncode != 0)
         testpassedcount = testcount - testfailcount
-        resulttable = PrettyTable(['test', 'config', 'time', 'passed/total'])
+        resulttable = PrettyTable(['test', 'time', 'passed/total'])
         resulttable.align['test'] = "l"
-        resulttable.align['config'] = "l"
-        resulttable.add_row(['bwruntest', '', '', '{0:d}/{1:d}'.
+        resulttable.add_row(['bwruntest', '', '{0:d}/{1:d}'.
                              format(testpassedcount, testcount)])
         for p in procresults:
             testpassed = 1 if p.returncode == 0 else 0
             testname = p.name
-            resulttable.add_row([testname, '',
+            resulttable.add_row([testname,
                                  '{0:.2f}s'.format(p.time),
                                  '{0:d}/{1:d}'.format(testpassed, 1)])
         print(resulttable)
