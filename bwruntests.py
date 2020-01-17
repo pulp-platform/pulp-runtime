@@ -197,10 +197,7 @@ the junit_xml library which is not installed.""",
             print("""Warning: Displaying results requires the PrettyTable
 library which is not installed""")
 
-    testnames = []
-    shellcmds = []
-    cwds = []
-    tests = []
+    tests = []  # list of tuple (testname, working dir, command)
 
     # load tests (yaml or command list)
     if args.yaml:
@@ -217,9 +214,6 @@ the pyyaml library which is not installed.""",
                 for testname, insn in testv.items():
                     cmd = shlex.split(insn['command'])
                     cwd = insn['path']
-                    testnames.append(testsetname + ':' + testname)
-                    shellcmds.append(cmd)
-                    cwds.append(cwd)
                     tests.append((testsetname + ':' + testname, cwd, cmd))
             if args.verbose:
                 pp.pprint(tests)
@@ -278,7 +272,7 @@ the pyyaml library which is not installed.""",
 
     # print summary of test results
     if not(args.disable_results_pp):
-        testcount = sum(1 for x in testnames)
+        testcount = sum(1 for x in tests)
         testfailcount = sum(1 for p in procresults if p.returncode != 0)
         testpassedcount = testcount - testfailcount
         resulttable = PrettyTable(['test', 'config', 'time', 'passed/total'])
