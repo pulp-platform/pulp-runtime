@@ -41,8 +41,33 @@ import pprint
 import time
 
 
-runtest = argparse.ArgumentParser(prog='bwruntests',
-                                  description="""Run PULP tests in parallel""")
+runtest = argparse.ArgumentParser(
+    prog='bwruntests',
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    description="""Run PULP tests in parallel""",
+    epilog="""
+Test_file needs to be either a .yaml file (set the --yaml switch)
+which looks like this:
+
+mytests.yml
+[...]
+parallel_bare_tests: # name of the test set
+  parMatrixMul8:     # name of the test
+    path: ./parallel_bare_tests/parMatrixMul8 # path to the test's folder
+    command: make clean all run # command to run in the test's folder
+[...]
+
+or
+
+Test_file needs to be a list of commands to be executed. Each line corresponds
+to a single command and a test
+
+commands.f
+[...]
+make -C ./ml_tests/mlGrad clean all run
+make -C ./ml_tests/mlDct clean all run
+[...]
+""")
 
 runtest.version = '0.2'
 
@@ -74,7 +99,6 @@ runtest.add_argument('-y,', '--yaml', action='store_true',
                      from a list of commands""")
 runtest.add_argument('-o,', '--output', type=str,
                      help="""Write junit.xml to file instead of stdout""")
-
 stdout_lock = Lock()
 
 
