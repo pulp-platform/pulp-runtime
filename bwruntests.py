@@ -252,8 +252,10 @@ the pyyaml library which is not installed.""",
     if args.report_junit:
         testcases = []
         for p in procresults:
+            # we can either expect p.name = testsetname:testname
+            # or p.name = testname
             testcase = TestCase(p.name,
-                                classname=p.name,
+                                classname=((p.name).split(':'))[0],
                                 stdout=p.stdout,
                                 stderr=p.stderr,
                                 elapsed_sec=p.time)
