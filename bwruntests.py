@@ -30,18 +30,21 @@
 import argparse
 from subprocess import (Popen, TimeoutExpired,
                         CalledProcessError, PIPE)
+from threading import Lock
+import shlex
 import sys
 import signal
 import os
 import multiprocessing
 import errno
 import pprint
+import time
 
 
 runtest = argparse.ArgumentParser(prog='bwruntests',
                                   description="""Run PULP tests in parallel""")
 
-runtest.version = '0.1'
+runtest.version = '0.2'
 
 runtest.add_argument('test_file', type=str,
                      help='file defining tests to be run')
@@ -55,42 +58,68 @@ runtest.add_argument('-t', '--timeout', type=float,
                      help="""Timeout for all processes in seconds""")
 runtest.add_argument('-v', '--verbose', action='store_true',
                      help="""Enable verbose output""")
+runtest.add_argument('-s', '--proc-verbose', action='store_true',
+                     help="""Write processes' stdout and stderr to shell stdout
+                     after they terminate""")
 runtest.add_argument('--report-junit', action='store_true',
                      help="""Generate a junit report""")
-runtest.add_argument('--disable-junit-pp', action='store_false',
+runtest.add_argument('--disable-junit-pp', action='store_true',
                      help="""Disable pretty print of junit report""")
+runtest.add_argument('--disable-results-pp', action='store_true',
+                     help="""Disable printing test results""")
+runtest.add_argument('-y,', '--yaml', action='store_true',
+                     help="""Read tests from yaml file instead of executing
+                     from a list of commands""")
 runtest.add_argument('-o,', '--output', type=str,
-                     help="""Write to file instead of stdout""")
+                     help="""Write junit.xml to file instead of stdout""")
+
+stdout_lock = Lock()
 
 
 class FinishedProcess(object):
     """A process that has finished running.
     """
-    def __init__(self, args, returncode, stdout=None, stderr=None):
+    def __init__(self, name, cwd, args, returncode,
+                 stdout=None, stderr=None, time=None):
+        self.name = name
+        self.cwd = cwd
         self.args = args
         self.returncode = returncode
         self.stdout = stdout
         self.stderr = stderr
+        self.time = time
 
     def __repr__(self):
-        args = ['args={!r}'.format(self.args),
-                'returncode={!r}'.format(self.returncode)]
+        args = ['name={!r}'.format(self.name)]
+        args += ['cwd={!r}'.format(self.cwd)]
+        args += ['args={!r}'.format(self.args),
+                 'returncode={!r}'.format(self.returncode)]
         if self.stdout is not None:
             args.append('stdout={!r}'.format(self.stdout))
         if self.stderr is not None:
             args.append('stderr={!r}'.format(self.stderr))
+        if self.time is not None:
+            args.append('time={!r}'.format(self.time))
         return "{}({})".format(type(self).__name__, ', '.join(args))
 
 
-def fork(*popenargs, check=False, shell=True,
+def fork(name, cwd, *popenargs, check=False, shell=True,
          **kwargs):
     """Run subprocess and return process args, error code, stdout and stderr
     """
 
+    def proc_out(cwd, stdout, stderr):
+        print('cwd={}'.format(cwd))
+        print('stdout=')
+        print(stdout.decode('utf-8'))
+        print('stderr=')
+        print(stderr.decode('utf-8'))
+
     kwargs['stdout'] = PIPE
     kwargs['stderr'] = PIPE
 
-    with Popen(*popenargs, preexec_fn=os.setpgrp, **kwargs) as process:
+    with Popen(*popenargs, preexec_fn=os.setpgrp, cwd=cwd,
+               **kwargs) as process:
         try:
             # Child and parent are racing for setting/using the pgid so we have
             # to set it in both processes. See glib manual.
@@ -99,7 +128,8 @@ def fork(*popenargs, check=False, shell=True,
             except OSError as e:
                 if e.errno != errno.EACCES:
                     raise
-
+            # measure runtime
+            start = time.time()
             stdout, stderr = process.communicate(input, timeout=args.timeout)
         except TimeoutExpired:
             pgid = os.getpgid(process.pid)
@@ -109,10 +139,20 @@ def fork(*popenargs, check=False, shell=True,
             # (make -> vsim -> etc). We need to make a process group and kill
             # that
             stdout, stderr = process.communicate()
-            return FinishedProcess(process.args, 1,
+            timeoutmsg = 'TIMEOUT after {:f}s'.format(args.timeout)
+
+            if args.proc_verbose:
+                stdout_lock.acquire()
+                print(name)
+                print(timeoutmsg)
+                proc_out(cwd, stdout, stderr)
+                stdout_lock.release()
+
+            return FinishedProcess(name, cwd, process.args, 1,
                                    stdout.decode('utf-8'),
-                                   'TIMEOUT after {:f}s\n'.format(args.timeout)
-                                   + stderr.decode('utf-8'))
+                                   timeoutmsg + '\n'
+                                   + stderr.decode('utf-8'),
+                                   time.time() - start)
         # Including KeyboardInterrupt, communicate handled that.
         except:  # noqa: E722
             pgid = os.getpgid(process.pid)
@@ -123,9 +163,16 @@ def fork(*popenargs, check=False, shell=True,
         if check and retcode:
             raise CalledProcessError(retcode, process.args,
                                      output=stdout, stderr=stderr)
-    return FinishedProcess(process.args, retcode,
+        if args.proc_verbose:
+            stdout_lock.acquire()
+            print(name)
+            proc_out(cwd, stdout, stderr)
+            stdout_lock.release()
+
+    return FinishedProcess(name, cwd, process.args, retcode,
                            stdout.decode('utf-8'),
-                           stderr.decode('utf-8'))
+                           stderr.decode('utf-8'),
+                           time.time() - start)
 
 
 if __name__ == '__main__':
@@ -137,48 +184,112 @@ if __name__ == '__main__':
         try:
             from junit_xml import TestSuite, TestCase
         except ImportError:
-            print("""The --report-junit option requires
-the junit_xml module which is not installed.""",
+            print("""Error: The --report-junit option requires
+the junit_xml library which is not installed.""",
                   file=sys.stderr)
             exit(1)
 
-    # load command list
+    # lazy import PrettyTable for displaying results
+    if not(args.disable_results_pp):
+        try:
+            from prettytable import PrettyTable
+        except ImportError:
+            print("""Warning: Displaying results requires the PrettyTable
+library which is not installed""")
+
+    testnames = []
+    shellcmds = []
+    cwds = []
     tests = []
-    with open(args.test_file) as f:
-        tests = list(map(str.rstrip, f))
 
-    if args.verbose:
-        print('Tests which we are running:')
-        pp.pprint(tests)
+    # load tests (yaml or command list)
+    if args.yaml:
+        try:
+            import yaml
+        except ImportError:
+            print("""Error: The --yaml option requires
+the pyyaml library which is not installed.""",
+                  file=sys.stderr)
+            exit(1)
+        with open(args.test_file) as f:
+            testyaml = yaml.load(f)
+            for testsetname, testv in testyaml.items():
+                for testname, insn in testv.items():
+                    cmd = shlex.split(insn['command'])
+                    cwd = insn['path']
+                    testnames.append(testsetname + ':' + testname)
+                    shellcmds.append(cmd)
+                    cwds.append(cwd)
+                    tests.append((testsetname + ':' + testname, cwd, cmd))
+            if args.verbose:
+                pp.pprint(tests)
+    else:  # (command list)
+        with open(args.test_file) as f:
+            testnames = list(map(str.rstrip, f))
+            shellcmds = [shlex.split(e) for e in testnames]
+            cwds = ['./' for e in testnames]
+            tests = list(zip(testnames, cwds, shellcmds))
+            if args.verbose:
+                print('Tests which we are running:')
+                pp.pprint(tests)
+                pp.pprint(shellcmds)
 
-    # list of commands to be run
-    shellcmds = [['make', '-C', e, 'clean', 'all', 'run'] for e in tests]
-    if args.verbose:
-        print('Generated shell commands:')
-        pp.pprint(shellcmds)
-
-    # by default we use the number of available cores to limit the number of
-    # concurrently spawned process
+    # Spawning process pool
+    # Disable signals to prevent race. Child processes inherit SIGINT handler
+    original_sigint_handler = signal.signal(signal.SIGINT, signal.SIG_IGN)
     pool = multiprocessing.Pool(processes=args.max_procs)
-    procresults = pool.map(fork, shellcmds)
-    pp.pprint(procresults)
+    # Restore SIGINT handler
+    signal.signal(signal.SIGINT, original_sigint_handler)
+    try:
+        procresults = pool.starmap(fork, tests)
+    except KeyboardInterrupt:
+        print("\nTerminating bwruntest.py")
+        pool.terminate()
+        pool.join()
+        exit(1)
+
+    if args.verbose:
+        pp.pprint(procresults)
+    pool.close()
+    pool.join()
 
     # Generate junit.xml file. Junit.xml differentiates between failure and
     # errors but we treat everything as errors.
     if args.report_junit:
         testcases = []
         for p in procresults:
-            testcase = TestCase(' '.join(p.args), stdout=p.stdout,
-                                stderr=p.stderr)
+            testcase = TestCase(p.name,
+                                classname=p.name,
+                                stdout=p.stdout,
+                                stderr=p.stderr,
+                                elapsed_sec=p.time)
             if p.returncode != 0:
-                testcase.add_error_info(p.stderr)
+                testcase.add_failure_info(p.stderr)
             testcases.append(testcase)
 
-        testsuite = TestSuite("bwruntests", testcases)
+        testsuite = TestSuite('bwruntests', testcases)
         if args.output:
             with open(args.output, 'w') as f:
                 TestSuite.to_file(f, [testsuite],
-                                  prettyprint=args.disable_junit_pp)
+                                  prettyprint=not(args.disable_junit_pp))
         else:
             print(TestSuite.to_xml_string([testsuite],
-                                          prettyprint=args.disable_junit_pp))
+                                          prettyprint=(args.disable_junit_pp)))
+
+    # print summary of test results
+    if not(args.disable_results_pp):
+        testcount = sum(1 for x in testnames)
+        testfailcount = sum(1 for p in procresults if p.returncode != 0)
+        testpassedcount = testcount - testfailcount
+        resulttable = PrettyTable(['test', 'config', 'time', 'passed/total'])
+        resulttable.align['test'] = "l"
+        resulttable.align['config'] = "l"
+        resulttable.add_row(['bwruntest', '', '', '{0:d}/{1:d}'.
+                             format(testpassedcount, testcount)])
+        for p in procresults:
+            testpassed = 1 if p.returncode == 0 else 0
+            testname = p.name
+            resulttable.add_row([testname, '',
+                                 '{0:.2f}s'.format(p.time),
+                                 '{0:d}/{1:d}'.format(testpassed, 1)])
+        print(resulttable)
