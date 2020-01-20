@@ -67,7 +67,18 @@ commands.f
 make -C ./ml_tests/mlGrad clean all run
 make -C ./ml_tests/mlDct clean all run
 [...]
-""")
+
+Example:
+bwruntests.py --proc-verbose -v \\
+    --report-junit -t 3600 --yaml \\
+    -o simplified-runtime.xml runtime-tests.yaml
+
+This Runs a set of tests defined in runtime-tests.yaml and dumps the
+resulting junit.xml into simplified-runtime.xml. The --proc-verbose
+scripts makes sure to print the stdout of each process to the shell. To
+prevent a broken process from running forever, a maximum timeout of 3600
+seconds was set. For debugging purposes we enabled -v (--verbose) which
+shows the full set of commands being run.""")
 
 runtest.version = '0.2'
 
