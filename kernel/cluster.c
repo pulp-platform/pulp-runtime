@@ -36,11 +36,14 @@ static void pos_wait_forever()
 
 
 
-void cluster_entry_stub()
+static void cluster_core_init()
 {
     eu_evt_maskSet((1<<PULP_DISPATCH_EVENT) | (1<<PULP_MUTEX_EVENT) | (1<<PULP_HW_BAR_EVENT));
+}
 
-    eu_bar_setup(eu_bar_addr(0), (1<<ARCHI_CLUSTER_NB_PE) - 1);
+void cluster_entry_stub()
+{
+    cluster_core_init();
 
     int retval = ((int (*)())cluster_entry)();
 
@@ -68,6 +71,13 @@ void cluster_start(int cid, int (*entry)())
     // Activate icache
     hal_icache_cluster_enable(cid);
 
+    eu_bar_setup(eu_bar_addr(0), (1<<ARCHI_CLUSTER_NB_PE) - 1);
+
+    if (!hal_is_fc())
+    {
+        cluster_core_init();
+    }
+
     cluster_running = 1;
 
     // Fetch all cores
@@ -89,6 +99,10 @@ int cluster_wait(int cid)
 
 void synch_barrier()
 {
+#ifdef ARCHI_FC_CID
     if (hal_cluster_id() != ARCHI_FC_CID)
+#endif
+    {
         eu_bar_trig_wait_clr(eu_bar_addr(0));
+    }
 }

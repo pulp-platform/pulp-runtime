@@ -335,8 +335,18 @@ int pos_libc_prf_locked(int (*func)(), void *dest, char *format, va_list vargs)
 static void __attribute__((noreturn)) pos_wait_forever()
 {
 #if defined(ITC_VERSION)
-    hal_itc_enable_clr(0xffffffff);
-    while(1) hal_itc_wait_for_interrupt();
+    if (hal_is_fc())
+    {
+        hal_itc_enable_clr(0xffffffff);
+        while(1) hal_itc_wait_for_interrupt();
+    }
+    else
+    {
+#if defined(EU_VERSION) && EU_VERSION >=3
+        eu_evt_maskClr(0xffffffff);
+        eu_evt_wait();
+#endif
+    }   
 #elif defined(EU_VERSION) && EU_VERSION >=3
     eu_evt_maskClr(0xffffffff);
     eu_evt_wait();

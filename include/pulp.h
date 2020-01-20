@@ -36,6 +36,8 @@ typedef enum {
 
 void cluster_start(int cid, int (*entry)());
 
+void cluster_entry_stub();
+
 int cluster_wait(int cid);
 
 void _start();

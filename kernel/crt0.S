@@ -33,8 +33,12 @@ pos_init_entry:
     csrr    a0, 0xF14
     andi    a1, a0, 0x1f
     srli    a0, a0, 5
+#ifdef ARCHI_FC_CID
     li      a2, ARCHI_FC_CID
     bne     a0, a2, pe_start
+#else
+    bnez    a1, pe_start
+#endif
 #endif
 
 

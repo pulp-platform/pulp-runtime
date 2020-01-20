@@ -48,6 +48,8 @@ static void pos_init_do_dtors(void)
 }
 
 
+extern int main(int argc, const char * const argv[]);
+
 
 void pos_init_start()
 {
@@ -77,6 +79,11 @@ void pos_init_start()
 
   // Now now the minimal init are done, we can activate interruptions
   hal_irq_enable();
+
+  if (!hal_is_fc())
+  {
+      cluster_start(hal_cluster_id(), main);
+  }
 }
 
 
