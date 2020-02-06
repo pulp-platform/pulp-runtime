@@ -89,7 +89,7 @@ pos_init_entry:
 
 
 #ifdef ARCHI_CORE_HAS_1_10
-    j pos_illegal_instr
+    j __rt_handle_illegal_instr
 #else
     j pos_no_irq_handler
 #endif
@@ -134,7 +134,7 @@ _start:
 
 
 pos_illegal_instr:
-    j pos_irq_illegal_instr
+    j __rt_handle_illegal_instr
 
 pos_no_irq_handler:
     mret

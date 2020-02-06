@@ -43,7 +43,7 @@ static unsigned int pos_irq_get_itvec(unsigned int ItBaseAddr, unsigned int ItIn
 
 
 
-void pos_irq_set_handler(int irq, void (*handler)())
+void rt_irq_set_handler(int irq, void (*handler)())
 {
 #if defined(__RISCV_GENERIC__)
   if (irq < 16)
@@ -52,7 +52,7 @@ void pos_irq_set_handler(int irq, void (*handler)())
   irq -= 16;
 #endif
 
-  unsigned int base = pos_irq_get_fc_vector_base();
+  unsigned int base = rt_irq_get_fc_vector_base();
 
   unsigned int jmpAddr = base + 0x4 * irq;
 
@@ -70,7 +70,7 @@ void pos_irq_set_handler(int irq, void (*handler)())
 
 
 
-void pos_irq_illegal_instr()
+void __rt_handle_illegal_instr()
 {
   //unsigned int mepc = hal_mepc_read();
   //rt_warning("Reached illegal instruction (PC: 0x%x, opcode: 0x%x\n", mepc, *(int *)mepc);
@@ -83,9 +83,10 @@ void pos_irq_init()
 {
     // We may enter the runtime with some interrupts active for example
     // if we force the boot to jump to the runtime through jtag.
-    pos_irq_mask_clr(-1);
+    rt_irq_mask_clr(-1);
 
     // As the FC code may not be at the beginning of the L2, set the
     // vector base to get proper interrupt handlers
-    pos_irq_set_fc_vector_base(pos_irq_vector_base());
+
+    rt_irq_set_fc_vector_base(pos_irq_vector_base());
 }

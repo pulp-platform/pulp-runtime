@@ -23,11 +23,11 @@
 
 void pos_irq_init();
 
-void pos_irq_set_handler(int irq, void (*handler)());
+void rt_irq_set_handler(int irq, void (*handler)());
 
 
 
-static inline void pos_irq_mask_set(unsigned int mask)
+static inline void rt_irq_mask_set(unsigned int mask)
 {
 #if defined(__RISCV_GENERIC__)
     // Generic riscv case, e.g. Ibex
@@ -58,7 +58,7 @@ static inline void pos_irq_mask_set(unsigned int mask)
 
 
 
-static inline void pos_irq_mask_clr(unsigned int mask)
+static inline void rt_irq_mask_clr(unsigned int mask)
 {
 #if defined(__RISCV_GENERIC__)
     hal_spr_read_then_clr_from_reg(0x304, mask);
@@ -82,7 +82,7 @@ static inline void pos_irq_mask_clr(unsigned int mask)
 
 
 
-static inline void pos_irq_clr(unsigned int mask)
+static inline void rt_irq_clr(unsigned int mask)
 {
 #if defined(__RISCV_GENERIC__)
     // TODO 
@@ -101,7 +101,7 @@ static inline void pos_irq_clr(unsigned int mask)
 #endif
 }
 
-static inline unsigned int pos_irq_get_fc_vector_base()
+static inline unsigned int rt_irq_get_fc_vector_base()
 {
     if (hal_is_fc())
     {
@@ -129,7 +129,7 @@ static inline unsigned int pos_irq_get_fc_vector_base()
 
 
 
-static inline void pos_irq_set_fc_vector_base(unsigned int base)
+static inline void rt_irq_set_fc_vector_base(unsigned int base)
 {
     if (hal_is_fc())
     {
@@ -154,7 +154,7 @@ static inline void pos_irq_set_fc_vector_base(unsigned int base)
 }
 
 
-static inline void pos_irq_wait_for_interrupt()
+static inline void rt_irq_wait_for_interrupt()
 {
 #if !defined(ARCHI_HAS_FC) || defined(ARCHI_HAS_FC_EU)
     eu_evt_wait();
