@@ -33,12 +33,22 @@ pos_init_entry:
     csrr    a0, 0xF14
     andi    a1, a0, 0x1f
     srli    a0, a0, 5
+#ifdef ARCHI_CL_BOOT
+
+    li      a2, ARCHI_FC_CID
+    beq     a0, a2, do_cl_boot
+    bnez    a1, pe_start
+
+#else
+
 #ifdef ARCHI_FC_CID
     li      a2, ARCHI_FC_CID
     bne     a0, a2, pe_start
 #else
     bnez    a1, pe_start
 #endif
+#endif
+
 #endif
 
 
@@ -156,3 +166,16 @@ pe_start:
     add  x2, x2, x1
     j    cluster_entry_stub
 #endif
+
+do_cl_boot:
+    li  x2, 0x10200000
+    li  x3, 0x1
+    la  x4, _start
+    sw  x4, 0x40(x2)
+    sw  x3, 8(x2)
+
+loop:
+    li x2, 0x1a109800
+    sw x0, 0(x2)
+    wfi
+    j loop
