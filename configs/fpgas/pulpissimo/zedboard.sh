@@ -16,7 +16,7 @@ source $scriptDir/../../common.sh
 
 export PULPRUN_PLATFORM=fpga
 
-#Genesys2 uses 10MHz SoC Frequency
+#Zedboard uses 10MHz SoC Frequency
 export PULPRT_CONFIG_CFLAGS='-DARCHI_FPGA_FREQUENCY=10000000'
 
 export io=uart
