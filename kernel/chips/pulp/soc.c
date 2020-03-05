@@ -31,7 +31,11 @@ void pos_soc_init()
 
 #else
 
-  pos_freq_domains[PI_FREQ_DOMAIN_CL] = ARCHI_FPGA_FREQUENCY;
+  pos_freq_domains[PI_FREQ_DOMAIN_FC] = ARCHI_FPGA_FC_FREQUENCY;
+
+  pos_freq_domains[PI_FREQ_DOMAIN_PERIPH] = ARCHI_FPGA_FREQUENCY;
+
+  pos_freq_domains[PI_FREQ_DOMAIN_CL] = ARCHI_FPGA_CL_FREQUENCY;
 
 #endif
 }
