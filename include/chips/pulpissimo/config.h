@@ -25,10 +25,4 @@
 #define PULP_CHIP_STR pulpissimo
 #define PULP_CHIP_FAMILY_STR pulpissimo
 
-#if __PLATFORM__ == ARCHI_PLATFORM_FPGA
-#define PERIPH_FREQUENCY 5000000
-#else
-#define PERIPH_FREQUENCY 50000000
-#endif
-
 #endif

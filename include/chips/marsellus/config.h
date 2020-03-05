@@ -25,6 +25,4 @@
 #define PULP_CHIP_STR marsellus
 #define PULP_CHIP_FAMILY_STR marsellus
 
-#define PERIPH_FREQUENCY 50000000
-
 #endif
