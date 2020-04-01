@@ -43,7 +43,7 @@ static void uart_wait_rx_done(int periph)
 
 static void uart_setup(int channel, int baudrate)
 {
-  int div =  (PERIPH_FREQUENCY + baudrate/2) / baudrate;
+  int div =  (pos_freq_domains[PI_FREQ_DOMAIN_PERIPH] + baudrate/2) / baudrate;
 
   plp_uart_setup(channel - ARCHI_UDMA_UART_ID(0), 0, div-1);
 }

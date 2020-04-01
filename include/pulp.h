@@ -31,14 +31,30 @@
 typedef enum {
   PI_FREQ_DOMAIN_FC     = 0,
   PI_FREQ_DOMAIN_CL     = 1,
-  PI_FREQ_DOMAIN_PERIPH = 2
+  PI_FREQ_DOMAIN_PERIPH = 2,
+  PI_FREQ_NB_DOMAINS    = 3
 } pi_freq_domain_e;
+
+#ifdef ARCHI_HAS_CLUSTER
 
 void cluster_start(int cid, int (*entry)());
 
 void cluster_entry_stub();
 
 int cluster_wait(int cid);
+
+#else
+
+static inline void cluster_start(int cid, int (*entry)())
+{
+}
+
+static inline int cluster_wait(int cid)
+{
+  return 0;
+}
+
+#endif
 
 void _start();
 

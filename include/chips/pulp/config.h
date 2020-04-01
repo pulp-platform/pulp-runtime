@@ -25,6 +25,4 @@
 #define PULP_CHIP_STR pulp
 #define PULP_CHIP_FAMILY_STR pulp
 
-#define PERIPH_FREQUENCY 50000000
-
 #endif

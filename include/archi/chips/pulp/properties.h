@@ -22,7 +22,17 @@
  * FPGA
  */
 
+#ifndef ARCHI_FPGA_FREQUENCY
 #define ARCHI_FPGA_FREQUENCY 5000000
+#endif
+
+#ifndef ARCHI_FPGA_FC_FREQUENCY
+#define ARCHI_FPGA_FC_FREQUENCY 5000000
+#endif
+
+#ifndef ARCHI_FPGA_CL_FREQUENCY
+#define ARCHI_FPGA_CL_FREQUENCY 5000000
+#endif
 
 /*
  * MEMORIES
@@ -99,6 +109,7 @@
 #define ARCHI_FC_CID        31
 #define ARCHI_HAS_FC_ITC     1
 #define ARCHI_HAS_FC         1
+#define ARCHI_CORE_HAS_1_10  1
 #endif
 
 

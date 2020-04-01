@@ -18,7 +18,7 @@
 #include <pulp.h>
 
 
-int pos_freq_domains[ARCHI_NB_FLL];
+int pos_freq_domains[PI_FREQ_NB_DOMAINS];
 
 
 
