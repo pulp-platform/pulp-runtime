@@ -1,4 +1,3 @@
-  
 #!/bin/bash -e
 
 export PULPRT_TARGET=pulp
@@ -17,7 +16,7 @@ source $scriptDir/../../common.sh
 
 export PULPRUN_PLATFORM=fpga
 
-#Virtex7 uses 50MHz SoC Frequency
+#Virtex7 uses 10MHz SoC Frequency
 export PULPRT_CONFIG_CFLAGS='-DARCHI_FPGA_FREQUENCY=10000000'
 
 export io=uart
