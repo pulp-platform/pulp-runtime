@@ -78,6 +78,14 @@ int uart_read(int uart_id, void *buffer, uint32_t size);
 void synch_barrier();
 
 
+void *pi_l1_malloc(int cid, int size);
+void pi_l1_free(int cid, void *chunk, int size);
+
+void *pi_l2_malloc(int size);
+void pi_l2_free(void *_chunk, int size);
+
+
+
 
 #endif
 
