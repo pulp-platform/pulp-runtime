@@ -20,7 +20,7 @@
 
 volatile void *cluster_entry;
 
-L1_DATA char cluster_stacks[ARCHI_CLUSTER_NB_PE*CLUSTER_STACK_SIZE];
+L1_DATA char *cluster_stacks;
 
 
 static volatile int cluster_running;
@@ -77,6 +77,12 @@ void cluster_start(int cid, int (*entry)())
     {
         cluster_core_init();
     }
+
+    alloc_init_l1(cid);
+
+    cluster_stacks = pi_l1_malloc(cid, ARCHI_CLUSTER_NB_PE*CLUSTER_STACK_SIZE);
+    if (cluster_stacks == NULL)
+        return;
 
     cluster_running = 1;
 
