@@ -9,7 +9,7 @@ endif
 
 platform ?= rtl
 
-export ETH_QUESTA_PREFIX ?= ""
+export ETH_QUESTA_PREFIX ?=
 
 ifdef PULP_RUNTIME_GCC_TOOLCHAIN
 PULP_CC := $(PULP_RUNTIME_GCC_TOOLCHAIN)/bin/$(PULP_CC)
