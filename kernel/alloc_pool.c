@@ -90,6 +90,17 @@ void alloc_init_l1(int cid)
 {
   pos_alloc_init(&pos_alloc_l1[cid], pos_l1_base(cid), pos_l1_size(cid));
 }
+
+void *pi_l1_malloc(int cid, int size)
+{
+    return pos_alloc(&pos_alloc_l1[cid], size);
+}
+
+void pi_l1_free(int cid, void *chunk, int size)
+{
+    return pos_free(&pos_alloc_l1[cid], chunk, size);
+}
+
 #endif
 
 
