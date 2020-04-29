@@ -234,14 +234,14 @@ SECTIONS
     *(.libgomp)
     *(.libgomp.*)
     . = ALIGN(4);
-  } > L1
+  } > L2
 
   .bss_l1 : {
     . = ALIGN(4);
     *(.bss_l1)
     *(.bss_l1.*)
     . = ALIGN(4);
-  } > L1
+  } > L2
 
   __l1_end = ALIGN(4);
 
