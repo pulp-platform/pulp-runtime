@@ -125,35 +125,35 @@
 
 #define ARCHI_UDMA_HAS_SPIM   1
 #define ARCHI_UDMA_HAS_UART   1
-#define ARCHI_UDMA_HAS_SDIO   1
+#define ARCHI_UDMA_HAS_SDIO   0
 #define ARCHI_UDMA_HAS_I2C    1
 #define ARCHI_UDMA_HAS_I2S    1
 #define ARCHI_UDMA_HAS_CAM    1
 #define ARCHI_UDMA_HAS_TRACER 1
 #define ARCHI_UDMA_HAS_FILTER 1
 
-#define ARCHI_UDMA_NB_SPIM   3
+#define ARCHI_UDMA_NB_SPIM   4
 #define ARCHI_UDMA_NB_UART   2
 #define ARCHI_UDMA_NB_I2C    3
-#define ARCHI_UDMA_NB_SDIO   1
-#define ARCHI_UDMA_NB_I2S    2
+#define ARCHI_UDMA_NB_SDIO   0
+#define ARCHI_UDMA_NB_I2S    1
 #define ARCHI_UDMA_NB_CAM    1
 #define ARCHI_UDMA_NB_TRACER 1
 #define ARCHI_UDMA_NB_FILTER 1
 
-#define ARCHI_UDMA_GEN_PER_ID(id)         (0 + (id))
+//#define ARCHI_UDMA_GEN_PER_ID(id)         (0 + (id))
+//#define ARCHI_UDMA_SDIO_ID(id)            (4 + (id))
 #define ARCHI_UDMA_UART_ID(id)            (0 + (id))
 #define ARCHI_UDMA_SPIM_ID(id)            (2 + (id))
-#define ARCHI_UDMA_I2C_ID(id)             (6 + (id))
+#define ARCHI_UDMA_I2C_ID(id)             (10 + (id))
+#define ARCHI_UDMA_I2S_ID(id)             13
+#define ARCHI_UDMA_CAM_ID(id)             15
+#define ARCHI_UDMA_FILTER_ID(id)          (17  + (id))
 
-#define ARCHI_UDMA_SDIO_ID(id)            (4 + (id))
-#define ARCHI_UDMA_I2S_ID(id)             5
-#define ARCHI_UDMA_CAM_ID(id)             6
-#define ARCHI_UDMA_FILTER_ID(id)          (7  + (id))
 #define ARCHI_UDMA_TRACER_ID(id)          8
 #define ARCHI_UDMA_TGEN_ID(id)            9
 
-#define ARCHI_NB_PERIPH                   10
+#define ARCHI_NB_PERIPH                   17
 
 
 

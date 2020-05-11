@@ -18,7 +18,7 @@
 * @Author: Alfio Di Mauro
 * @Date:   2020-03-23 09:33:29
 * @Last Modified by:   Alfio Di Mauro
-* @Last Modified time: 2020-03-23 09:38:45
+* @Last Modified time: 2020-05-11 13:28:30
 */
 
 #include "pulp.h"
@@ -29,7 +29,7 @@ static void spim_wait_tx_done(int periph)
 {
 	
   #ifdef DEBUG
-	int periph_id = periph - ARCHI_SPIM_UART_ID(0);
+	int periph_id = periph - ARCHI_SPIM_QSPI_ID(0);
     printf("periph_id = %d\n", periph_id);
   #endif
 
@@ -46,4 +46,18 @@ static void spim_wait_rx_done(int periph)
   while (plp_udma_busy(UDMA_UART_RX_ADDR(periph - ARCHI_UDMA_UART_ID(0))))
   {
   }
+}
+
+int qspi_write_nb(int qspi_id, void *buffer, uint32_t size)
+{
+  int periph_id = ARCHI_UDMA_QSPI_ID(qspi_id);
+  int channel = UDMA_CHANNEL_ID(periph_id) + 1;
+
+  unsigned int base = hal_udma_channel_base(channel);
+
+  plp_udma_enqueue(base, (int)buffer, size, UDMA_CHANNEL_CFG_EN | UDMA_CHANNEL_CFG_SIZE_8);
+
+  //uart_wait_tx_done(periph_id);
+
+  return 0;
 }
