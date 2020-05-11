@@ -98,9 +98,9 @@ void pos_freq_wait_convergence(int fll)
         if ( mult_factor_diff <= tolerance)
             break;
 
-        pos_irq_mask_set(1<<ARCHI_FC_EVT_CLK_REF);
-        pos_irq_wait_for_interrupt();
-        pos_irq_mask_clr(1<<ARCHI_FC_EVT_CLK_REF);
+        rt_irq_mask_set(1<<ARCHI_FC_EVT_CLK_REF);
+        rt_irq_wait_for_interrupt();
+        rt_irq_mask_clr(1<<ARCHI_FC_EVT_CLK_REF);
     } while (1);
 
     hal_irq_restore(irq);

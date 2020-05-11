@@ -41,4 +41,9 @@ PULP_SRCS     += kernel/chips/marsellus/soc.c
 
 
 include $(PULPRT_HOME)/rules/pulpos/configs/default.mk
+
+ifeq '$(platform)' 'fpga'
+CONFIG_IO_UART=1
+endif
+
 include $(PULPRT_HOME)/rules/pulpos/default_rules.mk

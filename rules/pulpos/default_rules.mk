@@ -38,6 +38,7 @@ VPATH = $(PULPRT_HOME)
 
 include $(PULPRT_HOME)/rules/pulpos/src.mk
 
+PULP_CFLAGS += $(PULPRT_CONFIG_CFLAGS)
 PULP_CFLAGS += -fno-jump-tables -fno-tree-loop-distribute-patterns
 
 ifeq '$(CONFIG_LIBC_MINIMAL)' '1'
@@ -73,6 +74,10 @@ endif
 
 ifdef CONFIG_NO_FC
 PULP_CFLAGS += -DARCHI_NO_FC=1
+endif
+
+ifdef CONFIG_CL_BOOT
+PULP_CFLAGS += -DARCHI_CL_BOOT=1
 endif
 
 ifdef CONFIG_IO_UART

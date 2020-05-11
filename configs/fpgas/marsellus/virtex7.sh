@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
-export PULPRT_TARGET=pulpissimo
-export PULPRUN_TARGET=pulpissimo
+export PULPRT_TARGET=marsellus
+export PULPRUN_TARGET=marsellus
 
 if [  -n "${ZSH_VERSION:-}" ]; then 
     DIR="$(readlink -f -- "${(%):-%x}")"
@@ -16,7 +16,8 @@ source $scriptDir/../../common.sh
 
 export PULPRUN_PLATFORM=fpga
 
-#Genesys2 uses 10MHz SoC Frequency
+#Virtex7 uses 10MHz SoC Frequency
 export PULPRT_CONFIG_CFLAGS='-DARCHI_FPGA_FREQUENCY=10000000'
 
 export io=uart
+
