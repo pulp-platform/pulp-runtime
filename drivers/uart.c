@@ -16,7 +16,7 @@
 
 #include "pulp.h"
 
-
+//#define DEBUG
 
 #define UART_BAUDRATE 115200
 
@@ -39,8 +39,6 @@ static void uart_wait_rx_done(int periph)
   }
 }
 
-
-
 static void uart_setup(int channel, int baudrate)
 {
   int div =  (PERIPH_FREQUENCY + baudrate/2) / baudrate;
@@ -48,13 +46,15 @@ static void uart_setup(int channel, int baudrate)
   plp_uart_setup(channel - ARCHI_UDMA_UART_ID(0), 0, div-1);
 }
 
-
-
-
 int uart_open(int uart_id, int baudrate)
 {
+
   int periph_id = ARCHI_UDMA_UART_ID(uart_id);
-  int channel = UDMA_EVENT_ID(periph_id);
+  int channel   = UDMA_EVENT_ID(periph_id);
+
+  #ifdef DEBUG
+    printf("periph_id = %d, event = %d\n", periph_id,channel);
+  #endif
 
   plp_udma_cg_set(plp_udma_cg_get() | (1<<periph_id));
 
@@ -65,9 +65,6 @@ int uart_open(int uart_id, int baudrate)
 
   return 0;
 }
-
-
-
 
 void uart_close(int uart_id)
 {
@@ -82,13 +79,10 @@ void uart_close(int uart_id)
 }
 
 
-
-
-
 int uart_write(int uart_id, void *buffer, uint32_t size)
 {
   int periph_id = ARCHI_UDMA_UART_ID(uart_id);
-  int channel = UDMA_EVENT_ID(periph_id) + 1;
+  int channel = UDMA_CHANNEL_ID(periph_id) + 1;
 
   unsigned int base = hal_udma_channel_base(channel);
 
@@ -100,11 +94,10 @@ int uart_write(int uart_id, void *buffer, uint32_t size)
 }
 
 
-
 int uart_read(int uart_id, void *buffer, uint32_t size)
 {
   int periph_id = ARCHI_UDMA_UART_ID(uart_id);
-  int channel = UDMA_EVENT_ID(periph_id);
+  int channel = UDMA_CHANNEL_ID(periph_id);
 
   unsigned int base = hal_udma_channel_base(channel);
 

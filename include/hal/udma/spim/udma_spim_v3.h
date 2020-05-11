@@ -25,4 +25,14 @@
 #define UDMA_SPIM_TX_ADDR(id)         (ARCHI_UDMA_ADDR + UDMA_SPIM_OFFSET(id) + 0x10)
 #define UDMA_SPIM_CUSTOM_ADDR(id)     (ARCHI_UDMA_ADDR + UDMA_SPIM_OFFSET(id) + UDMA_CHANNEL_CUSTOM_OFFSET)
 
+static inline unsigned int plp_spim_reg_read(int channel, unsigned int addr)
+{ //adr is an offset, expected SPIM_STATUS_OFFSET or SPIM_SETUP_OFFSET
+  return pulp_read32(ARCHI_UDMA_ADDR + UDMA_SPIM_OFFSET(channel) + UDMA_CHANNEL_CUSTOM_OFFSET + addr);
+}
+
+static inline void plp_spim_reg_write(int channel, unsigned int addr, unsigned int cfg)
+{ //adr is an offset, expected SPIM_STATUS_OFFSET or SPIM_SETUP_OFFSET
+  pulp_write32(ARCHI_UDMA_ADDR + UDMA_SPIM_OFFSET(channel) + UDMA_CHANNEL_CUSTOM_OFFSET + addr, cfg);
+}
+
 #endif
