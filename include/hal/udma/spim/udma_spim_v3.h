@@ -57,15 +57,15 @@ static inline void plp_spim_reg_write(int channel, unsigned int addr, unsigned i
 //}
 
 static inline void plp_qspi_disable(int channel) {
-  pulp_write32(ARCHI_UDMA_ADDR + UDMA_QSPI_OFFSET(channel) + UDMA_CHANNEL_CUSTOM_OFFSET + UART_SETUP_OFFSET, 0x00500006);
+  pulp_write32(ARCHI_UDMA_ADDR + UDMA_SPIM_OFFSET(channel) + UDMA_CHANNEL_CUSTOM_OFFSET + UART_SETUP_OFFSET, 0x00500006);
 }
 
 static inline int plp_qspi_tx_busy(int channel) {
-  return pulp_read32(ARCHI_UDMA_ADDR + UDMA_QSPI_OFFSET(channel) + UDMA_CHANNEL_CUSTOM_OFFSET + UART_STATUS_OFFSET) & 1;
+  return pulp_read32(ARCHI_UDMA_ADDR + UDMA_SPIM_OFFSET(channel) + UDMA_CHANNEL_CUSTOM_OFFSET + UART_STATUS_OFFSET) & 1;
 }
 
 static inline int plp_qspi_rx_busy(int channel) {
-  return (pulp_read32(ARCHI_UDMA_ADDR + UDMA_QSPI_OFFSET(channel) + UDMA_CHANNEL_CUSTOM_OFFSET + UART_STATUS_OFFSET) >> 1) & 1;
+  return (pulp_read32(ARCHI_UDMA_ADDR + UDMA_SPIM_OFFSET(channel) + UDMA_CHANNEL_CUSTOM_OFFSET + UART_STATUS_OFFSET) >> 1) & 1;
 }
 
 #endif
