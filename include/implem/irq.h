@@ -118,7 +118,9 @@ static inline unsigned int rt_irq_get_fc_vector_base()
     else
     {
 #if defined(ARCHI_HAS_CLUSTER)
-#if defined(ARCHI_CORE_HAS_1_10)
+#if defined(__RISCV_GENERIC__)
+        return hal_spr_read(0x305) & ~1;
+#elif defined(ARCHI_CORE_HAS_1_10)
         return __builtin_pulp_spr_read(SR_MTVEC) & ~1;
 #elif defined(ARCHI_CLUSTER_CTRL_ADDR)
         return plp_ctrl_bootaddr_get();
@@ -148,7 +150,9 @@ static inline void rt_irq_set_fc_vector_base(unsigned int base)
     else
     {
 #if defined(ARCHI_HAS_CLUSTER)
-#if defined(ARCHI_CORE_HAS_1_10)
+#if defined(__RISCV_GENERIC__)
+        hal_spr_write(0x305, base);
+#elif defined(ARCHI_CORE_HAS_1_10)
         __builtin_pulp_spr_write(SR_MTVEC, base | 1);
 #elif defined(ARCHI_CLUSTER_CTRL_ADDR)
         plp_ctrl_bootaddr_set(base);
