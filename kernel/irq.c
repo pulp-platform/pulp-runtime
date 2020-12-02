@@ -73,7 +73,7 @@ void rt_irq_set_handler(int irq, void (*handler)())
 void __rt_handle_illegal_instr()
 {
   //unsigned int mepc = hal_mepc_read();
-  //rt_warning("Reached illegal instruction (PC: 0x%x, opcode: 0x%x\n", mepc, *(int *)mepc);
+  //rt_warning("Reached illegal instruction (PC: 0x%x, opcode: 0x%x\r\n", mepc, *(int *)mepc);
 }
 
 

@@ -99,7 +99,7 @@ class stim(object):
 
     with open(filename, 'w') as file:
       for key in sorted(self.mem.keys()):
-        file.write('%X_%0*X\n' % (int(key), width*2, self.mem.get(key)))
+        file.write('%X_%0*X\r\n' % (int(key), width*2, self.mem.get(key)))
 
   def __parse_binaries(self, width):
 
@@ -498,7 +498,7 @@ class Efuse(object):
           for efuseId in range (0, 128):
               value = efuses[efuseId]
               self.dump('  Writing register (index: %d, value: 0x%x)' % (efuseId, value))
-              file.write('{0:032b}\n'.format(value))
+              file.write('{0:032b}\r\n'.format(value))
   
     elif pulp_chip == 'gap8_revc':
 

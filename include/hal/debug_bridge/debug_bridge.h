@@ -148,7 +148,7 @@ static inline void hal_debug_send_printf(hal_debug_struct_t *debug_struct) {
 static inline void hal_debug_putchar(hal_debug_struct_t *debug_struct, char c) {
   hal_debug_flush_printf(debug_struct);
   *(volatile uint8_t *)&(debug_struct->putc_buffer[debug_struct->putc_current++]) = c;
-  if (*(volatile uint32_t *)&debug_struct->putc_current == HAL_PRINTF_BUF_SIZE || c == '\n') {
+  if (*(volatile uint32_t *)&debug_struct->putc_current == HAL_PRINTF_BUF_SIZE || c == '\r\n') {
     hal_debug_send_printf(debug_struct);
   }
 }
@@ -157,7 +157,7 @@ static inline int hal_debug_putchar_nopoll(hal_debug_struct_t *debug_struct, cha
   if (*(volatile uint32_t *)&debug_struct->pending_putchar)
     return -1;
   *(volatile uint8_t *)&(debug_struct->putc_buffer[debug_struct->putc_current++]) = c;
-  if (*(volatile uint32_t *)&debug_struct->putc_current == HAL_PRINTF_BUF_SIZE || c == '\n') {
+  if (*(volatile uint32_t *)&debug_struct->putc_current == HAL_PRINTF_BUF_SIZE || c == '\r\n') {
     hal_debug_send_printf(debug_struct);
   }
   return 0;

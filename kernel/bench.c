@@ -67,9 +67,9 @@ void print_result(testcase_t *test, testresult_t *result)
   printf("nr. of errors: %d", result->errors);
 
   if(result->time == 0)
-    printf("\n");
+    printf("\r\n");
   else
-    printf(", execution time: %d\n", result->time);
+    printf(", execution time: %d\r\n", result->time);
 
 #ifdef PROFILE
   perf_print_all();
@@ -95,9 +95,9 @@ void print_summary(unsigned int errors)
     printf("==== SUMMARY: ");
 
     if (errors == 0) {
-      printf("SUCCESS\n");
+      printf("SUCCESS\r\n");
     } else {
-      printf("FAIL\n");
+      printf("FAIL\r\n");
     }
   }
 }
@@ -140,56 +140,56 @@ void check_uint32(testresult_t* result, const char* fail_msg, uint32_t actual, u
 {
   if(actual != expected) {
     result->errors += 1;
-    if(enable_printf) printf("%s: Actual %X, expected %X\n", fail_msg, (unsigned int) actual, (unsigned int)expected);
+    if(enable_printf) printf("%s: Actual %X, expected %X\r\n", fail_msg, (unsigned int) actual, (unsigned int)expected);
   }
 }
 
 void perf_print_all(void) {
 #ifdef __riscv__
-  printf("Perf CYCLES: %d\n",      cpu_perf_get(0));
-  printf("Perf INSTR: %d\n",       cpu_perf_get(1));
-  printf("Perf CINSTR: %d\n",      cpu_perf_get(10));
-  printf("Perf LD_STALL: %d\n",    cpu_perf_get(2));
-  printf("Perf JR_STALL: %d\n",    cpu_perf_get(3));
-  printf("Perf IMISS: %d\n",       cpu_perf_get(4));
-  printf("Perf LD: %d\n",          cpu_perf_get(5));
-  printf("Perf ST: %d\n",          cpu_perf_get(6));
-  printf("Perf JUMP: %d\n",        cpu_perf_get(7));
-  printf("Perf BRANCH: %d\n",      cpu_perf_get(8));
-  printf("Perf BTAKEN: %d\n",      cpu_perf_get(9));
-  printf("Perf LD EXT: %d\n",      cpu_perf_get(11));
-  printf("Perf ST EXT: %d\n",      cpu_perf_get(12));
-  printf("Perf LD EXT CYC: %d\n",  cpu_perf_get(13));
-  printf("Perf ST EXT CYC: %d\n",  cpu_perf_get(14));
-  printf("Perf TCDM CONT: %d\n",   cpu_perf_get(15));
-  printf("Perf CSR HAZARD: %d\n",  cpu_perf_get(16));
+  printf("Perf CYCLES: %d\r\n",      cpu_perf_get(0));
+  printf("Perf INSTR: %d\r\n",       cpu_perf_get(1));
+  printf("Perf CINSTR: %d\r\n",      cpu_perf_get(10));
+  printf("Perf LD_STALL: %d\r\n",    cpu_perf_get(2));
+  printf("Perf JR_STALL: %d\r\n",    cpu_perf_get(3));
+  printf("Perf IMISS: %d\r\n",       cpu_perf_get(4));
+  printf("Perf LD: %d\r\n",          cpu_perf_get(5));
+  printf("Perf ST: %d\r\n",          cpu_perf_get(6));
+  printf("Perf JUMP: %d\r\n",        cpu_perf_get(7));
+  printf("Perf BRANCH: %d\r\n",      cpu_perf_get(8));
+  printf("Perf BTAKEN: %d\r\n",      cpu_perf_get(9));
+  printf("Perf LD EXT: %d\r\n",      cpu_perf_get(11));
+  printf("Perf ST EXT: %d\r\n",      cpu_perf_get(12));
+  printf("Perf LD EXT CYC: %d\r\n",  cpu_perf_get(13));
+  printf("Perf ST EXT CYC: %d\r\n",  cpu_perf_get(14));
+  printf("Perf TCDM CONT: %d\r\n",   cpu_perf_get(15));
+  printf("Perf CSR HAZARD: %d\r\n",  cpu_perf_get(16));
 #ifdef HARD_FLOAT
   if (!rt_is_fc()) {
-    printf("Perf APU_TY_CONF: %d\n", cpu_perf_get(17));
-    printf("Perf APU_CONT: %d\n",    cpu_perf_get(18));
-    printf("Perf APU_DEP: %d\n",     cpu_perf_get(19));
-    printf("Perf APU_WB: %d\n",      cpu_perf_get(20));
+    printf("Perf APU_TY_CONF: %d\r\n", cpu_perf_get(17));
+    printf("Perf APU_CONT: %d\r\n",    cpu_perf_get(18));
+    printf("Perf APU_DEP: %d\r\n",     cpu_perf_get(19));
+    printf("Perf APU_WB: %d\r\n",      cpu_perf_get(20));
   }
 #endif
 #else
 #ifdef CSR_PCER_ALL_EVENTS_MASK
-  printf("Perf CYCLES: %d\n",      cpu_perf_get(SPR_PCER_CYCLES));
-  printf("Perf INSTR: %d\n",       cpu_perf_get(SPR_PCER_INSTR));
-  printf("Perf LD_STALL: %d\n",    cpu_perf_get(SPR_PCER_LD_STALL));
-  printf("Perf JMP_STALL: %d\n",   cpu_perf_get(SPR_PCER_JMP_STALL));
-  printf("Perf IMISS: %d\n",       cpu_perf_get(SPR_PCER_IMISS));
-  printf("Perf WBRANCH: %d\n",     cpu_perf_get(SPR_PCER_WBRANCH));
-  printf("Perf WBRANCH_CYC: %d\n", cpu_perf_get(SPR_PCER_WBRANCH_CYC));
-  printf("Perf LD: %d\n",          cpu_perf_get(SPR_PCER_LD));
-  printf("Perf ST: %d\n",          cpu_perf_get(SPR_PCER_ST));
-  printf("Perf JUMP: %d\n",        cpu_perf_get(SPR_PCER_JUMP));
-  printf("Perf BRANCH: %d\n",      cpu_perf_get(SPR_PCER_BRANCH));
-  printf("Perf DELAY NOP: %d\n",   cpu_perf_get(SPR_PCER_DELAY_NOP));
-  printf("Perf LD EXT: %d\n",      cpu_perf_get(SPR_PCER_LD_EXT));
-  printf("Perf ST EXT: %d\n",      cpu_perf_get(SPR_PCER_ST_EXT));
-  printf("Perf LD EXT CYC: %d\n",  cpu_perf_get(SPR_PCER_LD_EXT_CYC));
-  printf("Perf ST EXT CYC: %d\n",  cpu_perf_get(SPR_PCER_ST_EXT_CYC));
-  printf("Perf TCDM CONT: %d\n",   cpu_perf_get(SPR_PCER_TCDM_CONT));
+  printf("Perf CYCLES: %d\r\n",      cpu_perf_get(SPR_PCER_CYCLES));
+  printf("Perf INSTR: %d\r\n",       cpu_perf_get(SPR_PCER_INSTR));
+  printf("Perf LD_STALL: %d\r\n",    cpu_perf_get(SPR_PCER_LD_STALL));
+  printf("Perf JMP_STALL: %d\r\n",   cpu_perf_get(SPR_PCER_JMP_STALL));
+  printf("Perf IMISS: %d\r\n",       cpu_perf_get(SPR_PCER_IMISS));
+  printf("Perf WBRANCH: %d\r\n",     cpu_perf_get(SPR_PCER_WBRANCH));
+  printf("Perf WBRANCH_CYC: %d\r\n", cpu_perf_get(SPR_PCER_WBRANCH_CYC));
+  printf("Perf LD: %d\r\n",          cpu_perf_get(SPR_PCER_LD));
+  printf("Perf ST: %d\r\n",          cpu_perf_get(SPR_PCER_ST));
+  printf("Perf JUMP: %d\r\n",        cpu_perf_get(SPR_PCER_JUMP));
+  printf("Perf BRANCH: %d\r\n",      cpu_perf_get(SPR_PCER_BRANCH));
+  printf("Perf DELAY NOP: %d\r\n",   cpu_perf_get(SPR_PCER_DELAY_NOP));
+  printf("Perf LD EXT: %d\r\n",      cpu_perf_get(SPR_PCER_LD_EXT));
+  printf("Perf ST EXT: %d\r\n",      cpu_perf_get(SPR_PCER_ST_EXT));
+  printf("Perf LD EXT CYC: %d\r\n",  cpu_perf_get(SPR_PCER_LD_EXT_CYC));
+  printf("Perf ST EXT CYC: %d\r\n",  cpu_perf_get(SPR_PCER_ST_EXT_CYC));
+  printf("Perf TCDM CONT: %d\r\n",   cpu_perf_get(SPR_PCER_TCDM_CONT));
 #endif
 #endif
 
@@ -197,8 +197,8 @@ void perf_print_all(void) {
   // // icache
   // int i;
   // for(i = 0; i < 4; i++) {
-  //   printf("I$ bank %d: Read hits %d\n", i, read_hit_icache_reg(i));
-  //   printf("I$ bank %d: Trans %d\n",     i, read_trans_icache_reg(i));
+  //   printf("I$ bank %d: Read hits %d\r\n", i, read_hit_icache_reg(i));
+  //   printf("I$ bank %d: Trans %d\r\n",     i, read_trans_icache_reg(i));
   // }
 }
 
@@ -217,7 +217,7 @@ void illegal_insn_handler_c(void)
   exception_address = hal_spr_read(SPR_EPCR_BASE);
 #endif
   insn = *((unsigned int*)(exception_address));
-  printf("Illegal instruction encountered at address 0x%08X: %X\n", exception_address, insn);
+  printf("Illegal instruction encountered at address 0x%08X: %X\r\n", exception_address, insn);
   exit(1);
 #endif
 }

@@ -76,18 +76,18 @@ void pos_alloc_dump(pos_alloc_t *a)
 {
     pos_alloc_chunk_t *pt = a->first_free;
 
-    printf("======== Memory allocator state: ============\n");
+    printf("======== Memory allocator state: ============\r\n");
     for (pt = a->first_free; pt; pt = pt->next)
     {
         printf("Free Block at %8X, size: %8x, Next: %8X ", (unsigned int) pt, pt->size, (unsigned int) pt->next);
         if (pt == pt->next)
         {
-            printf(" CORRUPTED\n"); break;
+            printf(" CORRUPTED\r\n"); break;
         }
         else
-            printf("\n");
+            printf("\r\n");
     }
-    printf("=============================================\n");
+    printf("=============================================\r\n");
 }
 
 
@@ -192,7 +192,7 @@ void pos_alloc_init(pos_alloc_t *a, void *_chunk, int size)
 
 void *pos_alloc(pos_alloc_t *a, int size)
 {
-    ALLOC_TRACE(POS_LOG_TRACE, "Allocating memory chunk (alloc: %p, size: 0x%8x)\n", a, size);
+    ALLOC_TRACE(POS_LOG_TRACE, "Allocating memory chunk (alloc: %p, size: 0x%8x)\r\n", a, size);
 
     pos_alloc_chunk_t *pt = a->first_free, *prev = 0;
 
@@ -213,7 +213,7 @@ void *pos_alloc(pos_alloc_t *a, int size)
                 prev->next = pt->next;
             else
                 a->first_free = pt->next;
-            ALLOC_TRACE(POS_LOG_TRACE, "Allocated memory chunk (alloc: %p, base: %p)\n", a, pt);
+            ALLOC_TRACE(POS_LOG_TRACE, "Allocated memory chunk (alloc: %p, base: %p)\r\n", a, pt);
             // As this block was the full free block, the beginning of the block was already taken
             // for the header and was accounted as allocated, so don't account it twice.
             pos_alloc_account_alloc(a, (void *)(((uint32_t)pt) + sizeof(pos_alloc_chunk_t)), size - sizeof(pos_alloc_chunk_t));
@@ -234,7 +234,7 @@ void *pos_alloc(pos_alloc_t *a, int size)
             else
                 a->first_free = new_pt;
 
-            ALLOC_TRACE(POS_LOG_TRACE, "Allocated memory chunk (alloc: %p, base: %p)\n", a, result);
+            ALLOC_TRACE(POS_LOG_TRACE, "Allocated memory chunk (alloc: %p, base: %p)\r\n", a, result);
             // Don't account the metadata which were in the newly allocated block as they were
             // already accounted when the block was freed
             pos_alloc_account_alloc(a, (void *)((uint32_t)result+ sizeof(pos_alloc_chunk_t)), size - sizeof(pos_alloc_chunk_t));
@@ -246,9 +246,9 @@ void *pos_alloc(pos_alloc_t *a, int size)
     }
     else
     {
-        ALLOC_TRACE(POS_LOG_TRACE, "Not enough memory to allocate\n");
+        ALLOC_TRACE(POS_LOG_TRACE, "Not enough memory to allocate\r\n");
 
-        //rt_warning("Not enough memory to allocate\n");
+        //rt_warning("Not enough memory to allocate\r\n");
         return NULL;
     }
 }
@@ -292,7 +292,7 @@ void *pos_alloc_align(pos_alloc_t *a, int size, int align)
 
 void __attribute__((noinline)) pos_free(pos_alloc_t *a, void *_chunk, int size)
 {
-    ALLOC_TRACE(POS_LOG_TRACE, "Freeing memory chunk (alloc: %p, base: %p, size: 0x%8x)\n", a, _chunk, size);
+    ALLOC_TRACE(POS_LOG_TRACE, "Freeing memory chunk (alloc: %p, base: %p, size: 0x%8x)\r\n", a, _chunk, size);
 
     pos_alloc_chunk_t *chunk = (pos_alloc_chunk_t *)_chunk;
     pos_alloc_chunk_t *next = a->first_free, *prev = 0, *new;

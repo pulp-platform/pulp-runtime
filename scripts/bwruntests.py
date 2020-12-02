@@ -187,7 +187,7 @@ def fork(name, cwd, *popenargs, check=False, shell=True,
 
             return FinishedProcess(name, cwd, process.args, 1,
                                    stdout.decode('utf-8'),
-                                   timeoutmsg + '\n'
+                                   timeoutmsg + '\r\n'
                                    + stderr.decode('utf-8'),
                                    time.time() - start)
         # Including KeyboardInterrupt, communicate handled that.
@@ -274,7 +274,7 @@ the pyyaml library which is not installed.""",
     try:
         procresults = pool.starmap(fork, tests)
     except KeyboardInterrupt:
-        print("\nTerminating bwruntest.py")
+        print("\r\nTerminating bwruntest.py")
         pool.terminate()
         pool.join()
         exit(1)
