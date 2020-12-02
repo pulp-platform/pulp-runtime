@@ -260,7 +260,7 @@ int puts(const char *s)
         c = *s;
         if (c == 0)
         {
-            pos_putc('\r\n');
+            pos_putc('\n');
             break;
         }
         pos_putc(c);
