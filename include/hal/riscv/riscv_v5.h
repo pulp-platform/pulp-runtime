@@ -25,7 +25,13 @@
 
 #define CSR_PCMR_ACTIVE 0x1
 
+#ifdef __ibex__
+// For PULP, ibex added non-standard irqs to allow for 32 fast interrupts. 
+// These use custom CSRs: MIE: 0x7D0, MTVEC: 0x7D1, MIP: 0x7D2
+#define SR_MTVEC  0x7D1
+#else
 #define SR_MTVEC  0x305
+#endif
 
 
 
