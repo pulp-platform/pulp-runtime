@@ -223,8 +223,14 @@ $(TARGET_BUILD_DIR)/tcl_files:
 $(TARGET_BUILD_DIR)/waves:
 	ln -s $(VSIM_PATH)/waves $@
 
+$(TARGET_BUILD_DIR)/stdout:
+	mkdir -p $@
 
-run: $(TARGET_BUILD_DIR)/modelsim.ini  $(TARGET_BUILD_DIR)/boot $(TARGET_BUILD_DIR)/tcl_files $(TARGET_BUILD_DIR)/waves
+$(TARGET_BUILD_DIR)/fs:
+	mkdir -p $@
+
+run: $(TARGET_BUILD_DIR)/modelsim.ini  $(TARGET_BUILD_DIR)/boot $(TARGET_BUILD_DIR)/tcl_files \
+	$(TARGET_BUILD_DIR)/stdout $(TARGET_BUILD_DIR)/fs
 	$(PULPRT_HOME)/bin/stim_utils.py --binary=$(TARGETS) --vectors=$(TARGET_BUILD_DIR)/vectors/stim.txt
 
 ifdef gui
