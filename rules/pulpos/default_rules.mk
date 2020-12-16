@@ -198,10 +198,12 @@ conf:
 
 all: $(TARGETS)
 
+.PHONY:clean
 clean:
 	@echo "RM  $(TARGET_BUILD_DIR)"
 	$(V)rm -rf $(TARGET_BUILD_DIR)
 
+.PHONY: run
 ifeq '$(platform)' 'gvsoc'
 run:
 	pulp-run --platform=$(platform) --config=$(PULPRUN_TARGET) --dir=$(TARGET_BUILD_DIR) --binary=$(TARGETS) $(runner_args) prepare run
