@@ -198,10 +198,12 @@ conf:
 
 all: $(TARGETS)
 
+.PHONY:clean
 clean:
 	@echo "RM  $(TARGET_BUILD_DIR)"
 	$(V)rm -rf $(TARGET_BUILD_DIR)
 
+.PHONY: run
 ifeq '$(platform)' 'gvsoc'
 run:
 	pulp-run --platform=$(platform) --config=$(PULPRUN_TARGET) --dir=$(TARGET_BUILD_DIR) --binary=$(TARGETS) $(runner_args) prepare run
@@ -210,21 +212,46 @@ endif
 ifeq '$(platform)' 'rtl'
 
 $(TARGET_BUILD_DIR)/modelsim.ini:
+ifndef VSIM_PATH
+	$(error "VSIM_PATH is undefined. Either call \
+	'source $$YOUR_HW_DIR/setup/vsim.sh' or set it manually.")
+endif
 	ln -s $(VSIM_PATH)/modelsim.ini $@
 
 $(TARGET_BUILD_DIR)/boot:
+ifndef VSIM_PATH
+	$(error "VSIM_PATH is undefined. Either call \
+	'source $$YOUR_HW_DIR/setup/vsim.sh' or set it manually.")
+endif
 	ln -s $(VSIM_PATH)/boot $@
 
 $(TARGET_BUILD_DIR)/tcl_files:
+ifndef VSIM_PATH
+	$(error "VSIM_PATH is undefined. Either call \
+	'source $$YOUR_HW_DIR/setup/vsim.sh' or set it manually.")
+endif
 	ln -s $(VSIM_PATH)/tcl_files $@
 
 $(TARGET_BUILD_DIR)/waves:
+ifndef VSIM_PATH
+	$(error "VSIM_PATH is undefined. Either call \
+	'source $$YOUR_HW_DIR/setup/vsim.sh' or set it manually.")
+endif
 	ln -s $(VSIM_PATH)/waves $@
 
+$(TARGET_BUILD_DIR)/stdout:
+	mkdir -p $@
 
-run: $(TARGET_BUILD_DIR)/modelsim.ini  $(TARGET_BUILD_DIR)/boot $(TARGET_BUILD_DIR)/tcl_files $(TARGET_BUILD_DIR)/waves
+$(TARGET_BUILD_DIR)/fs:
+	mkdir -p $@
+
+run: $(TARGET_BUILD_DIR)/modelsim.ini  $(TARGET_BUILD_DIR)/boot $(TARGET_BUILD_DIR)/tcl_files \
+	$(TARGET_BUILD_DIR)/stdout $(TARGET_BUILD_DIR)/fs
 	$(PULPRT_HOME)/bin/stim_utils.py --binary=$(TARGETS) --vectors=$(TARGET_BUILD_DIR)/vectors/stim.txt
-
+ifndef VSIM_PATH
+	$(error "VSIM_PATH is undefined. Either call \
+	'source $$YOUR_HW_DIR/setup/vsim.sh' or set it manually.")
+endif
 ifdef gui
 	cd $(TARGET_BUILD_DIR) && export VSIM_RUNNER_FLAGS="+ENTRY_POINT=0x1c008080 -gLOAD_L2=JTAG -dpicpppath /usr/bin/g++ -permit_unmatched_virtual_intf -gBAUDRATE=115200" && export VOPT_ACC_ENA="YES" && vsim -64 -do 'source $(VSIM_PATH)/tcl_files/config/run_and_exit.tcl' -do 'source $(VSIM_PATH)/tcl_files/run.tcl; '
 else
