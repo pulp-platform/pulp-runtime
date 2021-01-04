@@ -145,7 +145,25 @@ void check_uint32(testresult_t* result, const char* fail_msg, uint32_t actual, u
 }
 
 void perf_print_all(void) {
-#ifdef __riscv__
+#ifdef __ibex__
+  printf("Perf CYCLES: %d\n",      cpu_perf_get(CSR_PCER_CYCLES));
+  printf("Perf INSTR: %d\n",       cpu_perf_get(CSR_PCER_INSTR));
+  printf("Perf CINSTR: %d\n",      cpu_perf_get(CSR_PCER_RVC));
+  printf("Perf LD_STALL: %d\n",    cpu_perf_get(CSR_PCER_LD_STALL));
+  printf("Perf JR_STALL: [Not Implemented]\n");
+  printf("Perf IMISS: %d\n",       cpu_perf_get(CSR_PCER_IMISS));
+  printf("Perf LD: %d\n",          cpu_perf_get(CSR_PCER_LD));
+  printf("Perf ST: %d\n",          cpu_perf_get(CSR_PCER_ST));
+  printf("Perf JUMP: %d\n",        cpu_perf_get(CSR_PCER_JUMP));
+  printf("Perf BRANCH: %d\n",      cpu_perf_get(CSR_PCER_BRANCH));
+  printf("Perf BTAKEN: %d\n",      cpu_perf_get(CSR_PCER_TAKEN_BRANCH));
+  printf("Perf LD EXT: %d\n",      cpu_perf_get(CSR_PCER_LD_EXT));
+  printf("Perf ST EXT: %d\n",      cpu_perf_get(CSR_PCER_ST_EXT));
+  printf("Perf LD EXT CYC: %d\n",  cpu_perf_get(CSR_PCER_LD_EXT_CYC));
+  printf("Perf ST EXT CYC: %d\n",  cpu_perf_get(CSR_PCER_ST_EXT_CYC));
+  printf("Perf TCDM CONT: %d\n",   cpu_perf_get(CSR_PCER_TCDM_CONT));
+  printf("Perf CSR HAZARD: [Not Implemented]\n");
+#elif defined( __riscv__ )
   printf("Perf CYCLES: %d\n",      cpu_perf_get(0));
   printf("Perf INSTR: %d\n",       cpu_perf_get(1));
   printf("Perf CINSTR: %d\n",      cpu_perf_get(10));
@@ -211,7 +229,7 @@ void illegal_insn_handler_c(void)
 {
 #ifndef __ariane__
   unsigned int exception_address, insn;
-#ifdef __riscv__
+#if defined( __riscv__ ) || defined( __ibex__)
   asm("csrr %0, 0x341" : "=r" (exception_address) : );
 #else
   exception_address = hal_spr_read(SPR_EPCR_BASE);

@@ -143,6 +143,8 @@ static inline void perf_start(void) {
 #ifdef __riscv__
   cpu_perf_conf_events(CSR_PCER_ALL_EVENTS_MASK);
   cpu_perf_conf(CSR_PCMR_ACTIVE | CSR_PCMR_SATURATE);
+#elif defined(__ibex__)
+  cpu_perf_start();
 #else
   cpu_perf_conf_events(SPR_PCER_ALL_EVENTS_MASK);
   cpu_perf_conf(SPR_PCMR_ACTIVE | SPR_PCMR_SATURATE);
@@ -159,7 +161,7 @@ static inline void perf_start(void) {
  */
 static inline void perf_stop(void) {
 #ifdef CSR_PCER_ALL_EVENTS_MASK
-  cpu_perf_conf(0);
+  cpu_perf_stop();
 #endif
   // TODO this is failing on most targets, please include that also for specific ones
 #if 0
@@ -172,7 +174,9 @@ static inline void perf_stop(void) {
  */
 static inline void perf_reset(void) {
 #ifdef CSR_PCER_ALL_EVENTS_MASK
+  cpu_perf_stop();
   cpu_perf_setall(0);
+  cpu_perf_start();
 #endif
   // TODO this is failing on most targets, please include that also for specific ones
 #if 0
@@ -188,6 +192,8 @@ static inline void perf_enable_id( int eventid){
 #ifdef __riscv__
   cpu_perf_conf_events(CSR_PCER_EVENT_MASK(eventid));
   cpu_perf_conf(CSR_PCMR_ACTIVE | CSR_PCMR_SATURATE);
+#elif defined(__ibex__)
+  cpu_perf_conf_events(CSR_PCER_EVENT_MASK(eventid));
 #else
   cpu_perf_conf_events(SPR_PCER_EVENT_MASK(eventid));
   cpu_perf_conf(SPR_PCMR_ACTIVE | SPR_PCMR_SATURATE);

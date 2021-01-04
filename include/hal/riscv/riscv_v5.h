@@ -152,7 +152,8 @@ static inline unsigned int core_id() {
   return hart_id & 0x01f;
 }
 
-static inline unsigned int cluster_id() {  int hart_id;
+static inline unsigned int cluster_id() {
+  int hart_id;
 #if RISCV_VERSION >= 4 && !defined(RISCV_1_7)
 #if PULP_CHIP_FAMILY == CHIP_GAP
   asm("csrr %0, 0x014" : "=r" (hart_id) : );
@@ -294,8 +295,8 @@ static inline void hal_irq_enable()
  * PERFORMANCE COUNTERS
  * 
  * API for accessing performance counters registers.
- * Have a look at file spr-defs.h to speficy registers through defines
- * SPR_PCER_* and SPR_PCMR_*
+ * Have a look at file pcer_v2.h to speficy registers through defines
+ * CSR_PCER_* and CSR_PCMR_*
  */
 
 #define PCER_NB_EVENTS CSR_PCER_NB_EVENTS
@@ -405,26 +406,7 @@ static inline unsigned int cpu_perf_get(const unsigned int counterId) {
 }
 
 static inline const char *cpu_perf_name(int event) {
-  switch (event) 
-    {
-    case 0: return "CYCLES";
-    case 1: return "INSTR";
-    case 2: return "LD_STALL";
-    case 3: return "JMP_STALL";
-    case 4: return "IMISS";
-    case 5: return "LD";
-    case 6: return "ST";
-    case 7: return "JUMP";
-    case 8: return "BRANCH";
-    case 9: return "TAKEN_BRANCH";
-    case 10: return "RVC";
-    case 11: return "LD_EXT";
-    case 12: return "ST_EXT";
-    case 13: return "LD_EXT_CYC";
-    case 14: return "ST_EXT_CYC";
-    case 15: return "TCDM_CONT";
-    }
-  return (char *)0;
+  return CSR_PCER_NAME(event);
 }
 
 
