@@ -1,6 +1,6 @@
 ifdef USE_IBEX
 PULP_LDFLAGS      += 
-PULP_CFLAGS       +=  -D__ibex__ -U__riscv__ -UARCHI_CORE_HAS_PULPV2 -DPLP_NO_BUILTIN -UCORE_PULP_BUILTINS -DRV_ISA_RV32
+PULP_CFLAGS       +=  -D__ibex__ -U__riscv__ -UARCHI_CORE_HAS_PULPV2 -DRV_ISA_RV32
 PULP_ARCH_CFLAGS ?=  -march=rv32imc
 PULP_ARCH_LDFLAGS ?=  -march=rv32imc
 PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imc
