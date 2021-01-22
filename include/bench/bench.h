@@ -174,9 +174,9 @@ static inline void perf_stop(void) {
  */
 static inline void perf_reset(void) {
 #ifdef CSR_PCER_ALL_EVENTS_MASK
-  cpu_perf_stop();
+  perf_stop();
   cpu_perf_setall(0);
-  cpu_perf_start();
+  perf_start();
 #endif
   // TODO this is failing on most targets, please include that also for specific ones
 #if 0

@@ -336,9 +336,9 @@ static inline void cpu_perf_start(unsigned int conf) {
 
 /* Stops counting in all counters. As this is using the mode register,
  * the rest of the config can be given through conf parameter */
-static inline void cpu_perf_stop(unsigned int conf) {
+static inline void cpu_perf_stop() {
 #ifndef PLP_NO_PERF_COUNTERS
-  cpu_perf_conf(conf); // TODO
+  cpu_perf_conf(0); // TODO
 #endif
 }
 
