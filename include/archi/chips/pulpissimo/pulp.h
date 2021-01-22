@@ -24,7 +24,11 @@
 //#include "archi/periph_v2.h"
 #include "archi/gpio/gpio_v3.h"
 #include "archi/riscv/priv_1_10.h"
+#ifdef __ibex__
+#include "archi/ibex/mhpm.h"
+#else // __ibex__
 #include "archi/riscv/pcer_v2.h"
+#endif // __ibex__
 
 #include "archi/chips/pulpissimo/memory_map.h"
 #include "archi/chips/pulpissimo/apb_soc.h"
