@@ -108,9 +108,9 @@ static inline unsigned int rt_irq_get_fc_vector_base()
 #if defined(__RISCV_GENERIC__)
         return hal_spr_read(0x305) & ~1;
 #elif defined(ARCHI_CORE_HAS_SECURITY) && !defined(ARCHI_CORE_HAS_1_10)
-        return __builtin_pulp_spr_read(SR_MTVEC);
+        return hal_spr_read(SR_MTVEC);
 #elif defined(ARCHI_CORE_HAS_1_10)
-        return __builtin_pulp_spr_read(SR_MTVEC) & ~1;
+        return hal_spr_read(SR_MTVEC) & ~1;
 #elif defined(APB_SOC_VERSION) && APB_SOC_VERSION >= 2
         return apb_soc_bootaddr_get();
 #endif
@@ -118,8 +118,10 @@ static inline unsigned int rt_irq_get_fc_vector_base()
     else
     {
 #if defined(ARCHI_HAS_CLUSTER)
-#if defined(ARCHI_CORE_HAS_1_10)
-        return __builtin_pulp_spr_read(SR_MTVEC) & ~1;
+#if defined(__RISCV_GENERIC__)
+        return hal_spr_read(0x305) & ~1;
+#elif defined(ARCHI_CORE_HAS_1_10)
+        return hal_spr_read(SR_MTVEC) & ~1;
 #elif defined(ARCHI_CLUSTER_CTRL_ADDR)
         return plp_ctrl_bootaddr_get();
 #endif
@@ -138,9 +140,9 @@ static inline void rt_irq_set_fc_vector_base(unsigned int base)
 #if defined(__RISCV_GENERIC__)
         hal_spr_write(0x305, base);
 #elif defined(ARCHI_CORE_HAS_SECURITY)
-        __builtin_pulp_spr_write(SR_MTVEC, base);
+        hal_spr_write(SR_MTVEC, base);
 #elif defined(ARCHI_CORE_HAS_1_10)
-        __builtin_pulp_spr_write(SR_MTVEC, base | 1);
+        hal_spr_write(SR_MTVEC, base | 1);
 #elif defined(APB_SOC_VERSION) && APB_SOC_VERSION >= 2
         apb_soc_bootaddr_set(base);
 #endif
@@ -148,8 +150,10 @@ static inline void rt_irq_set_fc_vector_base(unsigned int base)
     else
     {
 #if defined(ARCHI_HAS_CLUSTER)
-#if defined(ARCHI_CORE_HAS_1_10)
-        __builtin_pulp_spr_write(SR_MTVEC, base | 1);
+#if defined(__RISCV_GENERIC__)
+        hal_spr_write(0x305, base);
+#elif defined(ARCHI_CORE_HAS_1_10)
+        hal_spr_write(SR_MTVEC, base | 1);
 #elif defined(ARCHI_CLUSTER_CTRL_ADDR)
         plp_ctrl_bootaddr_set(base);
 #endif
