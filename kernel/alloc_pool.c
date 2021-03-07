@@ -84,6 +84,41 @@ void pos_allocs_init()
 }
 
 
+void *pos_alloc_user_data(int size)
+{
+#if defined(ARCHI_HAS_FC_TCDM)
+    return pos_alloc(&pos_alloc_fc_tcdm, size);
+#elif defined(ARCHI_HAS_L2_MULTI)
+    // We try all the available L2 banks.
+    for (int i=0; i<3; i++) {
+    	void *result = pos_alloc(&pos_alloc_l2[i], size);
+    	if (result != NULL) return result;	
+    }
+    // No available memory in any bank.
+    return NULL;
+#else	// i.e. we have a single l2 bank for data.
+    return pos_alloc(&pos_alloc_l2[0], size);
+#endif
+}
+
+
+void pos_free_user_data(void *_chunk, int size)
+{
+#if defined(ARCHI_HAS_FC_TCDM)
+    pos_free(&pos_alloc_fc_tcdm, _chunk, size);
+#elif defined(ARCHI_HAS_L2_MULTI)
+    // We deduce which l2 bank the chunk came from by looking at its address.
+    pos_alloc_t *allocator;
+    unsigned int base = (unsigned int) _chunk;
+    if (base < (unsigned int) pos_l2_priv0_base() + pos_l2_priv0_size()) allocator = &pos_alloc_l2[0];
+    else if (base < (unsigned int) pos_l2_priv1_base() + pos_l2_priv1_size()) allocator = &pos_alloc_l2[1];
+    else allocator = &pos_alloc_l2[0];
+    pos_free(allocator, _chunk, size);
+#else
+    pos_free(&pos_alloc_l2[0]);
+#endif
+}
+
 
 #if defined(ARCHI_HAS_L1)
 void alloc_init_l1(int cid)
