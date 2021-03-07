@@ -112,7 +112,7 @@ void pos_free_user_data(void *_chunk, int size)
     unsigned int base = (unsigned int) _chunk;
     if (base < (unsigned int) pos_l2_priv0_base() + pos_l2_priv0_size()) allocator = &pos_alloc_l2[0];
     else if (base < (unsigned int) pos_l2_priv1_base() + pos_l2_priv1_size()) allocator = &pos_alloc_l2[1];
-    else allocator = &pos_alloc_l2[0];
+    else allocator = &pos_alloc_l2[2];
     pos_free(allocator, _chunk, size);
 #else
     pos_free(&pos_alloc_l2[0]);
