@@ -229,6 +229,10 @@ run: $(TARGET_BUILD_DIR)/modelsim.ini  $(TARGET_BUILD_DIR)/boot $(TARGET_BUILD_D
 
 ifdef gui
 	cd $(TARGET_BUILD_DIR) && export VSIM_RUNNER_FLAGS="+ENTRY_POINT=0x1c008080 -dpicpppath /usr/bin/g++ -permit_unmatched_virtual_intf -gBAUDRATE=115200" && export VOPT_ACC_ENA="YES" && vsim -64 -do 'source $(VSIM_PATH)/tcl_files/config/run_and_exit.tcl' -do 'source $(VSIM_PATH)/tcl_files/run.tcl; '
+else ifdef spiboot
+	cd $(TARGET_BUILD_DIR) && export VSIM_RUNNER_FLAGS="+ENTRY_POINT=0x1c008080 -gSTIM_FROM=SPI_FLASH -gLOAD_L2=STANDALONE -dpicpppath /usr/bin/g++ -permit_unmatched_virtual_intf -gBAUDRATE=115200" && vsim -64 -c -do 'source $(VSIM_PATH)/tcl_files/config/run_and_exit.tcl' -do 'source $(VSIM_PATH)/tcl_files/run.tcl; run_and_exit;'
+else ifdef hyperboot
+	cd $(TARGET_BUILD_DIR) && export VSIM_RUNNER_FLAGS="+ENTRY_POINT=0x1c008080 -gSTIM_FROM=HYPER_FLASH -gLOAD_L2=STANDALONE -dpicpppath /usr/bin/g++ -permit_unmatched_virtual_intf -gBAUDRATE=115200" && vsim -64 -c -do 'source $(VSIM_PATH)/tcl_files/config/run_and_exit.tcl' -do 'source $(VSIM_PATH)/tcl_files/run.tcl; run_and_exit;'
 else
 	cd $(TARGET_BUILD_DIR) && export VSIM_RUNNER_FLAGS="+ENTRY_POINT=0x1c008080 -dpicpppath /usr/bin/g++ -permit_unmatched_virtual_intf -gBAUDRATE=115200" && vsim -64 -c -do 'source $(VSIM_PATH)/tcl_files/config/run_and_exit.tcl' -do 'source $(VSIM_PATH)/tcl_files/run.tcl; run_and_exit;'
 endif
