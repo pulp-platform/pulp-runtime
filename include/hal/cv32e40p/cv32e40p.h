@@ -296,7 +296,23 @@ static inline void cpu_perf_conf(unsigned int confMask)
  * the rest of the config can be given through conf parameter */
 static inline void cpu_perf_start() {
 #ifndef PLP_NO_PERF_COUNTERS
+  // enable all counters
   asm volatile("csrc 0x320, %0" : : "r"(0xffffffff));
+  // arbitrary association of one event to one counter,
+  // just the implemented ones will increase
+  asm volatile("csrw 0x323, %0" : : "r"(1<<CSR_PCER_LD_STALL));
+  asm volatile("csrw 0x324, %0" : : "r"(1<<CSR_PCER_JMP_STALL));
+  asm volatile("csrw 0x325, %0" : : "r"(1<<CSR_PCER_IMISS));
+  asm volatile("csrw 0x326, %0" : : "r"(1<<CSR_PCER_LD));
+  asm volatile("csrw 0x327, %0" : : "r"(1<<CSR_PCER_ST));
+  asm volatile("csrw 0x328, %0" : : "r"(1<<CSR_PCER_JUMP));
+  asm volatile("csrw 0x329, %0" : : "r"(1<<CSR_PCER_BRANCH));
+  asm volatile("csrw 0x32A, %0" : : "r"(1<<CSR_PCER_TAKEN_BRANCH));
+  asm volatile("csrw 0x32B, %0" : : "r"(1<<CSR_PCER_COMP_INSTR));
+  asm volatile("csrw 0x32C, %0" : : "r"(1<<CSR_PCER_PIPE_STALL));
+  asm volatile("csrw 0x32D, %0" : : "r"(1<<CSR_PCER_APU_TYPE));
+  asm volatile("csrw 0x32E, %0" : : "r"(1<<CSR_PCER_APU_CONT));
+  asm volatile("csrw 0x32F, %0" : : "r"(1<<CSR_PCER_APU_WB));
 #endif
 }
 
