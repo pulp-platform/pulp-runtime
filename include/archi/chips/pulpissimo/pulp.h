@@ -26,7 +26,7 @@
 #include "archi/riscv/priv_1_10.h"
 #ifdef __ibex__
 #include "archi/ibex/mhpm.h"
-#else #ifdef __cv32e40p__
+#elif defined(__cv32e40p__)
 #include "archi/cv32e40p/cv32e40p.h"
 #else
 #include "archi/riscv/pcer_v2.h"

@@ -247,7 +247,7 @@ void illegal_insn_handler_c(void)
 {
 #ifndef __ariane__
   unsigned int exception_address, insn;
-#if defined( __riscv__ ) || defined( __ibex__)
+#if defined( __riscv__ ) || defined( __ibex__) || defined(__cv32e40p__)
   asm("csrr %0, 0x341" : "=r" (exception_address) : );
 #else
   exception_address = hal_spr_read(SPR_EPCR_BASE);
