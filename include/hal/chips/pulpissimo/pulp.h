@@ -19,7 +19,9 @@
 
 #ifdef __ibex__
 #include "hal/ibex/ibex.h"
-#else // __ibex__
+#else #ifdef __cv32e40p__
+#include "hal/cv32e40p/cv32e40p.h"
+#else
 #include "hal/riscv/riscv_v5.h"
 #endif // __ibex__
 #include "hal/itc/itc_v1.h"

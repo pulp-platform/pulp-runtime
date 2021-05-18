@@ -4,12 +4,18 @@ PULP_CFLAGS += -D__ibex__ -U__riscv__ -UARCHI_CORE_HAS_PULPV2 -DRV_ISA_RV32
 PULP_ARCH_CFLAGS ?= -march=rv32imc
 PULP_ARCH_LDFLAGS ?= -march=rv32imc
 PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imc
+else ifdef USE_CV32E40P
+PULP_LDFLAGS += -mhwloopalign
+PULP_CFLAGS += -D__cv32e40p__ -U__riscv__ -UARCHI_CORE_HAS_PULPV2 
+PULP_ARCH_CFLAGS ?=  -march=rv32imcxgap9 -mhwloopalign
+PULP_ARCH_LDFLAGS ?=  -march=rv32imcxgap9 -mhwloopalign
+PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imcxgap9 -mhwloopalign
 else
 PULP_LDFLAGS      += 
 PULP_CFLAGS       +=  -D__riscv__
-PULP_ARCH_CFLAGS ?=  -march=rv32imcxgap9
+PULP_ARCH_CFLAGS ?=  -march=rv32imcxgap9 
 PULP_ARCH_LDFLAGS ?=  -march=rv32imcxgap9
-PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imcxgap9
+PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imcxgap9 
 endif
 
 PULP_CFLAGS    += -fdata-sections -ffunction-sections -include chips/pulpissimo/config.h -I$(PULPRT_HOME)/include/chips/pulpissimo
