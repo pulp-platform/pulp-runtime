@@ -163,6 +163,24 @@ void perf_print_all(void) {
   printf("Perf ST EXT CYC: %d\n",  cpu_perf_get(CSR_PCER_ST_EXT_CYC));
   printf("Perf TCDM CONT: %d\n",   cpu_perf_get(CSR_PCER_TCDM_CONT));
   printf("Perf CSR HAZARD: [Not Implemented]\n");
+#elif defined(__cv32e40p__)
+  // not implemented registers will return 0s. Only 1,2,3 are implemented.
+  printf("MCYCLE     :%d\n",    cpu_perf_get(0));
+  printf("Perf reg 1 : not implemented\n")     ;
+  printf("MINSTR     :%d\n",    cpu_perf_get(2));
+  printf("Perf reg 3 :%d\n",    cpu_perf_get(3));
+  printf("Perf reg 4 :%d\n",    cpu_perf_get(4));
+  printf("Perf reg 5 :%d\n",    cpu_perf_get(5));
+  printf("Perf reg 6 :%d\n",    cpu_perf_get(6));
+  printf("Perf reg 7 :%d\n",    cpu_perf_get(7));
+  printf("Perf reg 8 :%d\n",    cpu_perf_get(8));
+  printf("Perf reg 9 :%d\n",    cpu_perf_get(9));
+  printf("Perf reg 10:%d\n",    cpu_perf_get(10));
+  printf("Perf reg 11:%d\n",    cpu_perf_get(11));
+  printf("Perf reg 12:%d\n",    cpu_perf_get(12));
+  printf("Perf reg 13:%d\n",    cpu_perf_get(13));
+  printf("Perf reg 14:%d\n",    cpu_perf_get(14));
+  printf("Perf reg 15:%d\n",    cpu_perf_get(15));
 #elif defined( __riscv__ )
   printf("Perf CYCLES: %d\n",      cpu_perf_get(0));
   printf("Perf INSTR: %d\n",       cpu_perf_get(1));
@@ -229,7 +247,7 @@ void illegal_insn_handler_c(void)
 {
 #ifndef __ariane__
   unsigned int exception_address, insn;
-#if defined( __riscv__ ) || defined( __ibex__)
+#if defined( __riscv__ ) || defined( __ibex__) || defined(__cv32e40p__)
   asm("csrr %0, 0x341" : "=r" (exception_address) : );
 #else
   exception_address = hal_spr_read(SPR_EPCR_BASE);

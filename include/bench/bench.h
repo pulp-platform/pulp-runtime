@@ -145,6 +145,8 @@ static inline void perf_start(void) {
   cpu_perf_conf(CSR_PCMR_ACTIVE | CSR_PCMR_SATURATE);
 #elif defined(__ibex__)
   cpu_perf_start();
+#elif defined(__cv32e40p__)
+  cpu_perf_start();
 #else
   cpu_perf_conf_events(SPR_PCER_ALL_EVENTS_MASK);
   cpu_perf_conf(SPR_PCMR_ACTIVE | SPR_PCMR_SATURATE);
@@ -194,6 +196,8 @@ static inline void perf_enable_id( int eventid){
   cpu_perf_conf(CSR_PCMR_ACTIVE | CSR_PCMR_SATURATE);
 #elif defined(__ibex__)
   cpu_perf_conf_events(CSR_PCER_EVENT_MASK(eventid));
+#elif defined(__cv32e40p__)
+  cpu_perf_conf_events(1<<eventid);
 #else
   cpu_perf_conf_events(SPR_PCER_EVENT_MASK(eventid));
   cpu_perf_conf(SPR_PCMR_ACTIVE | SPR_PCMR_SATURATE);
