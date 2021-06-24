@@ -137,6 +137,15 @@ ifdef RUNNER_CONFIG
 override runner_args += --config-user=$(RUNNER_CONFIG)
 endif
 
+ifeq '$(load_mode)' 'fast_debug'
+LOAD_MODE := FAST_DEBUG_PRELOAD
+else ifeq '$(load_mode)' 'standalone'
+LOAD_MODE := STANDALONE
+else ifeq '$(load_mode)' 'jtag'
+LOAD_MODE := JTAG
+else
+LOAD_MODE := JTAG
+endif
 
 #
 # VSIM Flags

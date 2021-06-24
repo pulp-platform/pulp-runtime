@@ -17,6 +17,6 @@ source $scriptDir/../../common.sh
 export PULPRUN_PLATFORM=fpga
 
 #Nexys Video uses 5MHz SoC Frequency
-export PULPRT_CONFIG_CFLAGS='-DARCHI_FPGA_FREQUENCY=5000000'
+export PULPRT_CONFIG_CFLAGS='-DARCHI_FPGA_PER_FREQUENCY=5000000 -DARCHI_FPGA_SOC_FREQUENCY=10000000'
 
 export io=uart
