@@ -179,6 +179,8 @@ static inline void perf_reset(void) {
   perf_stop();
   cpu_perf_setall(0);
   perf_start();
+#elif defined(__cv32e40p__)
+  cpu_perf_setall(0xffffffff);
 #endif
   // TODO this is failing on most targets, please include that also for specific ones
 #if 0
@@ -221,13 +223,13 @@ static inline void plp_power_init() {
 
 static inline void plp_power_start() {
 #if PULP_CHIP == CHIP_PULP4
-	set_gpio_pin_value(PIN_CAM_I2S_SDI1+1, 1);
+  set_gpio_pin_value(PIN_CAM_I2S_SDI1+1, 1);
 #endif
 }
 
 static inline void plp_power_stop() {
 #if PULP_CHIP == CHIP_PULP4
-	set_gpio_pin_value(PIN_CAM_I2S_SDI1+1, 0);
+  set_gpio_pin_value(PIN_CAM_I2S_SDI1+1, 0);
 #endif
 }
 
