@@ -59,7 +59,7 @@ static inline unsigned int hal_spr_read(unsigned int reg)
 #if defined(__LLVM__)
 
 #else
- 
+
 #define hal_spr_read_then_clr(reg,val) \
   ({ \
     int state; \
@@ -255,7 +255,7 @@ static inline void hal_irq_enable()
 
 /*
  * PERFORMANCE COUNTERS
- * 
+ *
  * API for accessing performance counters registers.
  * Have a look at CV32E40P specifications.
  * We implement two not-configurable perf counters: MCYCLE and MISNTR plus a configurable counter
@@ -320,19 +320,19 @@ static inline void cpu_perf_start() {
  * the rest of the config can be given through conf parameter */
 static inline void cpu_perf_stop() {
 #ifndef PLP_NO_PERF_COUNTERS
- asm volatile("csrs 0x320, %0" : : "r"(0xffffffff));
+ asm volatile("csrw 0x320, %0" : : "r"(0xffffffff));
 #endif
 }
 
 /* Set the specified counter to the specified value */
 static inline void cpu_perf_set(unsigned int counterId, unsigned int value) {
-  
+
 }
 
 /* Set all counters to the specified value */
 static inline void cpu_perf_setall(unsigned int value) {
 #ifndef PLP_NO_PERF_COUNTERS
-  
+  asm volatile("csrw 0x320, %0" : : "r"(value));
 #endif
 }
 
