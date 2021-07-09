@@ -1,17 +1,17 @@
 ifdef USE_IBEX
-PULP_LDFLAGS      += 
+PULP_LDFLAGS      +=
 PULP_CFLAGS       +=  -D__ibex__ -U__riscv__ -UARCHI_CORE_HAS_PULPV2 -DRV_ISA_RV32
 PULP_ARCH_CFLAGS ?=  -march=rv32imc
 PULP_ARCH_LDFLAGS ?=  -march=rv32imc
 PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imc
 else ifdef USE_CV32E40P
-PULP_LDFLAGS += 
-PULP_CFLAGS += -D__cv32e40p__ -U__riscv__ -UARCHI_CORE_HAS_PULPV2 
-PULP_ARCH_CFLAGS ?=  -march=rv32imcxgap9 -mnohwloop
-PULP_ARCH_LDFLAGS ?=  -march=rv32imcxgap9 -mnohwloop
-PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imcxgap9 -mnohwloop
+PULP_LDFLAGS +=
+PULP_CFLAGS += -D__cv32e40p__ -D__riscv__
+PULP_ARCH_CFLAGS ?=  -march=rv32imfc_xcorev -mno-pulp-hwloop
+PULP_ARCH_LDFLAGS ?=  -march=rv32imfc_xcorev -mno-pulp-hwloop
+PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imfc_xcorev -mno-pulp-hwloop
 else
-PULP_LDFLAGS      += 
+PULP_LDFLAGS      +=
 PULP_CFLAGS       +=  -D__riscv__
 PULP_ARCH_CFLAGS ?=  -march=rv32imcxgap9
 PULP_ARCH_LDFLAGS ?=  -march=rv32imcxgap9
@@ -22,7 +22,7 @@ PULP_CFLAGS    += -fdata-sections -ffunction-sections -include chips/pulp/config
 PULP_OMP_CFLAGS    += -fopenmp -mnativeomp
 PULP_LDFLAGS += -nostartfiles -nostdlib -Wl,--gc-sections -L$(PULPRT_HOME)/kernel -Tchips/pulp/link.ld -lgcc
 
-PULP_CC = riscv32-unknown-elf-gcc 
+PULP_CC = riscv32-unknown-elf-gcc
 PULP_AR ?= riscv32-unknown-elf-ar
 PULP_LD ?= riscv32-unknown-elf-gcc
 PULP_OBJDUMP ?= riscv32-unknown-elf-objdump
