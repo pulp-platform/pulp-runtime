@@ -398,3 +398,24 @@ int pos_io_stop()
 
   return 0;
 }
+
+
+void *malloc(size_t size)
+{
+    // We will store the size of the chunk at the beginning of the allocated memory.
+    void *ptr = pos_alloc_user_data(size + sizeof(uint32_t));
+    if (ptr == NULL) return NULL;
+    
+    *((uint32_t *)ptr) = size + sizeof(uint32_t);
+    void *user_ptr = (void *)(((uint32_t) ptr) + 1);
+    
+    return user_ptr;
+}
+
+
+void free(void *ptr)
+{
+    void *alloc_ptr = (void *)(((uint32_t *) ptr) - 1);
+    uint32_t size = *((uint32_t *) alloc_ptr);
+    pos_free_user_data(alloc_ptr, size);
+}
