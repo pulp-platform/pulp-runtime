@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 ETH Zurich and University of Bologna
+ * Copyright (C) 2018 ETH Zurich, University of Bologna
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,27 +15,17 @@
  */
 
 
-#ifndef __ARCHI_PULPISSIMO_PULP_H__
-#define __ARCHI_PULPISSIMO_PULP_H__
+#ifndef __ARCHI_CHIPS_CONTROL_PULP_H__
+#define __ARCHI_CHIPS_CONTROL_PULP_H__
 
-#include "archi/chips/pulpissimo/properties.h"
-#include "archi/chips/pulpissimo/apb_soc_ctrl.h"
+#include "archi/chips/control-pulp/properties.h"
+#include "archi/chips/control-pulp/apb_soc_ctrl.h"
 
-//#include "archi/periph_v2.h"
-#include "archi/gpio/gpio_v3.h"
-#include "archi/riscv/priv_1_10.h"
-#ifdef __ibex__
-#include "archi/ibex/mhpm.h"
-#else // __ibex__
-#include "archi/riscv/pcer_v2.h"
-#endif // __ibex__
+#include "archi/itc/itc_v1.h"
 
-#include "archi/chips/pulpissimo/memory_map.h"
-#include "archi/chips/pulpissimo/apb_soc.h"
+#include "archi/chips/control-pulp/memory_map.h"
+#include "archi/chips/control-pulp/apb_soc.h"
 
-#include "archi/udma/cpi/udma_cpi_v1.h"
-#include "archi/udma/i2c/udma_i2c_v2.h"
-#include "archi/udma/i2s/udma_i2s_v2.h"
 #include "archi/udma/spim/udma_spim_v3.h"
 #include "archi/udma/uart/udma_uart_v1.h"
 #include "archi/udma/udma_v3.h"

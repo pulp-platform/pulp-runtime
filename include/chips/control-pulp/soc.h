@@ -14,29 +14,34 @@
  * limitations under the License.
  */
 
-#include "pulp.h"
+#ifndef __CONTROL_PULP_SOC_H__
+#define __CONTROL_PULP_SOC_H__
 
-void pos_soc_init()
+
+/* TODO we should remove the fll code for control-pulp */
+#define POS_FLL_CL 2
+#define POS_FLL_PERIPH 1
+#define POS_FLL_FC 0
+
+extern int pos_freq_domains[PI_FREQ_NB_DOMAINS];
+
+
+void pos_soc_init();
+
+static inline int pos_freq_get_fll(int domain)
 {
-#if __PLATFORM__ != ARCHI_PLATFORM_FPGA
+    switch (domain)
+    {
+        case PI_FREQ_DOMAIN_FC:
+            return POS_FLL_FC;
 
-  pos_fll_constructor();
+        case PI_FREQ_DOMAIN_PERIPH:
+            return POS_FLL_PERIPH;
 
-  pos_freq_domains[PI_FREQ_DOMAIN_FC] = pos_fll_init(POS_FLL_FC);
-
-  pos_freq_domains[PI_FREQ_DOMAIN_PERIPH] = pos_fll_init(POS_FLL_PERIPH);
-
-
-  pos_freq_domains[PI_FREQ_DOMAIN_CL] = pos_fll_init(POS_FLL_CL);
-
-#else
-
-  pos_freq_domains[PI_FREQ_DOMAIN_FC] = ARCHI_FPGA_SOC_FREQUENCY;
-
-  pos_freq_domains[PI_FREQ_DOMAIN_PERIPH] = ARCHI_FPGA_PER_FREQUENCY;
-
-  pos_freq_domains[PI_FREQ_DOMAIN_CL] = ARCHI_FPGA_CL_FREQUENCY;
-
-#endif
+        case PI_FREQ_DOMAIN_CL:
+        default:
+            return POS_FLL_CL;
+    }
 }
 
+#endif

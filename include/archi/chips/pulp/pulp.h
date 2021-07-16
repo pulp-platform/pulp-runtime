@@ -23,7 +23,11 @@
 
 #include "archi/gpio/gpio_v3.h"
 #include "archi/riscv/priv_1_10.h"
+#ifdef __ibex__
+#include "archi/ibex/mhpm.h"
+#else // __ibex__
 #include "archi/riscv/pcer_v2.h"
+#endif // __ibex__
 #include "archi/itc/itc_v1.h"
 
 #include "archi/chips/pulp/memory_map.h"

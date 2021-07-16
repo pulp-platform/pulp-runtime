@@ -1,30 +1,29 @@
 ifdef USE_IBEX
-PULP_LDFLAGS      += 
-PULP_CFLAGS       +=  -D__ibex__ -U__riscv__ -UARCHI_CORE_HAS_PULPV2 -DRV_ISA_RV32
-PULP_ARCH_CFLAGS ?=  -march=rv32imc
-PULP_ARCH_LDFLAGS ?=  -march=rv32imc
-PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imc
-else
-PULP_LDFLAGS      += 
-PULP_CFLAGS       +=  -D__riscv__
-PULP_ARCH_CFLAGS ?=  -march=rv32imcxgap9
-PULP_ARCH_LDFLAGS ?=  -march=rv32imcxgap9
-PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imcxgap9
+$(error IBEX is not supported in control-pulp)
 endif
 
-PULP_CFLAGS    += -fdata-sections -ffunction-sections -include chips/pulp/config.h -I$(PULPRT_HOME)/include/chips/pulp
-PULP_OMP_CFLAGS    += -fopenmp -mnativeomp
-PULP_LDFLAGS += -nostartfiles -nostdlib -Wl,--gc-sections -L$(PULPRT_HOME)/kernel -Tchips/pulp/link.ld -lgcc
+# we need at least pulp-gcc v2.1.2
+PULP_LDFLAGS      +=
+PULP_CFLAGS       +=  -D__riscv__
+PULP_ARCH_CFLAGS ?=  -march=rv32imcxgap9 -mnohwloop
+PULP_ARCH_LDFLAGS ?=  -march=rv32imcxgap9 -mnohwloop
+PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imcxgap9 -mnohwloop
 
-PULP_CC = riscv32-unknown-elf-gcc 
+PULP_CFLAGS    += -fdata-sections -ffunction-sections \
+	-include chips/pulp/config.h -I$(PULPRT_HOME)/include/chips/control-pulp
+PULP_OMP_CFLAGS    += -fopenmp -mnativeomp
+PULP_LDFLAGS += -nostartfiles -nostdlib -Wl,--gc-sections \
+	-L$(PULPRT_HOME)/kernel -Tchips/control-pulp/link.ld -lgcc
+
+PULP_CC = riscv32-unknown-elf-gcc
 PULP_AR ?= riscv32-unknown-elf-ar
 PULP_LD ?= riscv32-unknown-elf-gcc
 PULP_OBJDUMP ?= riscv32-unknown-elf-objdump
 
 fc/archi=riscv
 pe/archi=riscv
-pulp_chip=pulp
-pulp_chip_family=pulp
+pulp_chip=control-pulp
+pulp_chip_family=control-pulp
 cluster/version=5
 fc_itc/version=1
 udma/cpi/version=1

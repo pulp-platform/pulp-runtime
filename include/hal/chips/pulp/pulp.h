@@ -17,7 +17,11 @@
 #ifndef __HAL_CHIPS_PULP_PULP_H__
 #define __HAL_CHIPS_PULP_PULP_H__
 
+#ifdef __ibex__
+#include "hal/ibex/ibex.h"
+#else // __ibex__
 #include "hal/riscv/riscv_v5.h"
+#endif // __ibex__
 #include "hal/eu/eu_v3.h"
 #include "hal/itc/itc_v1.h"
 #include "hal/dma/mchan_v7.h"

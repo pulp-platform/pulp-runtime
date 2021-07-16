@@ -15,18 +15,18 @@
  */
 
 
-#ifndef __ARCHI_CHIPS_MARSELLUS_PROPERTIES_H__
-#define __ARCHI_CHIPS_MARSELLUS_PROPERTIES_H__
+#ifndef __ARCHI_CHIPS_CONTROL_PULP_PROPERTIES_H__
+#define __ARCHI_CHIPS_CONTROL_PULP_PROPERTIES_H__
 
 /*
  * FPGA
  */
 
-#define ARCHI_FPGA_PER_FREQUENCY 5000000
+#define ARCHI_FPGA_FREQUENCY 5000000
 
 /*
  * MEMORIES
- */ 
+ */
 
 #define ARCHI_HAS_L2                   1
 #define ARCHI_HAS_L2_MULTI             1
@@ -77,9 +77,7 @@
 
 #define ARCHI_HAS_CLUSTER   1
 #define ARCHI_L1_TAS_BIT    20
-#ifndef ARCHI_CLUSTER_NB_PE
-#define ARCHI_CLUSTER_NB_PE 16
-#endif
+#define ARCHI_CLUSTER_NB_PE 8
 #define ARCHI_NB_CLUSTER    1
 
 
@@ -98,7 +96,6 @@
 #define ARCHI_FC_CID        31
 #define ARCHI_HAS_FC_ITC     1
 #define ARCHI_HAS_FC         1
-#define ARCHI_CORE_HAS_1_10  1
 
 
 /*
@@ -133,16 +130,16 @@
 #define ARCHI_UDMA_NB_FILTER    1
 
 #define ARCHI_UDMA_UART_ID(id)            0
-#define ARCHI_UDMA_SPIM_ID(id)            1
-#define ARCHI_UDMA_I2C_ID(id)             (2 + (id))
-#define ARCHI_UDMA_SDIO_ID(id)            (4   + (id))
-#define ARCHI_UDMA_I2S_ID(id)             5
-#define ARCHI_UDMA_CAM_ID(id)             6
-#define ARCHI_UDMA_FILTER_ID(id)          (7  + (id))
-#define ARCHI_UDMA_TRACER_ID(id)          8
-#define ARCHI_UDMA_TGEN_ID(id)            9
+#define ARCHI_UDMA_SPIM_ID(id)            (1 + (id))
+#define ARCHI_UDMA_I2C_ID(id)             (9 + (id))
+#define ARCHI_UDMA_SDIO_ID(id)            (20   + (id))
+#define ARCHI_UDMA_I2S_ID(id)             21
+#define ARCHI_UDMA_CAM_ID(id)             22
+#define ARCHI_UDMA_FILTER_ID(id)          (23  + (id))
+#define ARCHI_UDMA_TRACER_ID(id)          24
+#define ARCHI_UDMA_TGEN_ID(id)            25
 
-#define ARCHI_NB_PERIPH                   10
+#define ARCHI_NB_PERIPH                   26
 
 
 
@@ -177,10 +174,10 @@
 #define ARCHI_SOC_EVENT_UART0_EOT         2
 #define ARCHI_SOC_EVENT_UART0_RX_DATA     3
 
-#define ARCHI_SOC_EVENT_SPIM0_RX          4
-#define ARCHI_SOC_EVENT_SPIM0_TX          5
-#define ARCHI_SOC_EVENT_SPIM0_CMD         6
-#define ARCHI_SOC_EVENT_SPIM0_EOT         7
+#define ARCHI_SOC_EVENT_SPIM_RX (id)      (4 + (id) * 4)
+#define ARCHI_SOC_EVENT_SPIM_TX (id)      (5 + (id) * 4)
+#define ARCHI_SOC_EVENT_SPIM_CMD(id)      (6 + (id) * 4)
+#define ARCHI_SOC_EVENT_SPIM_EOT(id)      (7 + (id) * 4)
 
 #define ARCHI_SOC_EVENT_I2C0_RX           8
 #define ARCHI_SOC_EVENT_I2C0_TX           9

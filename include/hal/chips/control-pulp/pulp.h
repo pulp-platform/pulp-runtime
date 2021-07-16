@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-#ifndef __HAL_CHIPS_PULPISSIMO_PULP_H__
-#define __HAL_CHIPS_PULPISSIMO_PULP_H__
+#ifndef __HAL_CHIPS_CONTROL_PULP_H__
+#define __HAL_CHIPS_CONTROL_PULP_H__
 
-#ifdef __ibex__
-#include "hal/ibex/ibex.h"
-#else // __ibex__
 #include "hal/riscv/riscv_v5.h"
-#endif // __ibex__
+#include "hal/eu/eu_v3.h"
 #include "hal/itc/itc_v1.h"
+#include "hal/dma/mchan_v7.h"
 #include "hal/timer/timer_v2.h"
 #include "hal/soc_eu/soc_eu_v2.h"
+#include "hal/cluster_ctrl/cluster_ctrl_v2.h"
+#include "hal/icache/icache_ctrl_v2.h"
 #include "hal/apb_soc/apb_soc_v3.h"
 #include "hal/fll/fll_v1.h"
-#include "archi/stdout/stdout_v3.h"
 #include "hal/gpio/gpio_v3.h"
 #include "hal/rom/rom_v2.h"
 
@@ -36,5 +35,6 @@
 #include "hal/udma/i2c/udma_i2c_v2.h"
 #include "hal/udma/spim/udma_spim_v3.h"
 #include "hal/udma/uart/udma_uart_v1.h"
+
 
 #endif

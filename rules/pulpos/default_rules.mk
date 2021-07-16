@@ -137,6 +137,44 @@ ifdef RUNNER_CONFIG
 override runner_args += --config-user=$(RUNNER_CONFIG)
 endif
 
+ifeq '$(load_mode)' 'fast_debug'
+LOAD_MODE := FAST_DEBUG_PRELOAD
+else ifeq '$(load_mode)' 'standalone'
+LOAD_MODE := STANDALONE
+else ifeq '$(load_mode)' 'jtag'
+LOAD_MODE := JTAG
+else
+LOAD_MODE := JTAG
+endif
+
+#
+# VSIM Flags
+#
+vsim_flags ?= +ENTRY_POINT=0x1c008080 -dpicpppath /usr/bin/g++ -permit_unmatched_virtual_intf -gBAUDRATE=115200
+ifdef bootmode
+ifeq ($(bootmode), spi)
+vsim_flags += -gSTIM_FROM=SPI_FLASH -gLOAD_L2=STANDALONE -gUSE_S25FS256S_MODEL=1
+else
+ifeq ($(bootmode), hyperflash)
+vsim_flags += -gSTIM_FROM=HYPER_FLASH -gLOAD_L2=STANDALONE -gUSE_HYPER_MODELS=1
+else
+ifeq ($(bootmode), fast_debug)
+vsim_flags += -gLOAD_L2=FAST_DEBUG_PRELOAD
+else
+ifeq ($(bootmode), jtag)
+vsim_flags += -gLOAD_L2=JTAG
+else
+$(error Illegal value supplied for bootmode. Legal values are 'spi', 'hyperflash', 'fast_debug' and 'jtag')
+endif
+endif
+endif
+endif
+else
+vsim_flags += -gLOAD_L2=JTAG
+endif
+ifdef vsim_additional_flags
+vsim_flags += $(vsim_additional_flags)
+endif
 
 
 #
@@ -198,10 +236,12 @@ conf:
 
 all: $(TARGETS)
 
+.PHONY:clean
 clean:
 	@echo "RM  $(TARGET_BUILD_DIR)"
 	$(V)rm -rf $(TARGET_BUILD_DIR)
 
+.PHONY: run
 ifeq '$(platform)' 'gvsoc'
 run:
 	pulp-run --platform=$(platform) --config=$(PULPRUN_TARGET) --dir=$(TARGET_BUILD_DIR) --binary=$(TARGETS) $(runner_args) prepare run
@@ -210,25 +250,53 @@ endif
 ifeq '$(platform)' 'rtl'
 
 $(TARGET_BUILD_DIR)/modelsim.ini:
+ifndef VSIM_PATH
+	$(error "VSIM_PATH is undefined. Either call \
+	'source $$YOUR_HW_DIR/setup/vsim.sh' or set it manually.")
+endif
 	ln -s $(VSIM_PATH)/modelsim.ini $@
 
 $(TARGET_BUILD_DIR)/boot:
+ifndef VSIM_PATH
+	$(error "VSIM_PATH is undefined. Either call \
+	'source $$YOUR_HW_DIR/setup/vsim.sh' or set it manually.")
+endif
 	ln -s $(VSIM_PATH)/boot $@
 
 $(TARGET_BUILD_DIR)/tcl_files:
+ifndef VSIM_PATH
+	$(error "VSIM_PATH is undefined. Either call \
+	'source $$YOUR_HW_DIR/setup/vsim.sh' or set it manually.")
+endif
 	ln -s $(VSIM_PATH)/tcl_files $@
 
 $(TARGET_BUILD_DIR)/waves:
+ifndef VSIM_PATH
+	$(error "VSIM_PATH is undefined. Either call \
+	'source $$YOUR_HW_DIR/setup/vsim.sh' or set it manually.")
+endif
 	ln -s $(VSIM_PATH)/waves $@
 
+$(TARGET_BUILD_DIR)/stdout:
+	mkdir -p $@
 
-run: $(TARGET_BUILD_DIR)/modelsim.ini  $(TARGET_BUILD_DIR)/boot $(TARGET_BUILD_DIR)/tcl_files $(TARGET_BUILD_DIR)/waves
+$(TARGET_BUILD_DIR)/fs:
+	mkdir -p $@
+
+
+run: $(TARGET_BUILD_DIR)/modelsim.ini  $(TARGET_BUILD_DIR)/boot $(TARGET_BUILD_DIR)/tcl_files $(TARGET_BUILD_DIR)/stdout $(TARGET_BUILD_DIR)/fs $(TARGET_BUILD_DIR)/waves
 	$(PULPRT_HOME)/bin/stim_utils.py --binary=$(TARGETS) --vectors=$(TARGET_BUILD_DIR)/vectors/stim.txt
+	$(PULPRT_HOME)/bin/plp_mkflash  --flash-boot-binary=$(TARGETS)  --stimuli=$(TARGET_BUILD_DIR)/vectors/qspi_stim.slm --flash-type=spi --qpi
+	$(PULPRT_HOME)/bin/slm_hyper.py  --input=$(TARGET_BUILD_DIR)/vectors/qspi_stim.slm  --output=$(TARGET_BUILD_DIR)/vectors/hyper_stim.slm
+ifndef VSIM_PATH
+	$(error "VSIM_PATH is undefined. Either call \
+	'source $$YOUR_HW_DIR/setup/vsim.sh' or set it manually.")
+endif
 
 ifdef gui
-	cd $(TARGET_BUILD_DIR) && export VSIM_RUNNER_FLAGS="+ENTRY_POINT=0x1c008080 -gLOAD_L2=JTAG -dpicpppath /usr/bin/g++ -permit_unmatched_virtual_intf -gBAUDRATE=115200" && export VOPT_ACC_ENA="YES" && vsim -64 -do 'source $(VSIM_PATH)/tcl_files/config/run_and_exit.tcl' -do 'source $(VSIM_PATH)/tcl_files/run.tcl; '
+	cd $(TARGET_BUILD_DIR) && export VSIM_RUNNER_FLAGS='$(vsim_flags)' && export VOPT_ACC_ENA="YES" && vsim -64 -do 'source $(VSIM_PATH)/tcl_files/config/run_and_exit.tcl' -do 'source $(VSIM_PATH)/tcl_files/run.tcl; '
 else
-	cd $(TARGET_BUILD_DIR) && export VSIM_RUNNER_FLAGS="+ENTRY_POINT=0x1c008080 -gLOAD_L2=JTAG -dpicpppath /usr/bin/g++ -permit_unmatched_virtual_intf -gBAUDRATE=115200" && vsim -64 -c -do 'source $(VSIM_PATH)/tcl_files/config/run_and_exit.tcl' -do 'source $(VSIM_PATH)/tcl_files/run.tcl; run_and_exit;'
+	cd $(TARGET_BUILD_DIR) && export VSIM_RUNNER_FLAGS='$(vsim_flags)' && vsim -64 -c -do 'source $(VSIM_PATH)/tcl_files/config/run_and_exit.tcl' -do 'source $(VSIM_PATH)/tcl_files/run.tcl; run_and_exit;'
 endif
 
 endif
