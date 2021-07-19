@@ -22,15 +22,17 @@
 #include "archi/chips/pulp/apb_soc_ctrl.h"
 
 #include "archi/gpio/gpio_v3.h"
-#include "archi/riscv/priv_1_10.h"
 #ifdef __ibex__
 #include "archi/ibex/mhpm.h"
 #elif defined(__cv32e40p__)
 #include "archi/cv32e40p/cv32e40p.h"
+#include "archi/riscv/priv_1_11.h"
 #else
 #include "archi/riscv/pcer_v2.h"
+#include "archi/riscv/priv_1_10.h"
 #endif // __ibex__
 #include "archi/itc/itc_v1.h"
+#include "archi/riscv/priv_1_10.h"
 
 #include "archi/chips/pulp/memory_map.h"
 #include "archi/chips/pulp/apb_soc.h"
