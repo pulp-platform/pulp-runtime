@@ -3,7 +3,7 @@
 export PULPRT_TARGET=pulpissimo
 export PULPRUN_TARGET=pulpissimo
 
-if [  -n "${ZSH_VERSION:-}" ]; then 
+if [  -n "${ZSH_VERSION:-}" ]; then
         DIR="$(readlink -f -- "${(%):-%x}")"
         scriptDir="$(dirname $DIR)"
 else

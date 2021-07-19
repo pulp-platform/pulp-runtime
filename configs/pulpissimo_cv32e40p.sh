@@ -4,7 +4,7 @@ export PULPRT_TARGET=pulpissimo
 export PULPRUN_TARGET=pulpissimo
 export USE_CV32E40P=1
 
-if [  -n "${ZSH_VERSION:-}" ]; then 
+if [  -n "${ZSH_VERSION:-}" ]; then
         DIR="$(readlink -f -- "${(%):-%x}")"
         scriptDir="$(dirname $DIR)"
 else
