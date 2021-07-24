@@ -23,10 +23,17 @@
 
 #include "archi/itc/itc_v1.h"
 
+// cv32e40p-specific
+#include "archi/cv32e40p/cv32e40p.h"
+#include "archi/riscv/priv_1_11.h"
+
 #include "archi/chips/control-pulp/memory_map.h"
 #include "archi/chips/control-pulp/apb_soc.h"
+#include "archi/stdout/stdout_v3.h"
+#include "archi/dma/mchan_v7.h"
 
 #include "archi/udma/spim/udma_spim_v3.h"
+#include "archi/udma/i2c/udma_i2c_v2.h"
 #include "archi/udma/uart/udma_uart_v1.h"
 #include "archi/udma/udma_v3.h"
 

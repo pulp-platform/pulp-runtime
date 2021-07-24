@@ -145,6 +145,8 @@ static inline void perf_start(void) {
   cpu_perf_conf(CSR_PCMR_ACTIVE | CSR_PCMR_SATURATE);
 #elif defined(__ibex__)
   cpu_perf_start();
+#elif defined(__cv32e40p__)
+  cpu_perf_start();
 #else
   cpu_perf_conf_events(SPR_PCER_ALL_EVENTS_MASK);
   cpu_perf_conf(SPR_PCMR_ACTIVE | SPR_PCMR_SATURATE);
@@ -177,6 +179,8 @@ static inline void perf_reset(void) {
   perf_stop();
   cpu_perf_setall(0);
   perf_start();
+#elif defined(__cv32e40p__)
+  cpu_perf_setall(0xffffffff);
 #endif
   // TODO this is failing on most targets, please include that also for specific ones
 #if 0
@@ -194,6 +198,8 @@ static inline void perf_enable_id( int eventid){
   cpu_perf_conf(CSR_PCMR_ACTIVE | CSR_PCMR_SATURATE);
 #elif defined(__ibex__)
   cpu_perf_conf_events(CSR_PCER_EVENT_MASK(eventid));
+#elif defined(__cv32e40p__)
+  cpu_perf_conf_events(1<<eventid);
 #else
   cpu_perf_conf_events(SPR_PCER_EVENT_MASK(eventid));
   cpu_perf_conf(SPR_PCMR_ACTIVE | SPR_PCMR_SATURATE);
@@ -217,13 +223,13 @@ static inline void plp_power_init() {
 
 static inline void plp_power_start() {
 #if PULP_CHIP == CHIP_PULP4
-	set_gpio_pin_value(PIN_CAM_I2S_SDI1+1, 1);
+  set_gpio_pin_value(PIN_CAM_I2S_SDI1+1, 1);
 #endif
 }
 
 static inline void plp_power_stop() {
 #if PULP_CHIP == CHIP_PULP4
-	set_gpio_pin_value(PIN_CAM_I2S_SDI1+1, 0);
+  set_gpio_pin_value(PIN_CAM_I2S_SDI1+1, 0);
 #endif
 }
 
