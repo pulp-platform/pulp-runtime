@@ -2,12 +2,13 @@ ifdef USE_IBEX
 $(error IBEX is not supported in control-pulp)
 endif
 
-# we need at least pulp-gcc v2.1.2
+# we need at least pulp-gcc v2.4.0
 PULP_LDFLAGS      +=
 PULP_CFLAGS       +=  -D__cv32e40p__ -D__riscv__
-PULP_ARCH_CFLAGS ?=  -march=rv32imfc_xcorev -mno-pulp-hwloop
-PULP_ARCH_LDFLAGS ?=  -march=rv32imfc_xcorev -mno-pulp-hwloop
-PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imfc_xcorev -mno-pulp-hwloop
+PULP_ARCH_CFLAGS ?=  -march=rv32imc_zfinx_xcorev -mabi=ilp32 -mno-pulp-hwloop
+PULP_ARCH_LDFLAGS ?=  -march=rv32imc_zfinx_xcorev -mabi=ilp32 -mno-pulp-hwloop
+# uses elf attributes to disassemble so no need to set it manually
+PULP_ARCH_OBJDFLAGS ?=
 
 PULP_CFLAGS    += -fdata-sections -ffunction-sections \
 	-include chips/pulp/config.h -I$(PULPRT_HOME)/include/chips/control-pulp
