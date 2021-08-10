@@ -367,6 +367,7 @@ static inline unsigned int cpu_perf_get(const unsigned int counterId) {
 }
 
 static inline const char *cpu_perf_name(int event) {
+  return 0;
 }
 
 

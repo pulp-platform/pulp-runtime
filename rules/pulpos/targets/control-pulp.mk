@@ -11,7 +11,7 @@ PULP_ARCH_LDFLAGS ?=  -march=rv32imc_zfinx_xcorev -mabi=ilp32 -mno-pulp-hwloop
 PULP_ARCH_OBJDFLAGS ?=
 
 PULP_CFLAGS    += -fdata-sections -ffunction-sections \
-	-include chips/pulp/config.h -I$(PULPRT_HOME)/include/chips/control-pulp
+	-include chips/control-pulp/config.h -I$(PULPRT_HOME)/include/chips/control-pulp
 PULP_OMP_CFLAGS    += -fopenmp -mnativeomp
 PULP_LDFLAGS += -nostartfiles -nostdlib -Wl,--gc-sections \
 	-L$(PULPRT_HOME)/kernel -Tchips/control-pulp/link.ld -lgcc
@@ -46,7 +46,7 @@ soc_eu/version=2
 # FLL
 PULP_SRCS     += kernel/fll-v$(fll/version).c
 PULP_SRCS     += kernel/freq-domains.c
-PULP_SRCS     += kernel/chips/pulp/soc.c
+PULP_SRCS     += kernel/chips/control-pulp/soc.c
 
 
 include $(PULPRT_HOME)/rules/pulpos/configs/default.mk
