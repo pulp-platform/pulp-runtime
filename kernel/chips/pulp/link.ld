@@ -221,6 +221,12 @@ SECTIONS
     . = ALIGN(4);
   } > L2
 
+  /*
+   * L1 BANKS
+   * 
+   * Contains cluster data
+   */
+
   .l1cluster_g : {
     . = ALIGN(4);
     *(.heapsram)

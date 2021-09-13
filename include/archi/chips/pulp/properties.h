@@ -88,7 +88,7 @@
 #define ARCHI_HAS_CLUSTER   1
 #define ARCHI_L1_TAS_BIT    20
 #ifndef ARCHI_CLUSTER_NB_PE
-#define ARCHI_CLUSTER_NB_PE 8
+#define ARCHI_CLUSTER_NB_PE 6 // Change core number here
 #endif
 #define ARCHI_NB_CLUSTER    1
 

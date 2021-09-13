@@ -128,7 +128,7 @@ pos_init_entry:
     j pos_no_irq_handler
     j pos_no_irq_handler
     j pos_no_irq_handler
-    j pos_no_irq_handler
+    j pos_TCLS_unload
 
 
     .org 0x80
