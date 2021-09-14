@@ -40,7 +40,7 @@ static void cluster_core_init()
 {
     eu_evt_maskSet((1<<PULP_DISPATCH_EVENT) | (1<<PULP_MUTEX_EVENT) | (1<<PULP_HW_BAR_EVENT));
 
-    eu_bar_setup(eu_bar_addr(0), (1<<ARCHI_CLUSTER_NB_PE) - 1);
+    eu_bar_setup(eu_bar_addr(0), (1<<get_core_num()) - 1);
 }
 
 void cluster_entry_stub()
@@ -80,19 +80,19 @@ void cluster_start(int cid, int (*entry)())
 
     alloc_init_l1(cid);
 
-    cluster_stacks = pi_l1_malloc(cid, ARCHI_CLUSTER_NB_PE*CLUSTER_STACK_SIZE);
+    cluster_stacks = pi_l1_malloc(cid, get_core_num()*CLUSTER_STACK_SIZE);
     if (cluster_stacks == NULL)
         return;
 
     cluster_running = 1;
 
     // Fetch all cores
-    for (int i=0; i<ARCHI_CLUSTER_NB_PE; i++)
+    for (int i=0; i<get_core_num(); i++)
     {
       plp_ctrl_core_bootaddr_set_remote(cid, i, (int)_start);
     }
 
-    eoc_fetch_enable_remote(cid, (1<<ARCHI_CLUSTER_NB_PE) - 1);
+    eoc_fetch_enable_remote(cid, (1<<get_core_num()) - 1);
 }
 
 

@@ -12,6 +12,10 @@ PULP_ARCH_LDFLAGS ?=  -march=rv32imcxgap9
 PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imcxgap9
 endif
 
+ifdef ARCHI_TCLS
+PULP_CFLAGS += -DARCHI_TCLS
+endif
+
 PULP_CFLAGS    += -fdata-sections -ffunction-sections -include chips/pulp/config.h -I$(PULPRT_HOME)/include/chips/pulp
 PULP_OMP_CFLAGS    += -fopenmp -mnativeomp
 PULP_LDFLAGS += -nostartfiles -nostdlib -Wl,--gc-sections -L$(PULPRT_HOME)/kernel -Tchips/pulp/link.ld -lgcc

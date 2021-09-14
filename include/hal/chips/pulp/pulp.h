@@ -40,4 +40,8 @@
 #include "hal/udma/spim/udma_spim_v3.h"
 #include "hal/udma/uart/udma_uart_v1.h"
 
+#ifdef ARCHI_TCLS
+#include "hal/tcls/tcls.h"
+#endif // ARCHI_TCLS
+
 #endif

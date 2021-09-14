@@ -27,6 +27,9 @@
 #include <archi/pulp.h>
 #include <hal/pulp.h>
 #include <data/data.h>
+#ifdef ARCHI_TCLS
+#include <hal/tcls/tcls.h>
+#endif // ARCHI_TCLS
 
 typedef enum {
   PI_FREQ_DOMAIN_FC     = 0,
@@ -66,7 +69,16 @@ void _start();
 #define get_cluster_id hal_cluster_id
 
 #ifdef ARCHI_CLUSTER_NB_PE
+#ifndef ARCHI_TCLS
 static inline int get_core_num() { return ARCHI_CLUSTER_NB_PE; }
+#else // ARCHI_TCLS
+static inline int get_core_num() { 
+  if (check_tcls_enabled()) {
+    return ARCHI_CLUSTER_NB_PE/3;
+  }
+  return ARCHI_CLUSTER_NB_PE;
+}
+#endif // ARCHI_TCLS
 #endif
 
 
