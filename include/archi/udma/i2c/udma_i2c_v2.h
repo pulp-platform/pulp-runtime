@@ -23,6 +23,7 @@
 #define I2C_CMD_STOP                     (0x2 << I2C_CMD_OFFSET)
 #define I2C_CMD_RD_ACK                   (0x4 << I2C_CMD_OFFSET)
 #define I2C_CMD_RD_NACK                  (0x6 << I2C_CMD_OFFSET)
+#define I2C_CMD_WRB                      (0x7 << I2C_CMD_OFFSET)
 #define I2C_CMD_WR                       (0x8 << I2C_CMD_OFFSET)
 #define I2C_CMD_WAIT                     (0xA << I2C_CMD_OFFSET)
 #define I2C_CMD_RPT                      (0xC << I2C_CMD_OFFSET)
