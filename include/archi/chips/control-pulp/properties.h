@@ -251,11 +251,12 @@
 
 #define ARCHI_FC_EVT_FIRST_SW         0
 #define ARCHI_FC_EVT_NB_SW            8
-#define ARCHI_FC_EVT_TIMER0_LO           10
-#define ARCHI_FC_EVT_TIMER0_HI           11
+#define ARCHI_FC_EVT_TIMER0_LO        10
+#define ARCHI_FC_EVT_TIMER0_HI        11
+#define ARCHI_FC_EVT_I2C_SLV_BMC      13
 #define ARCHI_FC_EVT_CLK_REF          14
 #define ARCHI_FC_EVT_GPIO             15
-#define ARCHI_FC_EVT_RTC              16
+#define ARCHI_FC_EVT_I2C_SLV          16
 #define ARCHI_FC_EVT_ADV_TIMER0       17
 #define ARCHI_FC_EVT_ADV_TIMER1       18
 #define ARCHI_FC_EVT_ADV_TIMER2       19
