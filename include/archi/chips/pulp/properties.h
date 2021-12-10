@@ -78,8 +78,12 @@
 #define FLL_VERSION         1
 #define RISCV_VERSION       4
 #define MCHAN_VERSION       7
+// #define IDMA_VERSION        1
 #define PADS_VERSION        2
 
+#if defined(MCHAN_VERSION) && defined(IDMA_VERSION)
+#error "MCHAN and IDMA not compatible"
+#endif
 
 /*
  * CLUSTER
