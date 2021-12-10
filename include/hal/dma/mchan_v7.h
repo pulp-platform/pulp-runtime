@@ -646,4 +646,4 @@ static inline unsigned int plp_cl_dma_status() {
 
 /// @endcond
 
-#endif
+#endif // __HAL_MCHAN_V7_H__

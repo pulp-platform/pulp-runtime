@@ -37,7 +37,9 @@
 #include "archi/chips/pulp/memory_map.h"
 #include "archi/chips/pulp/apb_soc.h"
 #include "archi/stdout/stdout_v3.h"
+#if MCHAN_VERSION == 7
 #include "archi/dma/mchan_v7.h"
+#endif
 
 #include "archi/udma/cpi/udma_cpi_v1.h"
 #include "archi/udma/i2c/udma_i2c_v2.h"

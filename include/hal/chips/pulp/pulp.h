@@ -26,7 +26,9 @@
 #endif // __ibex__
 #include "hal/eu/eu_v3.h"
 #include "hal/itc/itc_v1.h"
+#if MCHAN_VERSION == 7
 #include "hal/dma/mchan_v7.h"
+#endif
 #include "hal/timer/timer_v2.h"
 #include "hal/soc_eu/soc_eu_v2.h"
 #include "hal/cluster_ctrl/cluster_ctrl_v2.h"
