@@ -112,33 +112,31 @@
 
 #define ARCHI_UDMA_HAS_SPIM   1
 #define ARCHI_UDMA_HAS_UART   1
-#define ARCHI_UDMA_HAS_SDIO      1
+#define ARCHI_UDMA_HAS_SDIO   0
 #define ARCHI_UDMA_HAS_I2C    1
-#define ARCHI_UDMA_HAS_I2S    1
-#define ARCHI_UDMA_HAS_CAM    1
-#define ARCHI_UDMA_HAS_TRACER 1
-#define ARCHI_UDMA_HAS_FILTER    1
+#define ARCHI_UDMA_HAS_I2S    0
+#define ARCHI_UDMA_HAS_CAM    0
+#define ARCHI_UDMA_HAS_TRACER 0
+#define ARCHI_UDMA_HAS_FILTER 0
 
-#define ARCHI_UDMA_NB_SPIM   1
+#define ARCHI_UDMA_NB_SPIM   8
 #define ARCHI_UDMA_NB_UART   1
-#define ARCHI_UDMA_NB_SDIO      1
-#define ARCHI_UDMA_NB_I2C    1
-#define ARCHI_UDMA_NB_I2S    1
-#define ARCHI_UDMA_NB_CAM    1
-#define ARCHI_UDMA_NB_TRACER 1
-#define ARCHI_UDMA_NB_FILTER    1
+#define ARCHI_UDMA_NB_SDIO   0
+#define ARCHI_UDMA_NB_I2C    12
+#define ARCHI_UDMA_NB_I2S    0
+#define ARCHI_UDMA_NB_CAM    0
+#define ARCHI_UDMA_NB_TRACER 0
+#define ARCHI_UDMA_NB_FILTER 1
 
 #define ARCHI_UDMA_UART_ID(id)            0
 #define ARCHI_UDMA_SPIM_ID(id)            (1 + (id))
 #define ARCHI_UDMA_I2C_ID(id)             (9 + (id))
-#define ARCHI_UDMA_SDIO_ID(id)            (21 + (id))
-#define ARCHI_UDMA_FILTER_ID(id)          (22 + (id))
-#define ARCHI_UDMA_TRACER_ID(id)          23
-#define ARCHI_UDMA_TGEN_ID(id)            24
+#define ARCHI_UDMA_FILTER_ID(id)          (21 + (id))
 
-#define ARCHI_NB_PERIPH                   25
+#define ARCHI_NB_PERIPH                   22
 
-
+#define ARCHI_UDMA_NB_I2C_MAX             12
+#define ARCHI_UDMA_NB_SPIM_MAX             8
 
 /*
  * FLLS
@@ -161,8 +159,11 @@
 #define ARCHI_SOC_EVENT_UDMA_NB_CHANNEL_EVT_LOG2 2
 #define ARCHI_SOC_EVENT_UDMA_NB_CHANNEL_EVT (1<<ARCHI_SOC_EVENT_UDMA_NB_CHANNEL_EVT_LOG2)
 #define ARCHI_SOC_EVENT_UDMA_FIRST_EVT   0
-#define ARCHI_SOC_EVENT_UDMA_NB_EVT       (ARCHI_SOC_EVENT_UDMA_NB_CHANNEL_EVT * ARCHI_NB_PERIPH)
+#define ARCHI_SOC_EVENT_UDMA_NB_EVT       (ARCHI_SOC_EVENT_UDMA_NB_CHANNEL_EVT * ARCHI_NB_PERIPH_MAX)
 #define ARCHI_SOC_EVENT_UDMA_NB_TGEN_EVT 6
+
+#define ARCHI_SOC_EVENT_UDMA_NB_EVT_MAX  32*4
+#define ARCHI_NB_PERIPH_MAX              ((ARCHI_SOC_EVENT_UDMA_NB_EVT_MAX-ARCHI_UDMA_NB_SPIM_MAX-ARCHI_UDMA_NB_I2C_MAX)>>2)
 
 #define ARCHI_SOC_EVENT_PERIPH_FIRST_EVT(x)     ((x)*ARCHI_SOC_EVENT_UDMA_NB_CHANNEL_EVT)
 
@@ -175,6 +176,7 @@
 #define ARCHI_SOC_EVENT_SPIM_TX (id)      (5 + (id) * 4)
 #define ARCHI_SOC_EVENT_SPIM_CMD(id)      (6 + (id) * 4)
 #define ARCHI_SOC_EVENT_SPIM_EOT(id)      (7 + (id) * 4)
+#define ARCHI_SOC_EVENT_SPIM_REQ(id)      (ARCHI_SOC_EVENT_UDMA_NB_EVT + (id))
 
 #define ARCHI_SOC_EVENT_I2C0_RX           8
 #define ARCHI_SOC_EVENT_I2C0_TX           9
