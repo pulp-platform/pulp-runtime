@@ -257,6 +257,13 @@ ifndef VSIM_PATH
 endif
 	ln -s $(VSIM_PATH)/modelsim.ini $@
 
+$(TARGET_BUILD_DIR)/work:
+ifndef VSIM_PATH
+	$(error "VSIM_PATH is undefined. Either call \
+	'source $$YOUR_HW_DIR/setup/vsim.sh' or set it manually.")
+endif
+	ln -s $(VSIM_PATH)/work $@
+
 $(TARGET_BUILD_DIR)/boot:
 ifndef VSIM_PATH
 	$(error "VSIM_PATH is undefined. Either call \
@@ -285,7 +292,7 @@ $(TARGET_BUILD_DIR)/fs:
 	mkdir -p $@
 
 
-run: $(TARGET_BUILD_DIR)/modelsim.ini  $(TARGET_BUILD_DIR)/boot $(TARGET_BUILD_DIR)/tcl_files $(TARGET_BUILD_DIR)/stdout $(TARGET_BUILD_DIR)/fs $(TARGET_BUILD_DIR)/waves
+run: $(TARGET_BUILD_DIR)/modelsim.ini $(TARGET_BUILD_DIR)/work  $(TARGET_BUILD_DIR)/boot $(TARGET_BUILD_DIR)/tcl_files $(TARGET_BUILD_DIR)/stdout $(TARGET_BUILD_DIR)/fs $(TARGET_BUILD_DIR)/waves
 	$(PULPRT_HOME)/bin/stim_utils.py --binary=$(TARGETS) --vectors=$(TARGET_BUILD_DIR)/vectors/stim.txt
 	$(PULPRT_HOME)/bin/plp_mkflash  --flash-boot-binary=$(TARGETS)  --stimuli=$(TARGET_BUILD_DIR)/vectors/qspi_stim.slm --flash-type=spi --qpi
 	$(PULPRT_HOME)/bin/slm_hyper.py  --input=$(TARGET_BUILD_DIR)/vectors/qspi_stim.slm  --output=$(TARGET_BUILD_DIR)/vectors/hyper_stim.slm
