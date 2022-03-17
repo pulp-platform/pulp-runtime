@@ -8,6 +8,7 @@ override runner_args += --config-opt=**/runner/verbose=true
 endif
 
 platform ?= rtl
+VSIM ?= vsim
 
 
 ifdef PULP_RUNTIME_GCC_TOOLCHAIN
@@ -294,9 +295,9 @@ ifndef VSIM_PATH
 endif
 
 ifdef gui
-	cd $(TARGET_BUILD_DIR) && export VSIM_RUNNER_FLAGS='$(vsim_flags)' && export VOPT_ACC_ENA="YES" && vsim -64 -do 'source $(VSIM_PATH)/tcl_files/config/run_and_exit.tcl' -do 'source $(VSIM_PATH)/tcl_files/run.tcl; '
+	cd $(TARGET_BUILD_DIR) && export VSIM_RUNNER_FLAGS='$(vsim_flags)' && export VOPT_ACC_ENA="YES" && $(VSIM) -64 -do 'source $(VSIM_PATH)/tcl_files/config/run_and_exit.tcl' -do 'source $(VSIM_PATH)/tcl_files/run.tcl; '
 else
-	cd $(TARGET_BUILD_DIR) && export VSIM_RUNNER_FLAGS='$(vsim_flags)' && vsim -64 -c -do 'source $(VSIM_PATH)/tcl_files/config/run_and_exit.tcl' -do 'source $(VSIM_PATH)/tcl_files/run.tcl; run_and_exit;'
+	cd $(TARGET_BUILD_DIR) && export VSIM_RUNNER_FLAGS='$(vsim_flags)' && $(VSIM) -64 -c -do 'source $(VSIM_PATH)/tcl_files/config/run_and_exit.tcl' -do 'source $(VSIM_PATH)/tcl_files/run.tcl; run_and_exit;'
 endif
 
 endif
