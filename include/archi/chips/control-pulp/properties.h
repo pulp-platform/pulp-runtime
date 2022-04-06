@@ -66,9 +66,14 @@
 #define ITC_VERSION         1
 #define FLL_VERSION         1
 #define RISCV_VERSION       4
-#define MCHAN_VERSION       7
+// TODO: if we have to switch between idma and mchan, make this configurable with #ifdef
+//#define MCHAN_VERSION     7
+#define IDMA_VERSION        1
 #define PADS_VERSION        2
 
+#if defined(MCHAN_VERSION) && defined(IDMA_VERSION)
+#error "MCHAN and IDMA not compatible"
+#endif
 
 /*
  * CLUSTER
@@ -79,6 +84,7 @@
 #define ARCHI_CLUSTER_NB_PE 8
 #define ARCHI_NB_CLUSTER    1
 
+#define ARCHI_HAS_DMA_DEMUX 1
 
 /*
  * HWS

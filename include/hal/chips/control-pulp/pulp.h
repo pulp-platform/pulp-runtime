@@ -22,7 +22,12 @@
 
 #include "hal/eu/eu_v3.h"
 #include "hal/itc/itc_v1.h"
+#if MCHAN_VERSION == 7
 #include "hal/dma/mchan_v7.h"
+#endif
+#if IDMA_VERSION == 1
+#include "hal/dma/idma_v1.h"
+#endif
 #include "hal/timer/timer_v2.h"
 #include "hal/soc_eu/soc_eu_v2.h"
 #include "hal/cluster_ctrl/cluster_ctrl_v2.h"

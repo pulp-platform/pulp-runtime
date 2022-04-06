@@ -30,7 +30,14 @@
 #include "archi/chips/control-pulp/memory_map.h"
 #include "archi/chips/control-pulp/apb_soc.h"
 #include "archi/stdout/stdout_v3.h"
+// TODO: do we need to have this switch bounded to exact versions?
+// Maybe better to bound them to dma type (mchan or idma)
+#if MCHAN_VERSION == 7
 #include "archi/dma/mchan_v7.h"
+#endif
+#if IDMA_VERSION == 1
+#include "archi/dma/idma_v1.h"
+#endif
 
 #include "archi/udma/spim/udma_spim_v3.h"
 #include "archi/udma/i2c/udma_i2c_v2.h"
