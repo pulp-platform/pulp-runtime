@@ -151,7 +151,29 @@ endif
 #
 # VSIM Flags
 #
-vsim_flags ?= +ENTRY_POINT=0x1c008080 -dpicpppath /usr/bin/g++ -permit_unmatched_virtual_intf -gBAUDRATE=115200
+vsim_flags ?= +ENTRY_POINT=0x1c008080 -permit_unmatched_virtual_intf -gBAUDRATE=115200
+
+ifdef CONFIG_PLUSARG_SIM
+
+ifdef bootmode
+ifeq ($(bootmode), spi)
+vsim_flags += +bootmode=spi_flash
+else ifeq ($(bootmode), hyperflash)
+vsim_flags += +bootmode=hyper_flash
+else ifeq ($(bootmode), fast_debug)
+vsim_flags += +bootmode=fast_debug_preload
+else ifeq ($(bootmode), jtag)
+vsim_flags += +bootmode=jtag
+else
+$(error Illegal value supplied for bootmode. Legal values are 'spi', 'hyperflash', 'fast_debug' and 'jtag')
+endif
+else
+# default bootmode
+vsim_flags += +bootmode=jtag
+endif
+
+else
+
 ifdef bootmode
 ifeq ($(bootmode), spi)
 vsim_flags += -gSTIM_FROM=SPI_FLASH -gLOAD_L2=STANDALONE -gUSE_S25FS256S_MODEL=1
@@ -173,6 +195,9 @@ endif
 else
 vsim_flags += -gLOAD_L2=JTAG
 endif
+endif
+
+
 ifdef vsim_additional_flags
 vsim_flags += $(vsim_additional_flags)
 endif
