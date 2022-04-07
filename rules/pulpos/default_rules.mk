@@ -1,5 +1,6 @@
 TARGET_BUILD_DIR = $(CURDIR)/build$(build_dir_ext)
-ifndef VERBOSE
+
+ifdef QUIET
 V = @
 endif
 
