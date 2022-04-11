@@ -5,8 +5,8 @@ endif
 # we need at least pulp-gcc v2.4.0
 PULP_LDFLAGS      +=
 PULP_CFLAGS       +=  -D__cv32e40p__ -D__riscv__
-PULP_ARCH_CFLAGS ?=  -march=rv32imc_zfinx_xcorev -mabi=ilp32 -mno-pulp-hwloop
-PULP_ARCH_LDFLAGS ?=  -march=rv32imc_zfinx_xcorev -mabi=ilp32 -mno-pulp-hwloop
+PULP_ARCH_CFLAGS ?=  -march=rv32imac_zfinx_xcorev -mabi=ilp32 -mno-pulp-hwloop
+PULP_ARCH_LDFLAGS ?=  -march=rv32imac_zfinx_xcorev -mabi=ilp32 -mno-pulp-hwloop
 # uses elf attributes to disassemble so no need to set it manually
 PULP_ARCH_OBJDFLAGS ?=
 
