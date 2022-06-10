@@ -25,7 +25,7 @@
 
 // cv32e40p-specific
 #include "archi/cv32e40p/cv32e40p.h"
-#include "archi/riscv/priv_1_11.h"
+#include "archi/riscv/priv_1_12.h"
 
 #include "archi/chips/control-pulp/memory_map.h"
 #include "archi/chips/control-pulp/apb_soc.h"
