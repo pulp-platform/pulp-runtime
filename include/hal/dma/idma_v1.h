@@ -55,7 +55,7 @@ typedef unsigned int dma_loc_t;
   \param   ext2loc If 1, the transfer is loading data from external memory and storing to cluster memory. If 0, it is the contrary
   \return          The identifier of the transfer. This can be used with plp_dma_wait to wait for the completion of this transfer.
   */
-static inline int plp_dma_memcpy(dma_ext_t ext, unsigned int loc, unsigned int size, int ext2loc);
+static inline int plp_dma_memcpy(unsigned int const id, dma_ext_t ext, unsigned int loc, unsigned int size, int ext2loc);
 
 /** Cluster memory to external memory transfer with event-based completion.
  *
@@ -85,7 +85,7 @@ static inline int plp_dma_extToL1(unsigned int loc, dma_ext_t ext, unsigned shor
   \param   ext2loc If 1, the transfer is loading data from external memory and storing to cluster memory. If 0, it is the contrary
   \return         The identifier of the transfer. This can be used with plp_dma_wait to wait for the completion of this transfer.
   */
-static inline int plp_dma_memcpy_2d(dma_ext_t ext, unsigned int loc, unsigned int size, unsigned int stride, unsigned int length, int ext2loc);
+static inline int plp_dma_memcpy_2d(unsigned int const id, dma_ext_t ext, unsigned int loc, unsigned int size, unsigned int stride, unsigned int length, int ext2loc);
 
 /** Cluster memory to external memory 2-dimensional transfer with event-based completion.
  *
@@ -124,7 +124,7 @@ static inline void plp_dma_barrier();
   *
   \param   counter  The counter ID identifying the transfer. This has been returned from an enqueued transfer (e.g. plp_dma_extToL1_2d)
  */
-static inline void plp_dma_wait(unsigned int dma_tx_id);
+static inline void plp_dma_wait(unsigned int const id, unsigned int dma_tx_id);
 
 //!@}
 
@@ -155,7 +155,7 @@ static inline unsigned int pulp_idma_get_conf(unsigned int decouple, unsigned in
   \param  dma_tx_id  The dma transfer identifier
   \return            transfer status. 1 if complete, 0 if still ongoing or waiting.
   */
-static inline unsigned int pulp_idma_tx_cplt(unsigned int dma_tx_id);
+static inline unsigned int pulp_idma_tx_cplt(unsigned int const id, unsigned int dma_tx_id);
 
 /**
  * iDMA memory transfer
@@ -166,7 +166,7 @@ static inline unsigned int pulp_idma_tx_cplt(unsigned int dma_tx_id);
   \param  num_bytes  The number bytes
   \return            The dma transfer identifier
   */
-static inline unsigned int pulp_idma_memcpy(unsigned int const dst_addr, unsigned int const src_addr, unsigned int num_bytes);
+static inline unsigned int pulp_idma_memcpy(unsigned int const id, unsigned int const dst_addr, unsigned int const src_addr, unsigned int num_bytes);
 
 /**
  * iDMA 2D memory transfer
@@ -180,7 +180,7 @@ static inline unsigned int pulp_idma_memcpy(unsigned int const dst_addr, unsigne
   \param  num_reps   The number of repetitions
   \return            The dma transfer identifier
   */
-static inline unsigned int pulp_idma_memcpy_2d(unsigned int const dst_addr, unsigned int const src_addr, unsigned int num_bytes, unsigned int dst_stride, unsigned int src_stride, unsigned int num_reps);
+static inline unsigned int pulp_idma_memcpy_2d(unsigned int const id, unsigned int const dst_addr, unsigned int const src_addr, unsigned int num_bytes, unsigned int dst_stride, unsigned int src_stride, unsigned int num_reps);
 
 
 /**
@@ -203,7 +203,7 @@ static inline unsigned int pulp_idma_memcpy_2d(unsigned int const dst_addr, unsi
   \param  num_reps   if 2D, the number of repetitions
   \return            The dma trasfer identifier
   */
-static inline unsigned int pulp_idma_memcpy_advanced(unsigned int const dst_addr, unsigned int const src_addr, unsigned int num_bytes, unsigned int decouple, unsigned int deburst, unsigned int serialize, unsigned int twod, unsigned int dst_stride, unsigned int src_stride, unsigned int num_reps);
+static inline unsigned int pulp_idma_memcpy_advanced(unsigned int const id, unsigned int const dst_addr, unsigned int const src_addr, unsigned int num_bytes, unsigned int decouple, unsigned int deburst, unsigned int serialize, unsigned int twod, unsigned int dst_stride, unsigned int src_stride, unsigned int num_reps);
 
 /** Return the DMA status.
  *
@@ -218,17 +218,43 @@ static inline unsigned int plp_dma_status();
 /// @cond IMPLEM
 
 #if ARCHI_HAS_DMA_DEMUX
-#define DMA_ADDR ARCHI_IDMA_DEMUX_ADDR
+#define DMA_ADDR_CL ARCHI_IDMA_DEMUX_ADDR
 #else
-#define DMA_ADDR ARCHI_IDMA_EXT_ADDR
+#define DMA_ADDR_CL ARCHI_IDMA_EXT_ADDR
 #endif
-#if defined(__riscv__) && !defined(RV_ISA_RV32) && !defined(__LLVM__)
-#define DMA_WRITE(value, offset) __builtin_pulp_OffsetedWrite((value), (int *)DMA_ADDR, (offset))
-#define DMA_READ(offset) __builtin_pulp_OffsetedRead((int *)DMA_ADDR, (offset))
-#else
-#define DMA_WRITE(value, offset) pulp_write32(DMA_ADDR + (offset), (value))
-#define DMA_READ(offset) pulp_read32(DMA_ADDR + (offset))
-#endif
+
+#define DMA_ADDR_FC ARCHI_SDMA_ADDR
+
+unsigned int inline get_dma_base_addr(unsigned int const id) {
+    switch (id) {
+    case 0:
+      return DMA_ADDR_FC;
+    case 1:
+      return DMA_ADDR_CL;
+    }
+}
+
+uint32_t inline DMA_WRITE(unsigned int const id, unsigned int value, unsigned offset) {
+    unsigned int base = get_dma_base_addr(id);
+    pulp_write32((base) + (offset), (value));
+    }
+
+uint32_t inline DMA_READ(unsigned int const id, unsigned int offset) {
+    uint32_t base = get_dma_base_addr(id);
+    pulp_read32((base) + (offset));
+    }
+
+/*
+#define DMA_WRITE(id, value, offset) {			 \
+    uint32_t base = get_dma_base_addr(id);		 \
+    pulp_write32((base) + (offset), (value));            \
+    }
+
+#define DMA_READ(id, offset) {				 \
+    uint32_t base = get_dma_base_addr(id);		 \
+    pulp_read32((base) + (offset));                      \
+    }
+*/
 
 static inline unsigned int pulp_idma_get_conf(unsigned int decouple, unsigned int deburst, unsigned int serialize, unsigned int twod) {
   unsigned int conf;
@@ -243,8 +269,8 @@ static inline unsigned int pulp_idma_get_conf(unsigned int decouple, unsigned in
   return conf;
 }
 
-static inline unsigned int pulp_idma_tx_cplt(unsigned int dma_tx_id) {
-  unsigned int done_id = DMA_READ(IDMA_REG32_2D_FRONTEND_DONE_REG_OFFSET);
+static inline unsigned int pulp_idma_tx_cplt(unsigned int id, unsigned int dma_tx_id) {
+  unsigned int done_id = DMA_READ(id, IDMA_REG32_2D_FRONTEND_DONE_REG_OFFSET);
   unsigned int my_id = dma_tx_id & IDMA_ID_MASK;
   if (done_id >> (IDMA_ID_COUNTER_WIDTH-1) == my_id >> (IDMA_ID_COUNTER_WIDTH-1)) {
     return my_id <= done_id;
@@ -254,100 +280,104 @@ static inline unsigned int pulp_idma_tx_cplt(unsigned int dma_tx_id) {
 }
 
 
-static inline unsigned int pulp_idma_memcpy(unsigned int const dst_addr, unsigned int const src_addr, unsigned int num_bytes) {
-  DMA_WRITE(src_addr, IDMA_REG32_2D_FRONTEND_SRC_ADDR_REG_OFFSET);
-  DMA_WRITE(dst_addr, IDMA_REG32_2D_FRONTEND_DST_ADDR_REG_OFFSET);
-  DMA_WRITE(num_bytes, IDMA_REG32_2D_FRONTEND_NUM_BYTES_REG_OFFSET);
-  DMA_WRITE(IDMA_DEFAULT_CONFIG, IDMA_REG32_2D_FRONTEND_CONF_REG_OFFSET);
+static inline unsigned int pulp_idma_memcpy(unsigned int id, unsigned int const dst_addr, unsigned int const src_addr, unsigned int num_bytes) {
+  DMA_WRITE(id, src_addr, IDMA_REG32_2D_FRONTEND_SRC_ADDR_REG_OFFSET);
+  DMA_WRITE(id, dst_addr, IDMA_REG32_2D_FRONTEND_DST_ADDR_REG_OFFSET);
+  DMA_WRITE(id, num_bytes, IDMA_REG32_2D_FRONTEND_NUM_BYTES_REG_OFFSET);
+  DMA_WRITE(id, IDMA_DEFAULT_CONFIG, IDMA_REG32_2D_FRONTEND_CONF_REG_OFFSET);
   asm volatile("" : : : "memory");
 
   // Launch TX
-  unsigned int dma_tx_id = DMA_READ(IDMA_REG32_2D_FRONTEND_NEXT_ID_REG_OFFSET);
+  unsigned int dma_tx_id = DMA_READ(id, IDMA_REG32_2D_FRONTEND_NEXT_ID_REG_OFFSET);
 
   return dma_tx_id;
 }
 
-static inline unsigned int pulp_idma_memcpy_2d(unsigned int const dst_addr, unsigned int const src_addr, unsigned int num_bytes, unsigned int dst_stride, unsigned int src_stride, unsigned int num_reps) {
-  DMA_WRITE(src_addr, IDMA_REG32_2D_FRONTEND_SRC_ADDR_REG_OFFSET);
-  DMA_WRITE(dst_addr, IDMA_REG32_2D_FRONTEND_DST_ADDR_REG_OFFSET);
-  DMA_WRITE(num_bytes, IDMA_REG32_2D_FRONTEND_NUM_BYTES_REG_OFFSET);
-  DMA_WRITE(IDMA_DEFAULT_CONFIG_2D, IDMA_REG32_2D_FRONTEND_CONF_REG_OFFSET);
-  DMA_WRITE(src_stride, IDMA_REG32_2D_FRONTEND_STRIDE_SRC_REG_OFFSET);
-  DMA_WRITE(dst_stride, IDMA_REG32_2D_FRONTEND_STRIDE_DST_REG_OFFSET);
-  DMA_WRITE(num_reps,   IDMA_REG32_2D_FRONTEND_NUM_REPETITIONS_REG_OFFSET);
+static inline unsigned int pulp_idma_memcpy_2d(unsigned int id, unsigned int const dst_addr, unsigned int const src_addr, unsigned int num_bytes, unsigned int dst_stride, unsigned int src_stride, unsigned int num_reps) {
+  DMA_WRITE(id, src_addr, IDMA_REG32_2D_FRONTEND_SRC_ADDR_REG_OFFSET);
+  DMA_WRITE(id, dst_addr, IDMA_REG32_2D_FRONTEND_DST_ADDR_REG_OFFSET);
+  DMA_WRITE(id, num_bytes, IDMA_REG32_2D_FRONTEND_NUM_BYTES_REG_OFFSET);
+  DMA_WRITE(id, IDMA_DEFAULT_CONFIG_2D, IDMA_REG32_2D_FRONTEND_CONF_REG_OFFSET);
+  DMA_WRITE(id, src_stride, IDMA_REG32_2D_FRONTEND_STRIDE_SRC_REG_OFFSET);
+  DMA_WRITE(id, dst_stride, IDMA_REG32_2D_FRONTEND_STRIDE_DST_REG_OFFSET);
+  DMA_WRITE(id, num_reps,   IDMA_REG32_2D_FRONTEND_NUM_REPETITIONS_REG_OFFSET);
   asm volatile("" : : : "memory");
 
   // Launch TX
-  unsigned int dma_tx_id = DMA_READ(IDMA_REG32_2D_FRONTEND_NEXT_ID_REG_OFFSET);
+  unsigned int dma_tx_id = DMA_READ(id, IDMA_REG32_2D_FRONTEND_NEXT_ID_REG_OFFSET);
 
   return dma_tx_id;
 }
 
 
-static inline unsigned int pulp_idma_memcpy_advanced(unsigned int const dst_addr, unsigned int const src_addr, unsigned int num_bytes, unsigned int decouple, unsigned int deburst, unsigned int serialize, unsigned int twod, unsigned int dst_stride, unsigned int src_stride, unsigned int num_reps) {
-  DMA_WRITE(src_addr, IDMA_REG32_2D_FRONTEND_SRC_ADDR_REG_OFFSET);
-  DMA_WRITE(dst_addr, IDMA_REG32_2D_FRONTEND_DST_ADDR_REG_OFFSET);
-  DMA_WRITE(num_bytes, IDMA_REG32_2D_FRONTEND_NUM_BYTES_REG_OFFSET);
+static inline unsigned int pulp_idma_memcpy_advanced(unsigned int const id, unsigned int const dst_addr, unsigned int const src_addr, unsigned int num_bytes, unsigned int decouple, unsigned int deburst, unsigned int serialize, unsigned int twod, unsigned int dst_stride, unsigned int src_stride, unsigned int num_reps) {
+  DMA_WRITE(id, src_addr, IDMA_REG32_2D_FRONTEND_SRC_ADDR_REG_OFFSET);
+  DMA_WRITE(id, dst_addr, IDMA_REG32_2D_FRONTEND_DST_ADDR_REG_OFFSET);
+  DMA_WRITE(id, num_bytes, IDMA_REG32_2D_FRONTEND_NUM_BYTES_REG_OFFSET);
   unsigned int conf = pulp_idma_get_conf(decouple, deburst, serialize, twod);
-  DMA_WRITE(conf, IDMA_REG32_2D_FRONTEND_CONF_REG_OFFSET);
+  DMA_WRITE(id, conf, IDMA_REG32_2D_FRONTEND_CONF_REG_OFFSET);
   if (twod) {
-    DMA_WRITE(src_stride, IDMA_REG32_2D_FRONTEND_STRIDE_SRC_REG_OFFSET);
-    DMA_WRITE(dst_stride, IDMA_REG32_2D_FRONTEND_STRIDE_DST_REG_OFFSET);
-    DMA_WRITE(num_reps, IDMA_REG32_2D_FRONTEND_NUM_REPETITIONS_REG_OFFSET);
+    DMA_WRITE(id, src_stride, IDMA_REG32_2D_FRONTEND_STRIDE_SRC_REG_OFFSET);
+    DMA_WRITE(id, dst_stride, IDMA_REG32_2D_FRONTEND_STRIDE_DST_REG_OFFSET);
+    DMA_WRITE(id, num_reps, IDMA_REG32_2D_FRONTEND_NUM_REPETITIONS_REG_OFFSET);
   }
   asm volatile("" : : : "memory");
 
   // Launch TX
-  unsigned int dma_tx_id = DMA_READ(IDMA_REG32_2D_FRONTEND_NEXT_ID_REG_OFFSET);
+  unsigned int dma_tx_id = DMA_READ(id, IDMA_REG32_2D_FRONTEND_NEXT_ID_REG_OFFSET);
 
   return dma_tx_id;
 }
 
-static inline unsigned int plp_dma_status() {
-  return DMA_READ(IDMA_REG32_2D_FRONTEND_STATUS_REG_OFFSET);
+static inline unsigned int plp_dma_status(unsigned int const id) {
+  return DMA_READ(id, IDMA_REG32_2D_FRONTEND_STATUS_REG_OFFSET);
 }
 
-static inline void plp_dma_wait(unsigned int dma_tx_id) {
-  while(!pulp_idma_tx_cplt(dma_tx_id)) {
+static inline void plp_dma_wait(unsigned int const id, unsigned int dma_tx_id) {
+  while(!pulp_idma_tx_cplt(id, dma_tx_id)) {
     eu_evt_maskWaitAndClr(1 << IDMA_EVENT);
   }
   return;
 }
 
-static inline int plp_dma_memcpy(dma_ext_t ext, unsigned int loc, unsigned int size, int ext2loc) {
+static inline int plp_dma_memcpy(unsigned int const id, dma_ext_t ext, unsigned int loc, unsigned int size, int ext2loc) {
   if (ext2loc) {
-    return pulp_idma_memcpy(loc, ext, size);
+    return pulp_idma_memcpy(id, loc, ext, size);
   } else {
-    return pulp_idma_memcpy(ext, loc, size);
+    return pulp_idma_memcpy(id, ext, loc, size);
   }
 }
 
 static inline int plp_dma_l1ToExt(dma_ext_t ext, unsigned int loc, unsigned short size) {
-  return pulp_idma_memcpy(ext, loc, size);
+    uint32_t id = 1; // cluster idma
+  return pulp_idma_memcpy(id, ext, loc, size);
 }
 
 static inline int plp_dma_extToL1(unsigned int loc, dma_ext_t ext, unsigned short size) {
-  return pulp_idma_memcpy(loc, ext, size);
+    uint32_t id = 1; // cluster idma
+  return pulp_idma_memcpy(id, loc, ext, size);
 }
 
-static inline int plp_dma_memcpy_2d(dma_ext_t ext, unsigned int loc, unsigned int size, unsigned int stride, unsigned int length, int ext2loc) {
+static inline int plp_dma_memcpy_2d(unsigned int const id, dma_ext_t ext, unsigned int loc, unsigned int size, unsigned int stride, unsigned int length, int ext2loc) {
   if (ext2loc) {
-    return pulp_idma_memcpy_2d(loc, ext, length, length, stride, size/length);
+    return pulp_idma_memcpy_2d(id, loc, ext, length, length, stride, size/length);
   } else {
-    return pulp_idma_memcpy_2d(ext, loc, length, stride, length, size/length);
+    return pulp_idma_memcpy_2d(id, ext, loc, length, stride, length, size/length);
   }
 }
 
 static inline int plp_dma_l1ToExt_2d(dma_ext_t ext, unsigned int loc, unsigned short size, unsigned short stride, unsigned short length) {
-    return pulp_idma_memcpy_2d(ext, loc, length, stride, length, size/length);
+    uint32_t id = 1; // cluster idma
+    return pulp_idma_memcpy_2d(id, ext, loc, length, stride, length, size/length);
 }
 
 static inline int plp_dma_extToL1_2d(unsigned int loc, dma_ext_t ext, unsigned short size, unsigned short stride, unsigned short length) {
-    return pulp_idma_memcpy_2d(loc, ext, length, length, stride, size/length);
+    uint32_t id = 1; // cluster idma
+    return pulp_idma_memcpy_2d(id, loc, ext, length, length, stride, size/length);
 }
 
-static inline void plp_dma_barrier() {
-  while(plp_dma_status()) {
+static inline void plp_dma_barrier(uint32_t id) {
+  while(plp_dma_status(id)) {
     eu_evt_maskWaitAndClr(1 << IDMA_EVENT);
   }
 }
