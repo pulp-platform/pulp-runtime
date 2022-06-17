@@ -15,8 +15,8 @@
  */
 
 
-#ifndef __ARCHI_CHIPS_CONTROL_PULP_PROPERTIES_H__
-#define __ARCHI_CHIPS_CONTROL_PULP_PROPERTIES_H__
+#ifndef __ARCHI_CHIPS_KAIROS_PROPERTIES_H__
+#define __ARCHI_CHIPS_KAIROS_PROPERTIES_H__
 
 /*
  * FPGA
@@ -29,7 +29,6 @@
 
 #define ARCHI_HAS_L2                   1
 #define ARCHI_HAS_L2_MULTI             1
-#define ARCHI_HAS_L1                   1
 
 #define ARCHI_L2_PRIV0_ADDR  0x1c000000
 #define ARCHI_L2_PRIV0_SIZE  0x00008000
@@ -46,7 +45,6 @@
  * MEMORY ALIAS
  */
 
-#define ARCHI_HAS_L1_ALIAS             1
 #define ARCHI_HAS_L2_ALIAS             1
 
 
@@ -66,25 +64,8 @@
 #define ITC_VERSION         1
 #define FLL_VERSION         1
 #define RISCV_VERSION       4
-// TODO: if we have to switch between idma and mchan, make this configurable with #ifdef
-//#define MCHAN_VERSION     7
-#define IDMA_VERSION        1
 #define PADS_VERSION        2
 
-#if defined(MCHAN_VERSION) && defined(IDMA_VERSION)
-#error "MCHAN and IDMA not compatible"
-#endif
-
-/*
- * CLUSTER
- */
-
-#define ARCHI_HAS_CLUSTER   1
-#define ARCHI_L1_TAS_BIT    20
-#define ARCHI_CLUSTER_NB_PE 8
-#define ARCHI_NB_CLUSTER    1
-
-#define ARCHI_HAS_DMA_DEMUX 1
 
 /*
  * HWS
@@ -148,7 +129,7 @@
  * FLLS
 */
 
-#define ARCHI_NB_FLL  3
+#define ARCHI_NB_FLL  2
 
 
 

@@ -267,9 +267,17 @@ static inline unsigned int plp_dma_status();
 /// @cond IMPLEM
 
 #if defined(__riscv__) && !defined(RV_ISA_RV32) && !defined(__LLVM__)
+#ifdef ARCHI_HAS_DMA_DEMUX
+#define DMA_WRITE_DEMUX(value, offset) __builtin_pulp_OffsetedWrite((value), (int *)ARCHI_MCHAN_DEMUX_ADDR, (offset))
+#define DMA_READ_DEMUX(offset) __builtin_pulp_OffsetedRead((int *)ARCHI_MCHAN_DEMUX_ADDR, (offset))
+#endif // ARCHI_HAS_DMA_DEMUX
 #define DMA_WRITE(value, offset) __builtin_pulp_OffsetedWrite((value), (int *)ARCHI_MCHAN_EXT_ADDR, (offset))
 #define DMA_READ(offset) __builtin_pulp_OffsetedRead((int *)ARCHI_MCHAN_EXT_ADDR, (offset))
 #else
+#ifdef ARCHI_HAS_DMA_DEMUX
+#define DMA_WRITE_DEMUX(value, offset) pulp_write32(ARCHI_MCHAN_DEMUX_ADDR + (offset), (value))
+#define DMA_READ_DEMUX(value, offset) pulp_read32(ARCHI_MCHAN_DEMUX_ADDR + (offset))
+#endif // ARCHI_HAS_DMA_DEMUX
 #define DMA_WRITE(value, offset) pulp_write32(ARCHI_MCHAN_EXT_ADDR + (offset), (value))
 #define DMA_READ(offset) pulp_read32(ARCHI_MCHAN_EXT_ADDR + (offset))
 #endif
@@ -278,8 +286,24 @@ static inline int plp_dma_counter_alloc() {
   return DMA_READ(MCHAN_CMD_OFFSET);
 }
 
+static inline int plp_cl_dma_counter_alloc() {
+#ifdef ARCHI_HAS_DMA_DEMUX
+  return DMA_READ_DEMUX(MCHAN_CMD_OFFSET);
+#else // ARCHI_HAS_DMA_DEMUX
+  return plp_dma_counter_alloc();
+#endif // ARCHI_HAS_DMA_DEMUX
+}
+
 static inline void plp_dma_counter_free(int counter) {
   DMA_WRITE(1<<counter, MCHAN_STATUS_OFFSET);
+}
+
+static inline void plp_cl_dma_counter_free(int counter) {
+#ifdef ARCHI_HAS_DMA_DEMUX
+  DMA_WRITE_DEMUX(1<<counter, MCHAN_STATUS_OFFSET);
+#else // ARCHI_HAS_DMA_DEMUX
+  plp_dma_counter_free(counter);
+#endif // ARCHI_HAS_DMA_DEMUX
 }
 
 static inline unsigned int plp_dma_getCmd(int ext2loc, unsigned int size, int is2D, int trigEvt, int trigIrq, int broadcast) {
@@ -298,6 +322,9 @@ static inline unsigned int plp_dma_getCmd(int ext2loc, unsigned int size, int is
 #endif
 }
 
+static inline unsigned int plp_cl_dma_getCmd(int ext2loc, unsigned int size, int is2D, int trigEvt, int trigIrq, int broadcast) {
+  return plp_dma_getCmd(ext2loc, size, is2D, trigEvt, trigIrq, broadcast);
+}
 
 static inline void plp_dma_cmd_push(unsigned int cmd, unsigned int locAddr, mchan_ext_t extAddr) {
   DMA_WRITE(cmd, MCHAN_CMD_OFFSET);
@@ -310,10 +337,35 @@ static inline void plp_dma_cmd_push(unsigned int cmd, unsigned int locAddr, mcha
 #endif
 }
 
+static inline void plp_cl_dma_cmd_push(unsigned int cmd, unsigned int locAddr, mchan_ext_t extAddr) {
+#ifdef ARCHI_HAS_DMA_DEMUX
+  DMA_WRITE_DEMUX(cmd, MCHAN_CMD_OFFSET);
+  DMA_WRITE_DEMUX(locAddr, MCHAN_CMD_OFFSET);
+#if defined(ARCHI_HAS_MCHAN_64) && ARCHI_HAS_MCHAN_64 == 1
+  DMA_WRITE_DEMUX((int)extAddr, MCHAN_CMD_OFFSET);
+  DMA_WRITE_DEMUX((int)(extAddr>>32), MCHAN_CMD_OFFSET);
+#else
+  DMA_WRITE_DEMUX(extAddr, MCHAN_CMD_OFFSET);
+#endif
+#else // ARCHI_HAS_DMA_DEMUX
+  plp_dma_cmd_push(cmd, locAddr, extAddr);
+#endif // ARCHI_HAS_DMA_DEMUX
+}
+
 static inline void plp_dma_cmd_push_2d(unsigned int cmd, unsigned int locAddr, mchan_ext_t extAddr, unsigned int stride, unsigned int length) {
   plp_dma_cmd_push(cmd, locAddr, extAddr);
   DMA_WRITE(length, MCHAN_CMD_OFFSET);
   DMA_WRITE(stride, MCHAN_CMD_OFFSET);
+}
+
+static inline void plp_cl_dma_cmd_push_2d(unsigned int cmd, unsigned int locAddr, mchan_ext_t extAddr, unsigned int stride, unsigned int length) {
+#ifdef ARCHI_HAS_DMA_DEMUX
+  plp_cl_dma_cmd_push(cmd, locAddr, extAddr);
+  DMA_WRITE_DEMUX(length, MCHAN_CMD_OFFSET);
+  DMA_WRITE_DEMUX(stride, MCHAN_CMD_OFFSET);
+#else // ARCHI_HAS_DMA_DEMUX
+  plp_dma_cmd_push_2d(cmd, locAddr, extAddr, stride, length);
+#endif // ARCHI_HAS_DMA_DEMUX
 }
 
 static inline int plp_dma_memcpy(mchan_ext_t ext, unsigned int loc, unsigned short size, int ext2loc) {
@@ -323,11 +375,33 @@ static inline int plp_dma_memcpy(mchan_ext_t ext, unsigned int loc, unsigned sho
   return counter;
 }
 
+static inline int plp_cl_dma_memcpy(mchan_ext_t ext, unsigned int loc, unsigned short size, int ext2loc) {
+#ifdef ARCHI_HAS_DMA_DEMUX
+  unsigned int counter = plp_cl_dma_counter_alloc();
+  unsigned int cmd = plp_cl_dma_getCmd(ext2loc, size, PLP_DMA_1D, PLP_DMA_TRIG_EVT, PLP_DMA_NO_TRIG_IRQ, PLP_DMA_SHARED);
+  plp_cl_dma_cmd_push(cmd, loc, ext);
+  return counter;
+#else // ARCHI_HAS_DMA_DEMUX
+  return plp_dma_memcpy(ext, loc, size, ext2loc);
+#endif // ARCHI_HAS_DMA_DEMUX
+}
+
 static inline int plp_dma_l1ToExt(mchan_ext_t ext, unsigned int loc, unsigned short size) {
   unsigned int counter = plp_dma_counter_alloc();
   unsigned int cmd = plp_dma_getCmd(PLP_DMA_LOC2EXT, size, PLP_DMA_1D, PLP_DMA_TRIG_EVT, PLP_DMA_NO_TRIG_IRQ, PLP_DMA_SHARED);
   plp_dma_cmd_push(cmd, loc, ext);
   return counter;
+}
+
+static inline int plp_cl_dma_l1ToExt(mchan_ext_t ext, unsigned int loc, unsigned short size) {
+#ifdef ARCHI_HAS_DMA_DEMUX
+  unsigned int counter = plp_cl_dma_counter_alloc();
+  unsigned int cmd = plp_cl_dma_getCmd(PLP_DMA_LOC2EXT, size, PLP_DMA_1D, PLP_DMA_TRIG_EVT, PLP_DMA_NO_TRIG_IRQ, PLP_DMA_SHARED);
+  plp_cl_dma_cmd_push(cmd, loc, ext);
+  return counter;
+#else // ARCHI_HAS_DMA_DEMUX
+  return plp_dma_l1ToExt(ext, loc, size);
+#endif // ARCHI_HAS_DMA_DEMUX
 }
 
 static inline int plp_dma_extToL1(unsigned int loc, mchan_ext_t ext, unsigned short size) {
@@ -337,11 +411,33 @@ static inline int plp_dma_extToL1(unsigned int loc, mchan_ext_t ext, unsigned sh
   return counter;
 }
 
+static inline int plp_cl_dma_extToL1(unsigned int loc, mchan_ext_t ext, unsigned short size) {
+#ifdef ARCHI_HAS_DMA_DEMUX
+  unsigned int counter = plp_cl_dma_counter_alloc();
+  unsigned int cmd = plp_cl_dma_getCmd(PLP_DMA_EXT2LOC, size, PLP_DMA_1D, PLP_DMA_TRIG_EVT, PLP_DMA_NO_TRIG_IRQ, PLP_DMA_SHARED);
+  plp_cl_dma_cmd_push(cmd, loc, ext);
+  return counter;
+#else // ARCHI_HAS_DMA_DEMUX
+  return plp_dma_extToL1(loc, ext, size);
+#endif // ARCHI_HAS_DMA_DEMUX
+}
+
 static inline int plp_dma_memcpy_irq(mchan_ext_t ext, unsigned int loc, unsigned short size, int ext2loc) {
   unsigned int counter = plp_dma_counter_alloc();
   unsigned int cmd = plp_dma_getCmd(ext2loc, size, PLP_DMA_1D, PLP_DMA_NO_TRIG_EVT, PLP_DMA_TRIG_IRQ, PLP_DMA_SHARED);
   plp_dma_cmd_push(cmd, loc, ext);
   return counter;
+}
+
+static inline int plp_cl_dma_memcpy_irq(mchan_ext_t ext, unsigned int loc, unsigned short size, int ext2loc) {
+#ifdef ARCHI_HAS_DMA_DEMUX
+  unsigned int counter = plp_cl_dma_counter_alloc();
+  unsigned int cmd = plp_cl_dma_getCmd(ext2loc, size, PLP_DMA_1D, PLP_DMA_NO_TRIG_EVT, PLP_DMA_TRIG_IRQ, PLP_DMA_SHARED);
+  plp_cl_dma_cmd_push(cmd, loc, ext);
+  return counter;
+#else // ARCHI_HAS_DMA_DEMUX
+  return plp_dma_memcpy_irq(ext, loc, size, ext2loc);
+#endif // ARCHI_HAS_DMA_DEMUX
 }
 
 static inline int plp_dma_l1ToExt_irq(mchan_ext_t ext, unsigned int loc, unsigned short size) {
@@ -351,6 +447,17 @@ static inline int plp_dma_l1ToExt_irq(mchan_ext_t ext, unsigned int loc, unsigne
   return counter;
 }
 
+static inline int plp_cl_dma_l1ToExt_irq(mchan_ext_t ext, unsigned int loc, unsigned short size) {
+#ifdef ARCHI_HAS_DMA_DEMUX
+  unsigned int counter = plp_cl_dma_counter_alloc();
+  unsigned int cmd = plp_cl_dma_getCmd(PLP_DMA_LOC2EXT, size, PLP_DMA_1D, PLP_DMA_NO_TRIG_EVT, PLP_DMA_TRIG_IRQ, PLP_DMA_SHARED);
+  plp_cl_dma_cmd_push(cmd, loc, ext);
+  return counter;
+#else // ARCHI_HAS_DMA_DEMUX
+  return plp_dma_l1ToExt_irq(ext, loc, size);
+#endif // ARCHI_HAS_DMA_DEMUX
+}
+
 static inline int plp_dma_extToL1_irq(unsigned int loc, mchan_ext_t ext, unsigned short size) {
   unsigned int counter = plp_dma_counter_alloc();
   unsigned int cmd = plp_dma_getCmd(PLP_DMA_EXT2LOC, size, PLP_DMA_1D, PLP_DMA_NO_TRIG_EVT, PLP_DMA_TRIG_IRQ, PLP_DMA_SHARED);
@@ -358,15 +465,45 @@ static inline int plp_dma_extToL1_irq(unsigned int loc, mchan_ext_t ext, unsigne
   return counter;
 }
 
+static inline int plp_cl_dma_extToL1_irq(unsigned int loc, mchan_ext_t ext, unsigned short size) {
+#ifdef ARCHI_HAS_DMA_DEMUX
+  unsigned int counter = plp_cl_dma_counter_alloc();
+  unsigned int cmd = plp_cl_dma_getCmd(PLP_DMA_EXT2LOC, size, PLP_DMA_1D, PLP_DMA_NO_TRIG_EVT, PLP_DMA_TRIG_IRQ, PLP_DMA_SHARED);
+  plp_cl_dma_cmd_push(cmd, loc, ext);
+  return counter;
+#else // ARCHI_HAS_DMA_DEMUX
+  return plp_dma_extToL1_irq(loc, ext, size);
+#endif // ARCHI_HAS_DMA_DEMUX
+}
+
 static inline void plp_dma_memcpy_2d_keepCounter(mchan_ext_t ext, unsigned int loc, unsigned short size, unsigned short stride, unsigned short length, int ext2loc) {
   unsigned int cmd = plp_dma_getCmd(ext2loc, size, PLP_DMA_2D, PLP_DMA_TRIG_EVT, PLP_DMA_NO_TRIG_IRQ, PLP_DMA_SHARED);
   plp_dma_cmd_push_2d(cmd, loc, ext, stride, length);
+}
+
+static inline void plp_cl_dma_memcpy_2d_keepCounter(mchan_ext_t ext, unsigned int loc, unsigned short size, unsigned short stride, unsigned short length, int ext2loc) {
+#ifdef ARCHI_HAS_DMA_DEMUX
+  unsigned int cmd = plp_cl_dma_getCmd(ext2loc, size, PLP_DMA_2D, PLP_DMA_TRIG_EVT, PLP_DMA_NO_TRIG_IRQ, PLP_DMA_SHARED);
+  plp_cl_dma_cmd_push_2d(cmd, loc, ext, stride, length);
+#else // ARCHI_HAS_DMA_DEMUX
+  plp_dma_memcpy_2d_keepCounter(ext, loc, size, stride, length, ext2loc);
+#endif // ARCHI_HAS_DMA_DEMUX
 }
 
 static inline int plp_dma_memcpy_2d(mchan_ext_t ext, unsigned int loc, unsigned short size, unsigned short stride, unsigned short length, int ext2loc) {
   unsigned int counter = plp_dma_counter_alloc();
   plp_dma_memcpy_2d_keepCounter(ext, loc, size, stride, length, ext2loc);
   return counter;
+}
+
+static inline int plp_cl_dma_memcpy_2d(mchan_ext_t ext, unsigned int loc, unsigned short size, unsigned short stride, unsigned short length, int ext2loc) {
+#ifdef ARCHI_HAS_DMA_DEMUX
+  unsigned int counter = plp_cl_dma_counter_alloc();
+  plp_cl_dma_memcpy_2d_keepCounter(ext, loc, size, stride, length, ext2loc);
+  return counter;
+#else // ARCHI_HAS_DMA_DEMUX
+  return plp_dma_memcpy_2d(ext, loc, size, stride, length, ext2loc);
+#endif // ARCHI_HAS_DMA_DEMUX
 }
 
 static inline int plp_dma_l1ToExt_2d(mchan_ext_t ext, unsigned int loc, unsigned short size, unsigned short stride, unsigned short length) {
@@ -376,11 +513,33 @@ static inline int plp_dma_l1ToExt_2d(mchan_ext_t ext, unsigned int loc, unsigned
   return counter;
 }
 
+static inline int plp_cl_dma_l1ToExt_2d(mchan_ext_t ext, unsigned int loc, unsigned short size, unsigned short stride, unsigned short length) {
+#ifdef ARCHI_HAS_DMA_DEMUX
+  unsigned int counter = plp_cl_dma_counter_alloc();
+  unsigned int cmd = plp_cl_dma_getCmd(PLP_DMA_LOC2EXT, size, PLP_DMA_2D, PLP_DMA_TRIG_EVT, PLP_DMA_NO_TRIG_IRQ, PLP_DMA_SHARED);
+  plp_cl_dma_cmd_push_2d(cmd, loc, ext, stride, length);
+  return counter;
+#else // ARCHI_HAS_DMA_DEMUX
+  return plp_dma_l1ToExt_2d(ext, loc, size, stride, length);
+#endif // ARCHI_HAS_DMA_DEMUX
+}
+
 static inline int plp_dma_extToL1_2d(unsigned int loc, mchan_ext_t ext, unsigned short size, unsigned short stride, unsigned short length) {
   unsigned int counter = plp_dma_counter_alloc();
   unsigned int cmd = plp_dma_getCmd(PLP_DMA_EXT2LOC, size, PLP_DMA_2D, PLP_DMA_TRIG_EVT, PLP_DMA_NO_TRIG_IRQ, PLP_DMA_SHARED);
   plp_dma_cmd_push_2d(cmd, loc, ext, stride, length);
   return counter;
+}
+
+static inline int plp_cl_dma_extToL1_2d(unsigned int loc, mchan_ext_t ext, unsigned short size, unsigned short stride, unsigned short length) {
+#ifdef ARCHI_HAS_DMA_DEMUX
+  unsigned int counter = plp_cl_dma_counter_alloc();
+  unsigned int cmd = plp_cl_dma_getCmd(PLP_DMA_EXT2LOC, size, PLP_DMA_2D, PLP_DMA_TRIG_EVT, PLP_DMA_NO_TRIG_IRQ, PLP_DMA_SHARED);
+  plp_cl_dma_cmd_push_2d(cmd, loc, ext, stride, length);
+  return counter;
+#else // ARCHI_HAS_DMA_DEMUX
+  return plp_dma_extToL1_2d(loc, ext, size, stride, length);
+#endif // ARCHI_HAS_DMA_DEMUX
 }
 
 static inline int plp_dma_memcpy_2d_irq(mchan_ext_t ext, unsigned int loc, unsigned short size, unsigned short stride, unsigned short length, int ext2loc) {
@@ -390,11 +549,33 @@ static inline int plp_dma_memcpy_2d_irq(mchan_ext_t ext, unsigned int loc, unsig
   return counter;
 }
 
+static inline int plp_cl_dma_memcpy_2d_irq(mchan_ext_t ext, unsigned int loc, unsigned short size, unsigned short stride, unsigned short length, int ext2loc) {
+#ifdef ARCHI_HAS_DMA_DEMUX
+  unsigned int counter = plp_cl_dma_counter_alloc();
+  unsigned int cmd = plp_cl_dma_getCmd(ext2loc, size, PLP_DMA_2D, PLP_DMA_NO_TRIG_EVT, PLP_DMA_TRIG_IRQ, PLP_DMA_SHARED);
+  plp_cl_dma_cmd_push_2d(cmd, loc, ext, stride, length);
+  return counter;
+#else // ARCHI_HAS_DMA_DEMUX
+  return plp_dma_memcpy_2d_irq(ext, loc, size, stride, length, ext2loc);
+#endif // ARCHI_HAS_DMA_DEMUX
+}
+
 static inline int plp_dma_l1ToExt_2d_irq(mchan_ext_t ext, unsigned int loc, unsigned short size, unsigned short stride, unsigned short length) {
   unsigned int counter = plp_dma_counter_alloc();
   unsigned int cmd = plp_dma_getCmd(PLP_DMA_LOC2EXT, size, PLP_DMA_2D, PLP_DMA_NO_TRIG_EVT, PLP_DMA_TRIG_IRQ, PLP_DMA_SHARED);
   plp_dma_cmd_push_2d(cmd, loc, ext, stride, length);
   return counter;
+}
+
+static inline int plp_cl_dma_l1ToExt_2d_irq(mchan_ext_t ext, unsigned int loc, unsigned short size, unsigned short stride, unsigned short length) {
+#ifdef ARCHI_HAS_DMA_DEMUX
+  unsigned int counter = plp_cl_dma_counter_alloc();
+  unsigned int cmd = plp_cl_dma_getCmd(PLP_DMA_LOC2EXT, size, PLP_DMA_2D, PLP_DMA_NO_TRIG_EVT, PLP_DMA_TRIG_IRQ, PLP_DMA_SHARED);
+  plp_cl_dma_cmd_push_2d(cmd, loc, ext, stride, length);
+  return counter;
+#else // ARCHI_HAS_DMA_DEMUX
+  return plp_dma_l1ToExt_2d_irq(ext, loc, size, stride, length);
+#endif // ARCHI_HAS_DMA_DEMUX
 }
 
 static inline int plp_dma_extToL1_2d_irq(unsigned int loc, mchan_ext_t ext, unsigned short size, unsigned short stride, unsigned short length) {
@@ -404,11 +585,33 @@ static inline int plp_dma_extToL1_2d_irq(unsigned int loc, mchan_ext_t ext, unsi
   return counter;
 }
 
+static inline int plp_cl_dma_extToL1_2d_irq(unsigned int loc, mchan_ext_t ext, unsigned short size, unsigned short stride, unsigned short length) {
+#ifdef ARCHI_HAS_DMA_DEMUX
+  unsigned int counter = plp_cl_dma_counter_alloc();
+  unsigned int cmd = plp_cl_dma_getCmd(PLP_DMA_EXT2LOC, size, PLP_DMA_2D, PLP_DMA_NO_TRIG_EVT, PLP_DMA_TRIG_IRQ, PLP_DMA_SHARED);
+  plp_cl_dma_cmd_push_2d(cmd, loc, ext, stride, length);
+  return counter;
+#else // ARCHI_HAS_DMA_DEMUX
+  return plp_dma_extToL1_2d_irq(loc, ext, size, stride, length);
+#endif // ARCHI_HAS_DMA_DEMUX
+}
+
 static inline void plp_dma_barrier() {
   while(DMA_READ(MCHAN_STATUS_OFFSET) & 0xFFFF) {
     eu_evt_maskWaitAndClr(1<<ARCHI_CL_EVT_DMA0);
   }
   DMA_WRITE(-1, MCHAN_STATUS_OFFSET);
+}
+
+static inline void plp_cl_dma_barrier() {
+#ifdef ARCHI_HAS_DMA_DEMUX
+  while(DMA_READ_DEMUX(MCHAN_STATUS_OFFSET) & 0xFFFF) {
+    eu_evt_maskWaitAndClr(1<<ARCHI_CL_EVT_DMA0);
+  }
+  DMA_WRITE_DEMUX(-1, MCHAN_STATUS_OFFSET);
+#else // ARCHI_HAS_DMA_DEMUX
+  plp_dma_barrier();
+#endif // ARCHI_HAS_DMA_DEMUX
 }
 
 static inline void plp_dma_wait(unsigned int counter) {
@@ -418,8 +621,27 @@ static inline void plp_dma_wait(unsigned int counter) {
   plp_dma_counter_free(counter);
 }
 
+static inline void plp_cl_dma_wait(unsigned int counter) {
+#ifdef ARCHI_HAS_DMA_DEMUX
+  while(DMA_READ_DEMUX(MCHAN_STATUS_OFFSET) & (1 << counter)) {
+    eu_evt_maskWaitAndClr(1<<ARCHI_CL_EVT_DMA0);
+  }
+  plp_dma_counter_free(counter);
+#else // ARCHI_HAS_DMA_DEMUX
+  plp_dma_wait(counter);
+#endif // ARCHI_HAS_DMA_DEMUX
+}
+
 static inline unsigned int plp_dma_status() {
   return DMA_READ(MCHAN_STATUS_OFFSET);
+}
+
+static inline unsigned int plp_cl_dma_status() {
+#ifdef ARCHI_HAS_DMA_DEMUX
+  return DMA_READ_DEMUX(MCHAN_STATUS_OFFSET);
+#else // ARCHI_HAS_DMA_DEMUX
+  return plp_dma_status();
+#endif // ARCHI_HAS_DMA_DEMUX
 }
 
 /// @endcond

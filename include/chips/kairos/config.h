@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-#include "pulp.h"
+#ifndef __KAIROS_CONFIG_H__
+#define __KAIROS_CONFIG_H__
 
-void pos_soc_init()
-{
-#if __PLATFORM__ != ARCHI_PLATFORM_FPGA
-  pos_freq_domains[PI_FREQ_DOMAIN_FC] = ARCHI_ASIC_FC_FREQUENCY;
-  pos_freq_domains[PI_FREQ_DOMAIN_PERIPH] = ARCHI_ASIC_PER_FREQUENCY;
-  pos_freq_domains[PI_FREQ_DOMAIN_CL] = ARCHI_ASIC_CL_FREQUENCY;
-#else
-  pos_freq_domains[PI_FREQ_DOMAIN_FC] = ARCHI_FPGA_FC_FREQUENCY;
-  pos_freq_domains[PI_FREQ_DOMAIN_PERIPH] = ARCHI_FPGA_PER_FREQUENCY;
-  pos_freq_domains[PI_FREQ_DOMAIN_CL] = ARCHI_FPGA_CL_FREQUENCY;
+#include "archi/pulp_defs.h"
+
+#define PULP_CHIP CHIP_KAIROS
+#define PULP_CHIP_FAMILY CHIP_KAIROS
+#define CONFIG_PULP 1
+#define PULP_CHIP_STR kairos
+#define PULP_CHIP_FAMILY_STR kairos
+
 #endif
-}
-

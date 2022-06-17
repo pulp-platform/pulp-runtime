@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 ETH Zurich and University of Bologna
+ * Copyright (C) 2022 ETH Zurich and University of Bologna
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+
+#ifndef __CV32E40P_H__
+#define __CV32E40P_H__
 
 /*
  * Bit definitions for Performance counters mode registers
@@ -62,3 +65,12 @@
       id == 14 ? "APU_DEP" : \
       id == 15 ? "APU_WB" : \
       "NA")
+
+#define CSR_HWLOOP0_START   0x800
+#define CSR_HWLOOP0_END     0x801
+#define CSR_HWLOOP0_COUNTER 0x802
+#define CSR_HWLOOP1_START   0x804
+#define CSR_HWLOOP1_END     0x805
+#define CSR_HWLOOP1_COUNTER 0x806
+
+#endif

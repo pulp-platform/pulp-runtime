@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
-export PULPRT_TARGET=control-pulp
-export PULPRUN_TARGET=control-pulp
+export PULPRT_TARGET=kairos
+export PULPRUN_TARGET=kairos
 
 if [  -n "${ZSH_VERSION:-}" ]; then
         DIR="$(readlink -f -- "${(%):-%x}")"
