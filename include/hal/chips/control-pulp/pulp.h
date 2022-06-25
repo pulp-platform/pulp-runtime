@@ -26,7 +26,8 @@
 #include "hal/dma/mchan_v7.h"
 #endif
 #if IDMA_VERSION == 1
-#include "hal/dma/idma_v1.h"
+#include "hal/dma/idma_v1_cl.h"
+#include "hal/dma/idma_v1_fc.h"
 #endif
 #include "hal/timer/timer_v2.h"
 #include "hal/soc_eu/soc_eu_v2.h"
