@@ -22,6 +22,7 @@
 
 #include "hal/eu/eu_v3.h"
 #include "hal/itc/itc_v1.h"
+#include "hal/dma/idma_v1_fc.h"
 #include "hal/timer/timer_v2.h"
 #include "hal/soc_eu/soc_eu_v2.h"
 #include "hal/apb_soc/apb_soc_v3.h"
