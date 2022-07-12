@@ -13,10 +13,12 @@ platform ?= rtl
 ifdef PULP_RUNTIME_GCC_TOOLCHAIN
 PULP_CC := $(PULP_RUNTIME_GCC_TOOLCHAIN)/bin/$(PULP_CC)
 PULP_LD := $(PULP_RUNTIME_GCC_TOOLCHAIN)/bin/$(PULP_LD)
+PULP_OBJCOPY := $(PULP_RUNTIME_GCC_TOOLCHAIN)/bin/$(PULP_OBJCOPY)
 else
 ifdef PULP_RISCV_GCC_TOOLCHAIN
 PULP_CC := $(PULP_RISCV_GCC_TOOLCHAIN)/bin/$(PULP_CC)
 PULP_LD := $(PULP_RISCV_GCC_TOOLCHAIN)/bin/$(PULP_LD)
+PULP_OBJCOPY := $(PULP_RISCV_GCC_TOOLCHAIN)/bin/$(PULP_OBJCOPY)
 else
 $(warning "Warning: Neither PULP_RUNTIME_GCC_TOOLCHAIN nor PULP_RISCV_GCC_TOOLCHAIN is set.\
 Using defaults.")
@@ -213,13 +215,20 @@ $(TARGET_BUILD_DIR)/$(1)/$(1): $(PULP_APP_OBJS_$(1))
 	$(V)mkdir -p `dirname $$@`
 	$(V)$(PULP_LD) -o $$@ $$^ -MMD -MP $(PULP_APP_LDFLAGS_$(1))
 
+$(TARGET_BUILD_DIR)/$(1)/$(1).srec: $(TARGET_BUILD_DIR)/$(1)/$(1)
+	@echo "OBJCOPY  $$@"
+	$(V)mkdir -p `dirname $$@`
+	$(V)$(PULP_OBJCOPY) -O srec $$^ $$@
+
 $(TARGET_INSTALL_DIR)/bin/$(1): $(TARGET_BUILD_DIR)/$(1)/$(1)
 	@echo "CP  $$@"
 	$(V)mkdir -p `dirname $$@`
 	$(V)cp $$< $$@
 
 TARGETS += $(TARGET_BUILD_DIR)/$(1)/$(1)
+TARGETS += $(TARGET_BUILD_DIR)/$(1)/$(1).srec
 INSTALL_TARGETS += $(TARGET_INSTALL_DIR)/bin/$(1)
+INSTALL_TARGETS += $(TARGET_INSTALL_DIR)/bin/$(1).srec
 
 endef
 

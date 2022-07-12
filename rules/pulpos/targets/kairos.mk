@@ -20,6 +20,7 @@ PULP_CC = riscv32-unknown-elf-gcc
 PULP_AR ?= riscv32-unknown-elf-ar
 PULP_LD ?= riscv32-unknown-elf-gcc
 PULP_OBJDUMP ?= riscv32-unknown-elf-objdump
+PULP_OBJCOPY ?= riscv32-unknown-elf-objcopy
 
 fc/archi=riscv
 pe/archi=riscv
