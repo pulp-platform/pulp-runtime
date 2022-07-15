@@ -226,7 +226,7 @@ $(TARGET_INSTALL_DIR)/bin/$(1): $(TARGET_BUILD_DIR)/$(1)/$(1)
 	$(V)cp $$< $$@
 
 TARGETS += $(TARGET_BUILD_DIR)/$(1)/$(1)
-TARGETS += $(TARGET_BUILD_DIR)/$(1)/$(1).srec
+MORE_TARGETS = $(TARGET_BUILD_DIR)/$(1)/$(1).srec
 INSTALL_TARGETS += $(TARGET_INSTALL_DIR)/bin/$(1)
 INSTALL_TARGETS += $(TARGET_INSTALL_DIR)/bin/$(1).srec
 
@@ -243,7 +243,7 @@ $(foreach app, $(PULP_APPS), $(eval $(call declare_app,$(app))))
 
 conf:
 
-all: $(TARGETS)
+all: $(TARGETS) $(MORE_TARGETS)
 
 .PHONY:clean
 clean:
