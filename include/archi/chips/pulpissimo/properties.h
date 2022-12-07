@@ -243,4 +243,9 @@
 #define ARCHI_FC_EVT_QUEUE_ERROR      29
 
 
+/*
+ * GPIO Count
+ */
+#define GPIOCount 32
+
 #endif
