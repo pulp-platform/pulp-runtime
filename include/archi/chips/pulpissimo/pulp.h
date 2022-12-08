@@ -44,4 +44,7 @@
 #include "archi/udma/uart/udma_uart_v1.h"
 #include "archi/udma/udma_v3.h"
 
+#include "gpio.h"
+#include "io_mux.h"
+
 #endif

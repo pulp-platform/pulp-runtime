@@ -27,6 +27,7 @@
 #include <archi/pulp.h>
 #include <hal/pulp.h>
 #include <data/data.h>
+#include <common/bitfield.h>
 
 typedef enum {
   PI_FREQ_DOMAIN_FC     = 0,

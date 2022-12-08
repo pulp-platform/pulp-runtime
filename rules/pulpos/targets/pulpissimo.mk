@@ -58,6 +58,15 @@ PULP_SRCS     += kernel/fll-v$(fll/version).c
 PULP_SRCS     += kernel/freq-domains.c
 PULP_SRCS     += kernel/chips/pulpissimo/soc.c
 
+# GPIO
+PULP_SRCS     += drivers/gpio/gpio.c
+PULP_CFLAGS += -I$(PULPRT_HOME)/drivers/gpio/include
+
+# Pad Multiplexing
+ifeq '$(platform)' 'rtl'
+PULP_SRCS += drivers/pulpissimo/rtl_sim/io_mux/src/io_mux.c
+PULP_CFLAGS += -I$(PULPRT_HOME)/drivers/pulpissimo/rtl_sim/io_mux/include
+endif
 
 include $(PULPRT_HOME)/rules/pulpos/configs/default.mk
 
