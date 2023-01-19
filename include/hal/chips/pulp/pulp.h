@@ -47,4 +47,8 @@
 #include "hal/udma/spim/udma_spim_v3.h"
 #include "hal/udma/uart/udma_uart_v1.h"
 
+#ifdef ARCHI_HMR
+#include "hal/hmr/hmr_v1.h"
+#endif // ARCHI_HMR
+
 #endif

@@ -51,4 +51,8 @@
 #include "archi/udma/uart/udma_uart_v1.h"
 #include "archi/udma/udma_v3.h"
 
+#ifdef ARCHI_HMR
+#include "archi/hmr/hmr_v1.h"
+#endif // ARCHI_HMR
+
 #endif
