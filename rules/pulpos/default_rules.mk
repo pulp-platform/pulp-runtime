@@ -41,12 +41,17 @@ VPATH = $(PULPRT_HOME)
 include $(PULPRT_HOME)/rules/pulpos/src.mk
 
 PULP_CFLAGS += $(PULPRT_CONFIG_CFLAGS)
-PULP_CFLAGS += -fno-jump-tables -fno-tree-loop-distribute-patterns
+PULP_CFLAGS += -fno-jump-tables -fno-tree-loop-distribute-patterns 
 
 ifeq '$(CONFIG_LIBC_MINIMAL)' '1'
 PULP_APP_CFLAGS += -I$(PULPRT_HOME)/lib/libc/minimal/include
 endif
+
 PULP_APP_CFLAGS += -I$(PULPRT_HOME)/include -I$(PULPRT_HOME)/kernel
+
+#ADDITION FOR H-FILE
+PULP_APP_CFLAGS += -I/$(PULPRT_HOME)/include/kyber
+PULP_APP_CFLAGS += -I/$(PULPRT_HOME)/include/keccak
 
 PULP_APP_CFLAGS += $(foreach inc,$(PULPOS_MODULES),-I$(inc)/include)
 
@@ -208,6 +213,8 @@ endif
 # PULP_APPS
 #
 
+
+
 define declare_app
 
 $(eval PULP_APP_SRCS_$(1) += $(PULP_APP_SRCS)$(PULP_APP_FC_SRCS) $(PULP_SRCS) $(PULP_APP_CL_SRCS) $(PULP_CL_SRCS))
@@ -222,23 +229,27 @@ $(eval PULP_APP_LDFLAGS_$(1) += $(PULP_ARCH_LDFLAGS) $(PULP_LDFLAGS) $(PULP_APP_
 
 $(TARGET_BUILD_DIR)/$(1)/%.o: %.c
 	@echo "CC  $$<"
+	@echo "c- compilation"
 	$(V)mkdir -p `dirname $$@`
 	$(V)$(PULP_CC) -c $$< -o $$@ -MMD -MP $(PULP_APP_CFLAGS_$(1))
 
 $(TARGET_BUILD_DIR)/$(1)/%.o: %.cpp
 	@echo "CXX $$<"
+	@echo "cpp- compilation"
 	$(V)mkdir -p `dirname $$@`
 	$(V)$(PULP_CC) -c $< -o $@ -MMD -MP $(PULP_APP_CFLAGS_$(1))
 
 $(TARGET_BUILD_DIR)/$(1)/%.o: %.S
 	@echo "CC  $$<"
+	@echo "s- compilation"
 	$(V)mkdir -p `dirname $$@`
 	$(V)$(PULP_CC) -c $$< -o $$@ -MMD -MP -DLANGUAGE_ASSEMBLY $(PULP_APP_CFLAGS_$(1))
 
 $(TARGET_BUILD_DIR)/$(1)/$(1): $(PULP_APP_OBJS_$(1))
 	@echo "LD  $$@"
+	@echo "ld- compilation"
 	$(V)mkdir -p `dirname $$@`
-	$(V)$(PULP_LD) -o $$@ $$^ -MMD -MP $(PULP_APP_LDFLAGS_$(1))
+	$(V)$(PULP_LD) -lc -o $$@ $$^ -MMD -MP $(PULP_APP_LDFLAGS_$(1))
 
 $(TARGET_INSTALL_DIR)/bin/$(1): $(TARGET_BUILD_DIR)/$(1)/$(1)
 	@echo "CP  $$@"

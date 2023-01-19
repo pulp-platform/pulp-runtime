@@ -28,6 +28,27 @@
 #include <hal/pulp.h>
 #include <data/data.h>
 
+
+
+#include "kyber/api.h"
+#include "kyber/cbd.h"
+#include "kyber/fips202.h"
+#include "kyber/indcpa.h"
+#include "kyber/kem.h"
+#include "kyber/ntt.h"
+#include "kyber/params.h"
+#include "kyber/poly.h"
+#include "kyber/polyvec.h"
+#include "kyber/randombytes.h"
+#include "kyber/reduce.h"
+#include "kyber/symmetric.h"
+#include "kyber/verify.h"
+
+
+#include "keccak/keccak.h"
+#include "keccak/fips202.h"
+
+
 typedef enum {
   PI_FREQ_DOMAIN_FC     = 0,
   PI_FREQ_DOMAIN_CL     = 1,

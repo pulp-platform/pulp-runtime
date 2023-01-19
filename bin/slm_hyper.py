@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 #Written by ABA to update the format of the slm file to be compliant with hyperflash model used in testbench
 import numpy as np

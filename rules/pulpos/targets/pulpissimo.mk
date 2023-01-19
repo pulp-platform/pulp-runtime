@@ -8,15 +8,16 @@ else ifdef USE_CV32E40P
 PULP_LDFLAGS +=
 PULP_CFLAGS += -D__cv32e40p__ -U__riscv__ -UARCHI_CORE_HAS_PULPV2
 ifdef CONFIG_USE_ZFINX
-PULP_ARCH_CFLAGS ?=  -march=rv32imc_zfinx_xcorev -mno-pulp-hwloop
-PULP_ARCH_LDFLAGS ?=  -march=rv32imc_zfinx_xcorev -mno-pulp-hwloop
+PULP_ARCH_CFLAGS ?=  -march=rv32imc_zfinx_xcorev -mnohwloop
+PULP_ARCH_LDFLAGS ?=  -march=rv32imc_zfinx_xcorev -mnohwloop
 else
-PULP_ARCH_CFLAGS ?=  -march=rv32imfc_xcorev -mno-pulp-hwloop
-PULP_ARCH_LDFLAGS ?=  -march=rv32imfc_xcorev -mno-pulp-hwloop
+PULP_ARCH_CFLAGS ?=  -march=rv32imc -mnohwloop
+PULP_ARCH_LDFLAGS ?=  -march=rv32ic -mnohwloop
 endif
+
 PULP_ARCH_OBJDFLAGS ?=
 else
-PULP_LDFLAGS      +=
+PULP_LDFLAGS      += 
 PULP_CFLAGS       +=  -D__riscv__
 PULP_ARCH_CFLAGS ?=  -march=rv32imcxgap9
 PULP_ARCH_LDFLAGS ?=  -march=rv32imcxgap9
@@ -58,6 +59,21 @@ PULP_SRCS     += kernel/fll-v$(fll/version).c
 PULP_SRCS     += kernel/freq-domains.c
 PULP_SRCS     += kernel/chips/pulpissimo/soc.c
 
+#kyber
+PULP_SRCS     += kernel/kyber/cbd.c
+PULP_SRCS     += kernel/kyber/fips202.c
+PULP_SRCS     += kernel/kyber/indcpa.c
+PULP_SRCS     += kernel/kyber/kem.c
+PULP_SRCS     += kernel/kyber/ntt.c
+PULP_SRCS     += kernel/kyber/poly.c
+PULP_SRCS     += kernel/kyber/polyvec.c
+PULP_SRCS     += kernel/kyber/randombytes.c
+PULP_SRCS     += kernel/kyber/reduce.c
+PULP_SRCS     += kernel/kyber/symmetric-shake.c
+PULP_SRCS     += kernel/kyber/verify.c
+
+#keccak
+PULP_SRCS     += kernel/keccak/keccak.c
 
 include $(PULPRT_HOME)/rules/pulpos/configs/default.mk
 
