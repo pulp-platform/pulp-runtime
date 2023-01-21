@@ -73,7 +73,11 @@ PULP_SRCS     += kernel/kyber/symmetric-shake.c
 PULP_SRCS     += kernel/kyber/verify.c
 
 #keccak
-PULP_SRCS     += kernel/keccak/keccak.c
+#PULP_SRCS     += kernel/keccak/keccak.c
+
+#KECCAK_IP
+PULP_SRCS     += drivers/keccak_driver.c
+
 
 include $(PULPRT_HOME)/rules/pulpos/configs/default.mk
 
