@@ -18,10 +18,14 @@ endif
 PULP_ARCH_OBJDFLAGS ?=
 else
 PULP_LDFLAGS      += 
-PULP_CFLAGS       +=  -D__riscv__
-PULP_ARCH_CFLAGS ?=  -march=rv32imcxgap9
-PULP_ARCH_LDFLAGS ?=  -march=rv32imcxgap9
-PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imcxgap9
+#PULP_CFLAGS       +=  -D__riscv__
+PULP_CFLAGS += -D__cv32e40p__ -U__riscv__ -UARCHI_CORE_HAS_PULPV2
+#PULP_ARCH_CFLAGS ?=  -march=rv32imcxgap9
+#PULP_ARCH_LDFLAGS ?=  -march=rv32imcxgap9
+PULP_ARCH_CFLAGS ?=  -march=rv32imc -mnohwloop
+PULP_ARCH_LDFLAGS ?=  -march=rv32ic -mnohwloop
+#PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imcxgap9
+PULP_ARCH_OBJDFLAGS ?=
 endif
 
 PULP_CFLAGS    += -fdata-sections -ffunction-sections -include chips/pulpissimo/config.h -I$(PULPRT_HOME)/include/chips/pulpissimo
@@ -59,9 +63,9 @@ PULP_SRCS     += kernel/fll-v$(fll/version).c
 PULP_SRCS     += kernel/freq-domains.c
 PULP_SRCS     += kernel/chips/pulpissimo/soc.c
 
-#kyber
-PULP_SRCS     += kernel/kyber/cbd.c
-PULP_SRCS     += kernel/kyber/fips202.c
+
+PULP_SRCS     += kernel/kyber/cbd.c 
+PULP_SRCS     += kernel/kyber/fips202.c 
 PULP_SRCS     += kernel/kyber/indcpa.c
 PULP_SRCS     += kernel/kyber/kem.c
 PULP_SRCS     += kernel/kyber/ntt.c
@@ -77,6 +81,9 @@ PULP_SRCS     += kernel/kyber/verify.c
 
 #KECCAK_IP
 PULP_SRCS     += drivers/keccak_driver.c
+
+#SHA3
+#PULP_SRCS     += kernel/SHA3/fips_202.c
 
 
 include $(PULPRT_HOME)/rules/pulpos/configs/default.mk

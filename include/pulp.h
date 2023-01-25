@@ -28,10 +28,10 @@
 #include <hal/pulp.h>
 #include <data/data.h>
 
-#include <keccak_driver.h>
-#include <keccak_auto.h>
-//#include "keccak/keccak.h"
-//#include "keccak/fips202.h"
+//#include <keccak_driver.h>
+//#include <keccak_auto.h>
+#include "keccak/keccak_auto.h"
+#include "keccak/keccak_driver.h"
 
 #include "kyber/api.h"
 #include "kyber/cbd.h"
@@ -47,6 +47,7 @@
 #include "kyber/symmetric.h"
 #include "kyber/verify.h"
 
+//#include "SHA3/fips_202.h"
 
 
 

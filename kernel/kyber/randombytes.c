@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "randombytes.h"
 
 /**
@@ -33,9 +34,11 @@ static void surf(void) {
     for (i = 0; i < 12; ++i) {
         t[i] = in[i] ^ seed[12 + i];
     }
+	printf("rand: 1 checked! \n");
     for (i = 0; i < 8; ++i) {
         out[i] = seed[24 + i];
     }
+	printf("rand: 2 checked! \n");
     x = t[11];
     for (loop = 0; loop < 2; ++loop) {
         for (r = 0; r < 16; ++r) {
@@ -52,7 +55,9 @@ static void surf(void) {
             MUSH(9, 7)
             MUSH(10, 9)
             MUSH(11, 13)
+		printf("rand: %d checked! \n", r);
         }
+		printf("rand: %d checked! \n", loop);
         for (i = 0; i < 8; ++i) {
             out[i] ^= t[i + 4];
         }

@@ -214,12 +214,11 @@ void PQCLEAN_KYBER768_CLEAN_indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTE
     polyvec a[KYBER_K], e, pkpv, skpv;
 
 	//printf("randombytes for buf");
-	/*for (int i=0; i<64; i++){
-		buf[i]= (uint8_t) i;	
-	}*/
+	//for (int i=0; i<64; i++){
+		//buf[i]= (uint8_t) i;	
+	//}
 
     randombytes(buf, KYBER_SYMBYTES);
-	//printf("hashing for buf");
     hash_g(buf, buf, KYBER_SYMBYTES);
 
     gen_a(a, publicseed);
