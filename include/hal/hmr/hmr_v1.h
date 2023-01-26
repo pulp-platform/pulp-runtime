@@ -40,6 +40,8 @@
 #endif
 #define TMR_IS_MAIN_CORE(core_id)     (TMR_IS_CORE(core_id) && (TMR_CORE_ID(TMR_GROUP_ID(core_id), 0) == core_id))
 
+void pos_hmr_tmr_irq();
+
 static inline unsigned int hmr_get_available_config(unsigned int cid) {
   return pulp_read32(ARCHI_HMR_GLOBAL_ADDR(cid) + HMR_TOP_OFFSET + HMR_REGISTERS_AVAIL_CONFIG_REG_OFFSET);
 }

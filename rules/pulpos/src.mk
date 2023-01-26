@@ -8,6 +8,8 @@ endif
 
 PULP_SRCS += kernel/init.c kernel/kernel.c kernel/alloc.c kernel/alloc_pool.c kernel/irq.c kernel/soc_event.c kernel/bench.c drivers/uart.c
 
+PULP_SRCS += kernel/hmr_synch.c
+
 PULP_ASM_SRCS += kernel/irq_asm.S
 
 

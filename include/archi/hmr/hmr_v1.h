@@ -26,6 +26,7 @@
 
 #define HMR_CORE_INCREMENT 0x008
 #define HMR_TMR_INCREMENT  0x010
+#define HMR_TMR_SLL        0x004
 
 // Generated register defines for HMR_registers
 
