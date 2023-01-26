@@ -37,19 +37,14 @@ void get_result(uint32_t* Dout){
    uint32_t volatile *Dout_reg_start = (uint32_t*)KECCAK_DOUT_0(0);
    for (volatile int i = 0; i<50; i++){
      Dout[i] = Dout_reg_start[i];	
-	//printf("Keccak: At iteration %d, the output is %d%d\n", i/2, Dout_reg_start[0], Dout_reg_start[1]);	
+		
    }
 }
 
 
 void KeccakF1600_StatePermute(uint32_t Din[50], uint32_t Dout[50] ){
-	printf("Keccak : start a new operation\n");
 	set_input(Din);
-        printf("Keccak : input set, starting keccak\n");
 	trigger_keccak();
-	printf("Keccak : waiting ...\n ");
 	poll_done();
-	printf("Keccak : operation finished\n");
-	get_result(Dout);
-	//printf("Keccak : finished operation !!\n");		
+	get_result(Dout);	
 }
