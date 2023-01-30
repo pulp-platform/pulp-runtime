@@ -36,8 +36,6 @@
 #include "SHA3/fips_202.h"
 
 
-
-
 typedef enum {
   PI_FREQ_DOMAIN_FC     = 0,
   PI_FREQ_DOMAIN_CL     = 1,

@@ -53,7 +53,6 @@ PULP_APP_CFLAGS += -I$(PULPRT_HOME)/include -I$(PULPRT_HOME)/kernel
 PULP_APP_CFLAGS += -I/$(PULPRT_HOME)/include/keccak
 PULP_APP_CFLAGS += -I/$(PULPRT_HOME)/include/SHA3
 
-
 PULP_APP_CFLAGS += $(foreach inc,$(PULPOS_MODULES),-I$(inc)/include)
 
 ifdef PULPRUN_PLATFORM
