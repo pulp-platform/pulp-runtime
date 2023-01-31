@@ -27,18 +27,28 @@
 
 // Interleaved cores
 #define TMR_IS_CORE(core_id)          (core_id<NUM_TMR_CORES)
+#define DMR_IS_CORE(core_id)          (core_id<NUM_DMR_CORES)
 #if HMR_IN_INTERLEAVED
 #define TMR_GROUP_ID(core_id)         (core_id % NUM_TMR_GROUPS)
 #define TMR_CORE_ID(group_id, offset) (group_id + (offset * NUM_TMR_GROUPS))
 #define TMR_BARRIER_ID(group_id)      (1+group_id)
 #define TMR_BARRIER_SETUP(group_id)   (1<<group_id | 1<<(group_id+NUM_TMR_GROUPS) | 1<<(group_id+2*NUM_TMR_GROUPS))
+#define DMR_GROUP_ID(core_id)         (core_id % NUM_DMR_GROUPS)
+#define DMR_CORE_ID(group_id, offset) (group_id + (offset * NUM_DMR_GROUPS))
+#define DMR_BARRIER_ID(group_id)      (1+group_id)
+#define DMR_BARRIER_SETUP(group_id)   (1<<group_id | 1<<(group_id+NUM_DMR_GROUPS))
 #else
 #define TMR_GROUP_ID(core_id)         (core_id/3)
 #define TMR_CORE_ID(group_id, offset) ((group_id * 3) + core_offset)
 #define TMR_BARRIER_ID(group_id)      (1+group_id+(group_id/2))
 #define TMR_BARRIER_SETUP(group_id)   (1<<(3*group_id) | 1<<(3*group_id + 1) | 1<<(3*group_id+2))
+#define DMR_GROUP_ID(core_id)         (core_id/2)
+#define DMR_CORE_ID(group_id, offset) ((group_id * 2) + core_offset)
+#define DMR_BARRIER_ID(group_id)      (1+group_id)
+#define DMR_BARRIER_SETUP(group_id)   (1<<(2*group_id) | 1<<(2*group_id + 1))
 #endif
 #define TMR_IS_MAIN_CORE(core_id)     (TMR_IS_CORE(core_id) && (TMR_CORE_ID(TMR_GROUP_ID(core_id), 0) == core_id))
+#define DMR_IS_MAIN_CORE(core_id)     (DMR_IS_CORE(core_id) && (DMR_CORE_ID(DMR_GROUP_ID(core_id), 0) == core_id))
 
 void pos_hmr_tmr_irq();
 
@@ -71,7 +81,7 @@ static inline void hmr_set_dmr_status_all(unsigned int cid, unsigned int status)
 }
 
 static inline void hmr_enable_all_dmr(unsigned int cid) {
-  hmr_set_dmr_status_all(cid, (1<<NUM_TMR_GROUPS)-1);
+  hmr_set_dmr_status_all(cid, (1<<NUM_DMR_GROUPS)-1);
 }
 
 static inline void hmr_disable_all_dmr(unsigned int cid) {
