@@ -25,6 +25,8 @@
 #define HMR_TMR_OFFSET    0x300
 
 #define HMR_CORE_INCREMENT 0x008
+#define HMR_DMR_INCREMENT  0x010
+#define HMR_DMR_SLL        0x004
 #define HMR_TMR_INCREMENT  0x010
 #define HMR_TMR_SLL        0x004
 

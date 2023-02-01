@@ -19,6 +19,7 @@
 
 #include "archi/hmr/hmr_v1.h"
 #include "archi/pulp.h"
+#include <stdbool.h>
 
 #define NUM_TMR_GROUPS (ARCHI_CLUSTER_NB_PE/3)
 #define NUM_TMR_CORES  (ARCHI_CLUSTER_NB_PE-(ARCHI_CLUSTER_NB_PE%3))
@@ -88,6 +89,16 @@ static inline void hmr_disable_all_dmr(unsigned int cid) {
   hmr_set_dmr_status_all(cid, 0);
 }
 
+static inline void hmr_set_dmr_config(unsigned int cid, unsigned int dmr_id, bool rapid_recovery) {
+  pulp_write32(ARCHI_HMR_GLOBAL_ADDR(cid) + HMR_DMR_OFFSET + HMR_DMR_INCREMENT*dmr_id + HMR_DMR_REGS_DMR_CONFIG_REG_OFFSET,
+    (rapid_recovery ? 1<<HMR_DMR_REGS_DMR_CONFIG_RAPID_RECOVERY_BIT : 0));
+}
+
+static inline void hmr_set_dmr_config_all(unsigned int cid, bool rapid_recovery) {
+  pulp_write32(ARCHI_HMR_GLOBAL_ADDR(cid) + HMR_TOP_OFFSET + HMR_REGISTERS_DMR_CONFIG_REG_OFFSET,
+    (rapid_recovery ? 1<<HMR_REGISTERS_DMR_CONFIG_RAPID_RECOVERY_BIT : 0));
+}
+
 static inline unsigned int hmr_get_tmr_status_all(unsigned int cid) {
   return pulp_read32(ARCHI_HMR_GLOBAL_ADDR(cid) + HMR_TOP_OFFSET + HMR_REGISTERS_TMR_ENABLE_REG_OFFSET);
 }
@@ -102,6 +113,22 @@ static inline void hmr_enable_all_tmr(unsigned int cid) {
 
 static inline void hmr_disable_all_tmr(unsigned int cid) {
   hmr_set_tmr_status_all(cid, 0);
+}
+
+static inline void hmr_set_tmr_config(unsigned int cid, unsigned int tmr_id, bool delay_resynch, bool setback, bool reload_setback, bool rapid_recovery) {
+  pulp_write32(ARCHI_HMR_GLOBAL_ADDR(0) + HMR_TMR_OFFSET + HMR_TMR_INCREMENT*tmr_id + HMR_TMR_REGS_TMR_CONFIG_REG_OFFSET,
+    (delay_resynch  ? 1<<HMR_TMR_REGS_TMR_CONFIG_DELAY_RESYNCH_BIT  : 0) |
+    (setback        ? 1<<HMR_TMR_REGS_TMR_CONFIG_SETBACK_BIT        : 0) |
+    (reload_setback ? 1<<HMR_TMR_REGS_TMR_CONFIG_RELOAD_SETBACK_BIT : 0) |
+    (rapid_recovery ? 1<<HMR_TMR_REGS_TMR_CONFIG_RAPID_RECOVERY_BIT : 0));
+}
+
+static inline void hmr_set_tmr_config_all(unsigned int cid, bool delay_resynch, bool setback, bool reload_setback, bool rapid_recovery) {
+  pulp_write32(ARCHI_HMR_GLOBAL_ADDR(0) + HMR_TOP_OFFSET + HMR_REGISTERS_TMR_CONFIG_REG_OFFSET,
+    (delay_resynch  ? 1<<HMR_REGISTERS_TMR_CONFIG_DELAY_RESYNCH_BIT  : 0) |
+    (setback        ? 1<<HMR_REGISTERS_TMR_CONFIG_SETBACK_BIT        : 0) |
+    (reload_setback ? 1<<HMR_REGISTERS_TMR_CONFIG_RELOAD_SETBACK_BIT : 0) |
+    (rapid_recovery ? 1<<HMR_REGISTERS_TMR_CONFIG_RAPID_RECOVERY_BIT : 0));
 }
 
 static void hmr_tmr_barrier_setup_all() {
