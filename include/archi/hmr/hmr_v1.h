@@ -24,7 +24,8 @@
 #define HMR_DMR_OFFSET    0x200
 #define HMR_TMR_OFFSET    0x300
 
-#define HMR_CORE_INCREMENT 0x008
+#define HMR_CORE_INCREMENT 0x010
+#define HMR_CORE_SLL       0x004
 #define HMR_DMR_INCREMENT  0x010
 #define HMR_DMR_SLL        0x004
 #define HMR_TMR_INCREMENT  0x010
@@ -114,6 +115,9 @@ extern "C" {
 // Mismatches of the core
 #define HMR_CORE_REGS_MISMATCHES_REG_OFFSET 0x4
 
+// Stack Pointer storage register
+#define HMR_CORE_REGS_SP_STORE_REG_OFFSET 0x8
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
@@ -171,9 +175,6 @@ extern "C" {
 #define HMR_TMR_REGS_TMR_CONFIG_RELOAD_SETBACK_BIT 2
 #define HMR_TMR_REGS_TMR_CONFIG_RAPID_RECOVERY_BIT 3
 #define HMR_TMR_REGS_TMR_CONFIG_FORCE_RESYNCH_BIT 4
-
-// Stack Pointer storage register
-#define HMR_TMR_REGS_SP_STORE_REG_OFFSET 0x8
 
 #ifdef __cplusplus
 }  // extern "C"

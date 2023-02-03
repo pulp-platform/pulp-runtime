@@ -161,10 +161,11 @@ void __attribute__((interrupt)) pos_hmr_tmr_reload() {
   __asm__ __volatile__(
     "csrr t0, 0xf14 \n\t" // Read core id
     "li t1, " QU(ARCHI_HMR_ADDR) " \n\t"
+    "addi t1, t1, " QU(HMR_CORE_OFFSET) " \n\t"
     "andi t0, t0, 0x01f \n\t"
-    "sll t0, t0, " QU(HMR_TMR_SLL) " \n\t"
+    "sll t0, t0, " QU(HMR_CORE_SLL) " \n\t"
     "add t0, t0, t1 \n\t"
-    "lw sp, " QU(HMR_TMR_REGS_SP_STORE_REG_OFFSET) "(t0) \n\t"
+    "lw sp, " QU(HMR_CORE_REGS_SP_STORE_REG_OFFSET) "(t0) \n\t"
     "mv ra, t0 \n\t"
   : : : "memory");
 
@@ -172,7 +173,7 @@ void __attribute__((interrupt)) pos_hmr_tmr_reload() {
   
   // set tmr reg to 0
   __asm__ __volatile__(
-    "sw zero, " QU(HMR_TMR_REGS_SP_STORE_REG_OFFSET) "(ra) \n\t"
+    "sw zero, " QU(HMR_CORE_REGS_SP_STORE_REG_OFFSET) "(ra) \n\t"
     "lw ra, -" QU(HMR_STATE_ALLOC_SIZE) "(sp) \n\t"
   : : : "memory");
 
@@ -187,10 +188,11 @@ void __attribute__((naked)) pos_hmr_tmr_irq() {
   __asm__ __volatile__(
     "csrr t0, 0xf14 \n\t" // Read core id
     "li t1, " QU(ARCHI_HMR_ADDR) " \n\t"
+    "addi t1, t1, " QU(HMR_CORE_OFFSET) " \n\t"
     "andi t0, t0, 0x01f \n\t"
-    "sll t0, t0, " QU(HMR_TMR_SLL) " \n\t"
+    "sll t0, t0, " QU(HMR_CORE_SLL) " \n\t"
     "add t0, t0, t1 \n\t"
-    "sw sp, " QU(HMR_TMR_REGS_SP_STORE_REG_OFFSET) "(t0) \n\t"
+    "sw sp, " QU(HMR_CORE_REGS_SP_STORE_REG_OFFSET) "(t0) \n\t"
   : : : "memory");
   
   // several nops to delay and allow for core reset
