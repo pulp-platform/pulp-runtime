@@ -70,8 +70,20 @@ PULP_SRCS     += kernel/chips/pulpissimo/soc.c
 PULP_SRCS     += drivers/keccak_driver.c
 
 #SHA3
-PULP_SRCS     += kernel/SHA3/fips_202.c
+#PULP_SRCS     += kernel/SHA3/fips_202.c
 
+#kyber
+PULP_SRCS     += kernel/kyber/cbd.c
+PULP_SRCS     += kernel/kyber/fips202.c
+PULP_SRCS     += kernel/kyber/indcpa.c
+PULP_SRCS     += kernel/kyber/kem.c
+PULP_SRCS     += kernel/kyber/ntt.c
+PULP_SRCS     += kernel/kyber/poly.c
+PULP_SRCS     += kernel/kyber/polyvec.c
+PULP_SRCS     += kernel/kyber/randombytes.c
+PULP_SRCS     += kernel/kyber/reduce.c
+PULP_SRCS     += kernel/kyber/symmetric-shake.c
+PULP_SRCS     += kernel/kyber/verify.c
 
 include $(PULPRT_HOME)/rules/pulpos/configs/default.mk
 
