@@ -160,8 +160,7 @@ void __attribute__((interrupt)) pos_hmr_tmr_reload() {
   // get sp from tmr reg
   __asm__ __volatile__(
     "csrr t0, 0xf14 \n\t" // Read core id
-    "li t1, " QU(ARCHI_HMR_ADDR) " \n\t"
-    "addi t1, t1, " QU(HMR_CORE_OFFSET) " \n\t"
+    "li t1, " QU(ARCHI_HMR_ADDR + HMR_CORE_OFFSET) " \n\t"
     "andi t0, t0, 0x01f \n\t"
     "sll t0, t0, " QU(HMR_CORE_SLL) " \n\t"
     "add t0, t0, t1 \n\t"
@@ -184,11 +183,10 @@ void __attribute__((interrupt)) pos_hmr_tmr_reload() {
 void __attribute__((naked)) pos_hmr_tmr_irq() {
   pos_hmr_store_state_to_stack();
   
-  // store sp to tmr reg
+  // store sp to hmr core reg
   __asm__ __volatile__(
     "csrr t0, 0xf14 \n\t" // Read core id
-    "li t1, " QU(ARCHI_HMR_ADDR) " \n\t"
-    "addi t1, t1, " QU(HMR_CORE_OFFSET) " \n\t"
+    "li t1, " QU(ARCHI_HMR_ADDR + HMR_CORE_OFFSET) " \n\t"
     "andi t0, t0, 0x01f \n\t"
     "sll t0, t0, " QU(HMR_CORE_SLL) " \n\t"
     "add t0, t0, t1 \n\t"
@@ -206,17 +204,55 @@ void __attribute__((naked)) pos_hmr_tmr_irq() {
   pos_hmr_tmr_reload();
 }
 
-// void pos_hmr_tmr_sync() {
-//   pos_hmr_store_state_to_stack();
-//   if (TMR_IS_MAIN_CORE(core_id())) {
-//   //     store sp to tmr reg
-//   } else {
-//   //     store sp to core reg
-//   }
-//   // enter barrier -> this should lock the cores together
-//   // load sp from tmr reg
-//   pos_hmr_load_state_from_stack();
-// }
+void __attribute__((naked)) pos_hmr_tmr_synch() {
+  if (TMR_IS_MAIN_CORE(core_id())) {
+    eu_bar_setup(eu_bar_addr(TMR_BARRIER_ID(TMR_GROUP_ID(core_id()))), TMR_BARRIER_SETUP(TMR_GROUP_ID(core_id())));
+    // eu_bar_setup(eu_bar_addr(0), hmr_get_active_cores(0));
+  }
+  pos_hmr_store_state_to_stack();
+  
+  // store sp to hmr core reg
+  __asm__ __volatile__(
+    "csrr t0, 0xf14 \n\t" // Read core id
+    "li t1, " QU(ARCHI_HMR_ADDR + HMR_CORE_OFFSET) " \n\t"
+    "andi t0, t0, 0x01f \n\t"
+    "sll t0, t0, " QU(HMR_CORE_SLL) " \n\t"
+    "add t0, t0, t1 \n\t"
+    "sw sp, " QU(HMR_CORE_REGS_SP_STORE_REG_OFFSET) "(t0) \n\t"
+  : : : "memory");
+  
+  // enter barrier -> this should lock the cores together
+  eu_bar_trig_wait_clr(eu_bar_addr(TMR_BARRIER_ID(TMR_GROUP_ID(core_id()))));
+
+  // several nops to delay and allow for core reset
+  __asm__ __volatile__(
+    "nop\n\t"
+    "nop\n\t"
+    "nop\n\t"
+    "nop\n\t"
+    "nop\n\t"
+  : : : "memory");
+
+  pos_hmr_tmr_reload();
+}
+
+int hmr_tmr_critical_section(int (*function_handle)()) {
+  int ret = 0; 
+  if (TMR_IS_MAIN_CORE(core_id())) {
+    // enter critical section
+    hmr_enable_tmr(0, TMR_GROUP_ID(core_id()));
+
+    // do critical stuff
+    ret += function_handle();
+
+    // exit critical section
+    hmr_disable_tmr(0, TMR_GROUP_ID(core_id()));
+
+  }
+  synch_barrier();
+
+  return ret;
+}
 
 // void pos_hmr_tmr_unsync() {
 

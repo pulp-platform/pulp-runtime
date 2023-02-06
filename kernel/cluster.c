@@ -41,6 +41,7 @@ static void cluster_core_init()
     eu_evt_maskSet((1<<PULP_DISPATCH_EVENT) | (1<<PULP_MUTEX_EVENT) | (1<<PULP_HW_BAR_EVENT));
 
 #ifdef ARCHI_HMR
+    eu_irq_maskSet(1<<24 | 1<<23); // Enable resynch and synch requests
     eu_bar_setup(eu_bar_addr(0), hmr_get_active_cores(0));
 #else
     eu_bar_setup(eu_bar_addr(0), (1<<ARCHI_CLUSTER_NB_PE) - 1);
