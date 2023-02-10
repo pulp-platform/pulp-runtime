@@ -121,6 +121,16 @@ static inline void hmr_enable_tmr(unsigned int cid, unsigned int tmr_id) {
   pulp_write32(ARCHI_HMR_GLOBAL_ADDR(cid) + HMR_TMR_OFFSET + HMR_TMR_INCREMENT*tmr_id + HMR_TMR_REGS_TMR_ENABLE_REG_OFFSET, 1<<HMR_TMR_REGS_TMR_ENABLE_TMR_ENABLE_BIT);
 }
 
+static inline void hmr_self_enable_tmr() {
+  if (TMR_IS_MAIN_CORE(core_id())) {
+    eu_bar_setup(eu_bar_addr(TMR_BARRIER_ID(TMR_GROUP_ID(core_id()))), TMR_BARRIER_SETUP(TMR_GROUP_ID(core_id())));
+    pulp_write32(ARCHI_HMR_ADDR + HMR_TMR_OFFSET + HMR_TMR_INCREMENT*core_id() + HMR_TMR_REGS_TMR_ENABLE_REG_OFFSET, 1<<HMR_TMR_REGS_TMR_ENABLE_TMR_ENABLE_BIT);
+    while (hmr_get_core_status(0, core_id()) != 1<<HMR_CORE_REGS_CURRENT_MODE_TRIPLE_BIT) {
+      asm volatile ("nop");
+    }
+  }
+}
+
 static inline void hmr_disable_all_tmr(unsigned int cid) {
   hmr_set_tmr_status_all(cid, 0);
 }
@@ -135,6 +145,10 @@ static inline void hmr_set_tmr_config(unsigned int cid, unsigned int tmr_id, boo
     (setback        ? 1<<HMR_TMR_REGS_TMR_CONFIG_SETBACK_BIT        : 0) |
     (reload_setback ? 1<<HMR_TMR_REGS_TMR_CONFIG_RELOAD_SETBACK_BIT : 0) |
     (rapid_recovery ? 1<<HMR_TMR_REGS_TMR_CONFIG_RAPID_RECOVERY_BIT : 0));
+}
+
+static inline unsigned int hmr_get_tmr_config(unsigned int cid, unsigned int tmr_id) {
+  return pulp_read32(ARCHI_HMR_GLOBAL_ADDR(0) + HMR_TMR_OFFSET + HMR_TMR_INCREMENT*tmr_id + HMR_TMR_REGS_TMR_CONFIG_REG_OFFSET);
 }
 
 static inline void hmr_set_tmr_config_all(unsigned int cid, bool delay_resynch, bool setback, bool reload_setback, bool rapid_recovery) {

@@ -153,6 +153,7 @@ pos_semihosting_call:
 
 #if defined(ARCHI_HAS_CLUSTER)
 pe_start:
+#if defined(ARCHI_HMR)
     csrr t0, 0xf14
     li   t1, ARCHI_HMR_ADDR + HMR_CORE_OFFSET
     andi t0, t0, 0x01f
@@ -160,6 +161,7 @@ pe_start:
     add  t0, t0, t1
     lw   t1, HMR_CORE_REGS_SP_STORE_REG_OFFSET(t0)
     bnez t1, pos_hmr_tmr_reload
+#endif
     la   x2, cluster_stacks
     lw   x2, 0(x2)
     li   x3, CLUSTER_STACK_SIZE
