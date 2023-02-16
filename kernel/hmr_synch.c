@@ -30,8 +30,6 @@ void __attribute__((naked)) pos_hmr_store_part_to_stack() {
     // zero not stored as hardwired          //  x0
     "sw   ra,  0x00(sp) \n\t"                //  x1
     // sp stored to HMR once complete        //  x2
-    "sw   gp,  0x04(sp) \n\t"                //  x3
-    "sw   tp,  0x08(sp) \n\t"                //  x4
     "sw   t0,  0x0C(sp) \n\t"                //  x5
     "sw   t1,  0x10(sp) \n\t"                //  x6
     "sw   t2,  0x14(sp) \n\t"                //  x7
@@ -40,6 +38,8 @@ void __attribute__((naked)) pos_hmr_store_part_to_stack() {
 
 void __attribute((naked)) pos_hmr_store_rest_to_stack() {
   __asm__ __volatile__ (
+    "sw   gp,  0x04(sp) \n\t"                //  x3
+    "sw   tp,  0x08(sp) \n\t"                //  x4
     "sw   x8,  0x18(sp) \n\t"                //  fp
     "sw   s1,  0x1C(sp) \n\t"                //  x9
     "sw   a0,  0x20(sp) \n\t"                // x10
@@ -96,8 +96,6 @@ void __attribute((interrupt)) pos_hmr_load_part_from_stack() {
   __asm__ __volatile__ (
     "lw   ra,  0x00(sp) \n\t"                //  x1
     // sp loaded from HMR regs above         //  x2
-    "lw   gp,  0x04(sp) \n\t"                //  x3
-    "lw   tp,  0x08(sp) \n\t"                //  x4
     "lw   t0,  0x0C(sp) \n\t"                //  x5
     "lw   t1,  0x10(sp) \n\t"                //  x6
     "lw   t2,  0x14(sp) \n\t"                //  x7
@@ -233,7 +231,7 @@ void __attribute__((naked)) pos_hmr_tmr_irq() {
 #define LOCAL_NUM_TMR_CORES 12
 
 void __attribute__((naked)) pos_hmr_synch() {
-  pos_hmr_store_part_to_stack(); // ra, gp, tp, t0, t1
+  pos_hmr_store_part_to_stack(); // ra, t0, t1, t2
 
   // if (master_core(core_id()) { (using only empty regs)
   //     eu_bar_trig_wait_clr(eu_bar_addr(TMR_BARRIER_ID(TMR_GROUP_ID(core_id())))); (with one of the empty regs)
@@ -267,6 +265,19 @@ void __attribute__((naked)) pos_hmr_synch() {
     // if tmr is not intended, pos_hmr_synch_check_dmr()
     "beq t2, zero, pos_hmr_synch_check_dmr \n\t"
 
+    // Set up ra as barrier id
+#if HMR_IN_INTERLEAVED    // ra is barrier id
+    "li t1, " QU(NUM_TMR_GROUPS) " \n\t"
+    "remu t1, t0, t1 \n\t"
+    "addi ra, t1, 1 \n\t"
+#else
+    "li t1, 3 \n\t"
+    "divu t1, t0, t1 \n\t"
+    "srli t2, t1, 1 \n\t"
+    "addi t1, t1, 1 \n\t"
+    "add ra, t1, t2 \n\t"
+#endif    // ra is barrier id
+
     // if not main core, pos_hmr_synch_sw()
 #if HMR_IN_INTERLEAVED
     "li t2, " QU(NUM_TMR_GROUPS) " \n\t"
@@ -288,118 +299,79 @@ void __attribute__((naked)) pos_hmr_synch() {
     "andi t2, t2, " QU(1<<HMR_TMR_REGS_TMR_CONFIG_RAPID_RECOVERY_BIT) " \n\t"
     "beq t2, zero, pos_hmr_synch_sw \n\t"
 
-    // Set up t1 as barrier id
-#if HMR_IN_INTERLEAVED    // t1 is barrier id
-    "li t1, " QU(NUM_TMR_GROUPS) " \n\t"
-    "remu t1, t0, t1 \n\t"
-    "addi t1, t1, 1 \n\t"
-#else
-    "li t1, 3 \n\t"
-    "divu t1, t0, t1 \n\t"
-    "srli t2, t1, 1 \n\t"
-    "addi t1, t1, 1 \n\t"
-    "add t1, t1, t2 \n\t"
-#endif    // t1 is barrier id
-
+    // This is main core in rapidrecover mode
     "j pos_hmr_synch_rapid \n"
 
-    "pos_hmr_synch_check_dmr: \n\t" // Assume DMR!
-#if HMR_IN_INTERLEAVED // get dmr offset of the id
+    // Assume DMR! (we are not in TMR, but in reliability entry, so this is implied)
+    "pos_hmr_synch_check_dmr: \n\t"
+
+    // Set up ra as barrier id
+#if HMR_IN_INTERLEAVED    // ra is barrier id
+    "li t1, " QU(NUM_DMR_GROUPS) " \n\t"
+    "remu t1, t0, t1 \n\t"
+    "addi ra, t1, 1 \n"
+#else
+    "srli t1, t0, 1 \n\t"
+    "addi ra, t1, 1 \n"
+#endif
+
+    // get dmr offset of the id
+#if HMR_IN_INTERLEAVED
     "li t1, " QU(NUM_DMR_GROUPS) " \n\t"
     "remu t1, t0, t1 \n\t"
 #else
     "srli t1, t0, 1 \n\t"
 #endif // t1 is group id
+
+    // if not main core, pos_hmr_synch_sw()
 #if HMR_IN_INTERLEAVED
     "li t2, " QU(NUM_DMR_GROUPS) " \n\t"
-    "bgeu t0, t2, pos_hmr_synch_sw \n\t" // if not main core, jump to pos_hmr_synch_sw
+    "bgeu t0, t2, pos_hmr_synch_sw \n\t"
 #else
     "slli t1, t0, 1 \n\t" // t1 is group id
     "srli t2, t1, 1 \n\t"
-    "bneq t2, t0, pos_hmr_synch_sw \n\t" // if not main core, jump to pos_hmr_synch_sw
+    "bneq t2, t0, pos_hmr_synch_sw \n\t"
 #endif
+
+    // if not rapidrecover, pos_hmr_synch_sw()
     "slli t1, t1, " QU(HMR_DMR_SLL) " \n\t"
     "li t2, " QU(ARCHI_HMR_ADDR + HMR_DMR_OFFSET) " \n\t"
     "add t1, t1, t2 \n\t" // t1 is dmr base address
     "lw t2, " QU(HMR_DMR_REGS_DMR_CONFIG_REG_OFFSET) "(t1) \n\t"
     "andi t2, t2, " QU(1<<HMR_DMR_REGS_DMR_CONFIG_RAPID_RECOVERY_BIT) " \n\t"
-    "beq t2, zero, pos_hmr_synch_sw \n\t" // if not rapidrecover, jump to pos_hmr_synch_sw
-#if HMR_IN_INTERLEAVED    // t1 is barrier id
-    "li t1, " QU(NUM_DMR_GROUPS) " \n\t"
-    "remu t1, t0, t1 \n\t"
-    "addi t1, t1, 1 \n"
-#else
-    "srli t1, t0, 1 \n\t"
-    "addi t1, t1, 1 \n"
-#endif
+    "beq t2, zero, pos_hmr_synch_sw \n\t"
+
+    // This is main core in rapidrecover mode
     "pos_hmr_synch_rapid: \n\t"
-    "sll t1, t1, " QU(EU_BARRIER_SIZE_LOG2) " \n\t"
+    "sll t1, ra, " QU(EU_BARRIER_SIZE_LOG2) " \n\t"
     "li t2, " QU(ARCHI_EU_DEMUX_ADDR + EU_BARRIER_DEMUX_OFFSET) " \n\t" // t1 is tmr base address
     "add t1, t1, t2 \n\t"
     "p.elw zero, " QU(EU_HW_BARR_TRIGGER_WAIT_CLEAR) "(t1) \n\t" // barrier
     "j pos_hmr_load_part_from_stack \n" // Executes mret
+
+    // Rest is the normal SW routine
     "pos_hmr_synch_sw: \n\t"
   : : : "memory");
+  // t0 is core_id
+  // ra is barrier id
 
-  pos_hmr_store_rest_to_stack();
+  pos_hmr_store_rest_to_stack(); // does not touch t0, ra
 
   // store sp to hmr core reg
-  __asm__ __volatile__(
-    "csrr t0, 0xf14 \n\t" // Read core id
+  __asm__ __volatile__( // t0 is core_id
     "li t1, " QU(ARCHI_HMR_ADDR + HMR_CORE_OFFSET) " \n\t"
-    "andi t0, t0, 0x01f \n\t"
     "sll t2, t0, " QU(HMR_CORE_SLL) " \n\t"
     "add t2, t2, t1 \n\t"
     "sw sp, " QU(HMR_CORE_REGS_SP_STORE_REG_OFFSET) "(t2) \n\t"
   : : : "memory");
 
   // enter barrier -> this should lock the cores together
-  // eu_bar_trig_wait_clr(eu_bar_addr(TMR_BARRIER_ID(TMR_GROUP_ID(core_id()))));
-  __asm__ __volatile__(
-    // if not a tmr core, check dmr
-    "li t1, " QU(LOCAL_NUM_TMR_CORES) " \n\t"
-    "bgeu t0, t1, pos_hmr_dmr_barrier \n"
-
-    // read tmr register of the core
-    "slli t1, t1, " QU(HMR_TMR_SLL) " \n\t"
-    "li t2, " QU(ARCHI_HMR_ADDR + HMR_TMR_OFFSET) " \n\t" // t1 is tmr base address
-    "add t1, t1, t2 \n\t"
-    "lw t2, " QU(HMR_TMR_REGS_TMR_ENABLE_REG_OFFSET) "(t1) \n\t"
-
-    // if tmr is not intended, pos_hmr_dmr_barrier()
-    "beq t2, zero, pos_hmr_dmr_barrier \n\t"
-
-    "pos_hmr_tmr_barrier: \n\t"
-#if HMR_IN_INTERLEAVED    // t1 is barrier id
-    "li t1, " QU(NUM_TMR_GROUPS) " \n\t"
-    "remu t1, t0, t1 \n\t"
-    "addi t1, t1, 1 \n\t"
-#else
-    "li t1, 3 \n\t"
-    "divu t1, t0, t1 \n\t"
-    "srli t2, t1, 1 \n\t"
-    "addi t1, t1, 1 \n\t"
-    "add t1, t1, t2 \n\t"
-#endif    // t1 is barrier id
-    "j pos_hmr_barrier \n"
-
-    "pos_hmr_dmr_barrier: \n\t"
-#if HMR_IN_INTERLEAVED    // t1 is barrier id
-    "li t1, " QU(NUM_DMR_GROUPS) " \n\t"
-    "remu t1, t0, t1 \n\t"
-    "addi t1, t1, 1 \n"
-#else
-    "srli t1, t0, 1 \n\t"
-    "addi t1, t1, 1 \n"
-#endif
-
-    "pos_hmr_barrier: \n\t"
-    "sll t1, t1, " QU(EU_BARRIER_SIZE_LOG2) " \n\t"
-    "li t2, " QU(ARCHI_EU_DEMUX_ADDR + EU_BARRIER_DEMUX_OFFSET) " \n\t" // t1 is tmr base address
-    "add t1, t1, t2 \n\t"
+  __asm__ __volatile__( // ra is barrier id
+    "sll t1, ra, " QU(EU_BARRIER_SIZE_LOG2) " \n\t"
+    "li t2, " QU(ARCHI_EU_DEMUX_ADDR + EU_BARRIER_DEMUX_OFFSET) " \n\t"
+    "add t1, t1, t2 \n\t" // t1 is tmr base address
     "p.elw zero, " QU(EU_HW_BARR_TRIGGER_WAIT_CLEAR) "(t1) \n\t" // barrier
   : : : "memory");
-
 
   // several nops to delay and allow for core reset
   __asm__ __volatile__(
