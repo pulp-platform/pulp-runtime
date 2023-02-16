@@ -160,7 +160,7 @@ pe_start:
     sll  t0, t0, HMR_CORE_SLL
     add  t0, t0, t1
     lw   t1, HMR_CORE_REGS_SP_STORE_REG_OFFSET(t0)
-    bnez t1, pos_hmr_tmr_reload
+    bnez t1, pos_hmr_sw_reload
 #endif
     la   x2, cluster_stacks
     lw   x2, 0(x2)

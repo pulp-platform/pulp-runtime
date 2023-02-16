@@ -53,6 +53,8 @@
 
 void pos_hmr_tmr_irq();
 void pos_hmr_tmr_synch();
+void pos_hmr_dmr_synch();
+void pos_hmr_synch();
 
 static inline unsigned int hmr_get_available_config(unsigned int cid) {
   return pulp_read32(ARCHI_HMR_GLOBAL_ADDR(cid) + HMR_TOP_OFFSET + HMR_REGISTERS_AVAIL_CONFIG_REG_OFFSET);
@@ -88,6 +90,10 @@ static inline void hmr_enable_all_dmr(unsigned int cid) {
 
 static inline void hmr_disable_all_dmr(unsigned int cid) {
   hmr_set_dmr_status_all(cid, 0);
+}
+
+static inline void hmr_disable_dmr(unsigned int cid, unsigned int dmr_id) {
+  pulp_write32(ARCHI_HMR_GLOBAL_ADDR(cid) + HMR_DMR_OFFSET + HMR_DMR_INCREMENT*dmr_id + HMR_DMR_REGS_DMR_ENABLE_REG_OFFSET, 0);
 }
 
 static inline void hmr_set_dmr_config(unsigned int cid, unsigned int dmr_id, bool rapid_recovery) {
@@ -126,6 +132,16 @@ static inline void hmr_self_enable_tmr() {
     eu_bar_setup(eu_bar_addr(TMR_BARRIER_ID(TMR_GROUP_ID(core_id()))), TMR_BARRIER_SETUP(TMR_GROUP_ID(core_id())));
     pulp_write32(ARCHI_HMR_ADDR + HMR_TMR_OFFSET + HMR_TMR_INCREMENT*core_id() + HMR_TMR_REGS_TMR_ENABLE_REG_OFFSET, 1<<HMR_TMR_REGS_TMR_ENABLE_TMR_ENABLE_BIT);
     while (hmr_get_core_status(0, core_id()) != 1<<HMR_CORE_REGS_CURRENT_MODE_TRIPLE_BIT) {
+      asm volatile ("nop");
+    }
+  }
+}
+
+static inline void hmr_self_enable_dmr() {
+  if (DMR_IS_MAIN_CORE(core_id())) {
+    eu_bar_setup(eu_bar_addr(DMR_BARRIER_ID(DMR_GROUP_ID(core_id()))), DMR_BARRIER_SETUP(DMR_GROUP_ID(core_id())));
+    pulp_write32(ARCHI_HMR_ADDR + HMR_DMR_OFFSET + HMR_DMR_INCREMENT*core_id() + HMR_DMR_REGS_DMR_ENABLE_REG_OFFSET, 1<<HMR_DMR_REGS_DMR_ENABLE_DMR_ENABLE_BIT);
+    while (hmr_get_core_status(0, core_id()) != 1<<HMR_CORE_REGS_CURRENT_MODE_DUAL_BIT) {
       asm volatile ("nop");
     }
   }

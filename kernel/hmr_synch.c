@@ -21,9 +21,8 @@
 
 #define HMR_STATE_ALLOC_SIZE 0xA0
 
-void __attribute__((naked)) pos_hmr_store_state_to_stack() {
-
-  __asm__ __volatile__ (
+void __attribute__((naked)) pos_hmr_store_part_to_stack() {
+    __asm__ __volatile__ (
     // Allocate space on the stack
     "add  sp, sp, -" QU(HMR_STATE_ALLOC_SIZE) " \n\t"
     
@@ -36,6 +35,11 @@ void __attribute__((naked)) pos_hmr_store_state_to_stack() {
     "sw   t0,  0x0C(sp) \n\t"                //  x5
     "sw   t1,  0x10(sp) \n\t"                //  x6
     "sw   t2,  0x14(sp) \n\t"                //  x7
+    : : : "memory");
+}
+
+void __attribute((naked)) pos_hmr_store_rest_to_stack() {
+  __asm__ __volatile__ (
     "sw   x8,  0x18(sp) \n\t"                //  fp
     "sw   s1,  0x1C(sp) \n\t"                //  x9
     "sw   a0,  0x20(sp) \n\t"                // x10
@@ -86,6 +90,28 @@ void __attribute__((naked)) pos_hmr_store_state_to_stack() {
 #endif // __ibex__
 
     : : : "memory");
+}
+
+void __attribute((interrupt)) pos_hmr_load_part_from_stack() {
+  __asm__ __volatile__ (
+    "lw   ra,  0x00(sp) \n\t"                //  x1
+    // sp loaded from HMR regs above         //  x2
+    "lw   gp,  0x04(sp) \n\t"                //  x3
+    "lw   tp,  0x08(sp) \n\t"                //  x4
+    "lw   t0,  0x0C(sp) \n\t"                //  x5
+    "lw   t1,  0x10(sp) \n\t"                //  x6
+    "lw   t2,  0x14(sp) \n\t"                //  x7
+
+    // Release space on the stack
+    "add  sp, sp, " QU(HMR_STATE_ALLOC_SIZE) " \n\t"
+    : : : "memory");
+}
+
+
+void __attribute__((naked)) pos_hmr_store_state_to_stack() {
+
+  pos_hmr_store_part_to_stack();
+  pos_hmr_store_rest_to_stack();
 }
 
 
@@ -156,7 +182,7 @@ void __attribute__((naked)) pos_hmr_load_state_from_stack() {
     : : : "memory");
 }
 
-void __attribute__((interrupt)) pos_hmr_tmr_reload() {
+void __attribute__((interrupt)) pos_hmr_sw_reload() {
   // get sp from tmr reg
   __asm__ __volatile__(
     "csrr t0, 0xf14 \n\t" // Read core id
@@ -201,11 +227,195 @@ void __attribute__((naked)) pos_hmr_tmr_irq() {
     "nop\n\t"
     "nop\n\t"
   : : : "memory");
-  pos_hmr_tmr_reload();
+  pos_hmr_sw_reload();
+}
+
+#define LOCAL_NUM_TMR_CORES 12
+
+void __attribute__((naked)) pos_hmr_synch() {
+  pos_hmr_store_part_to_stack(); // ra, gp, tp, t0, t1
+
+  // if (master_core(core_id()) { (using only empty regs)
+  //     eu_bar_trig_wait_clr(eu_bar_addr(TMR_BARRIER_ID(TMR_GROUP_ID(core_id())))); (with one of the empty regs)
+  //   pos_hmr_load_part_from_stack();
+  //   return;
+  // }
+  __asm__ __volatile__(
+     // Read core id
+    "csrr t0, 0xf14 \n\t"
+    "andi t0, t0, 0x01f \n\t"
+
+     // if not a tmr core, check dmr
+    "li t1, " QU(LOCAL_NUM_TMR_CORES) " \n\t"
+    "bgeu t0, t1, pos_hmr_synch_check_dmr \n\t"
+
+    // get tmr offset of the id
+#if HMR_IN_INTERLEAVED
+    "li t1, " QU(NUM_TMR_GROUPS) " \n\t"
+    "remu t1, t0, t1 \n\t"
+#else
+    "li t1, 3 \n\t"
+    "divu t1, t0, t1 \n\t"
+#endif // t1 is group id
+
+    // read tmr register of the core
+    "slli t1, t1, " QU(HMR_TMR_SLL) " \n\t"
+    "li t2, " QU(ARCHI_HMR_ADDR + HMR_TMR_OFFSET) " \n\t" // t1 is tmr base address
+    "add t1, t1, t2 \n\t"
+    "lw t2, " QU(HMR_TMR_REGS_TMR_ENABLE_REG_OFFSET) "(t1) \n\t"
+
+    // if tmr is not intended, pos_hmr_synch_check_dmr()
+    "beq t2, zero, pos_hmr_synch_check_dmr \n\t"
+
+    // if not main core, pos_hmr_synch_sw()
+#if HMR_IN_INTERLEAVED
+    "li t2, " QU(NUM_TMR_GROUPS) " \n\t"
+    "bgeu t0, t2, pos_hmr_synch_sw \n\t"
+#else
+    "li t2, 3 \n\t"
+    "divu t1, t0, t2 \n\t" // t1 is group id
+    "mul t2, t1, t2 \n\t"
+    "bneq t2, t0, pos_hmr_synch_sw \n\t"
+
+    // Fix t1 base address
+    "slli t1, t1, " QU(HMR_TMR_SLL) " \n\t"
+    "li t2, " QU(ARCHI_HMR_ADDR + HMR_TMR_OFFSET) " \n\t"
+    "add t1, t1, t2 \n\t" // t1 is tmr base address
+#endif
+
+    // if not rapidrecover, pos_hmr_synch_sw()
+    "lw t2, " QU(HMR_TMR_REGS_TMR_CONFIG_REG_OFFSET) "(t1) \n\t"
+    "andi t2, t2, " QU(1<<HMR_TMR_REGS_TMR_CONFIG_RAPID_RECOVERY_BIT) " \n\t"
+    "beq t2, zero, pos_hmr_synch_sw \n\t"
+
+    // Set up t1 as barrier id
+#if HMR_IN_INTERLEAVED    // t1 is barrier id
+    "li t1, " QU(NUM_TMR_GROUPS) " \n\t"
+    "remu t1, t0, t1 \n\t"
+    "addi t1, t1, 1 \n\t"
+#else
+    "li t1, 3 \n\t"
+    "divu t1, t0, t1 \n\t"
+    "srli t2, t1, 1 \n\t"
+    "addi t1, t1, 1 \n\t"
+    "add t1, t1, t2 \n\t"
+#endif    // t1 is barrier id
+
+    "j pos_hmr_synch_rapid \n"
+
+    "pos_hmr_synch_check_dmr: \n\t" // Assume DMR!
+#if HMR_IN_INTERLEAVED // get dmr offset of the id
+    "li t1, " QU(NUM_DMR_GROUPS) " \n\t"
+    "remu t1, t0, t1 \n\t"
+#else
+    "srli t1, t0, 1 \n\t"
+#endif // t1 is group id
+#if HMR_IN_INTERLEAVED
+    "li t2, " QU(NUM_DMR_GROUPS) " \n\t"
+    "bgeu t0, t2, pos_hmr_synch_sw \n\t" // if not main core, jump to pos_hmr_synch_sw
+#else
+    "slli t1, t0, 1 \n\t" // t1 is group id
+    "srli t2, t1, 1 \n\t"
+    "bneq t2, t0, pos_hmr_synch_sw \n\t" // if not main core, jump to pos_hmr_synch_sw
+#endif
+    "slli t1, t1, " QU(HMR_DMR_SLL) " \n\t"
+    "li t2, " QU(ARCHI_HMR_ADDR + HMR_DMR_OFFSET) " \n\t"
+    "add t1, t1, t2 \n\t" // t1 is dmr base address
+    "lw t2, " QU(HMR_DMR_REGS_DMR_CONFIG_REG_OFFSET) "(t1) \n\t"
+    "andi t2, t2, " QU(1<<HMR_DMR_REGS_DMR_CONFIG_RAPID_RECOVERY_BIT) " \n\t"
+    "beq t2, zero, pos_hmr_synch_sw \n\t" // if not rapidrecover, jump to pos_hmr_synch_sw
+#if HMR_IN_INTERLEAVED    // t1 is barrier id
+    "li t1, " QU(NUM_DMR_GROUPS) " \n\t"
+    "remu t1, t0, t1 \n\t"
+    "addi t1, t1, 1 \n"
+#else
+    "srli t1, t0, 1 \n\t"
+    "addi t1, t1, 1 \n"
+#endif
+    "pos_hmr_synch_rapid: \n\t"
+    "sll t1, t1, " QU(EU_BARRIER_SIZE_LOG2) " \n\t"
+    "li t2, " QU(ARCHI_EU_DEMUX_ADDR + EU_BARRIER_DEMUX_OFFSET) " \n\t" // t1 is tmr base address
+    "add t1, t1, t2 \n\t"
+    "p.elw zero, " QU(EU_HW_BARR_TRIGGER_WAIT_CLEAR) "(t1) \n\t" // barrier
+    "j pos_hmr_load_part_from_stack \n" // Executes mret
+    "pos_hmr_synch_sw: \n\t"
+  : : : "memory");
+
+  pos_hmr_store_rest_to_stack();
+
+  // store sp to hmr core reg
+  __asm__ __volatile__(
+    "csrr t0, 0xf14 \n\t" // Read core id
+    "li t1, " QU(ARCHI_HMR_ADDR + HMR_CORE_OFFSET) " \n\t"
+    "andi t0, t0, 0x01f \n\t"
+    "sll t2, t0, " QU(HMR_CORE_SLL) " \n\t"
+    "add t2, t2, t1 \n\t"
+    "sw sp, " QU(HMR_CORE_REGS_SP_STORE_REG_OFFSET) "(t2) \n\t"
+  : : : "memory");
+
+  // enter barrier -> this should lock the cores together
+  // eu_bar_trig_wait_clr(eu_bar_addr(TMR_BARRIER_ID(TMR_GROUP_ID(core_id()))));
+  __asm__ __volatile__(
+    // if not a tmr core, check dmr
+    "li t1, " QU(LOCAL_NUM_TMR_CORES) " \n\t"
+    "bgeu t0, t1, pos_hmr_dmr_barrier \n"
+
+    // read tmr register of the core
+    "slli t1, t1, " QU(HMR_TMR_SLL) " \n\t"
+    "li t2, " QU(ARCHI_HMR_ADDR + HMR_TMR_OFFSET) " \n\t" // t1 is tmr base address
+    "add t1, t1, t2 \n\t"
+    "lw t2, " QU(HMR_TMR_REGS_TMR_ENABLE_REG_OFFSET) "(t1) \n\t"
+
+    // if tmr is not intended, pos_hmr_dmr_barrier()
+    "beq t2, zero, pos_hmr_dmr_barrier \n\t"
+
+    "pos_hmr_tmr_barrier: \n\t"
+#if HMR_IN_INTERLEAVED    // t1 is barrier id
+    "li t1, " QU(NUM_TMR_GROUPS) " \n\t"
+    "remu t1, t0, t1 \n\t"
+    "addi t1, t1, 1 \n\t"
+#else
+    "li t1, 3 \n\t"
+    "divu t1, t0, t1 \n\t"
+    "srli t2, t1, 1 \n\t"
+    "addi t1, t1, 1 \n\t"
+    "add t1, t1, t2 \n\t"
+#endif    // t1 is barrier id
+    "j pos_hmr_barrier \n"
+
+    "pos_hmr_dmr_barrier: \n\t"
+#if HMR_IN_INTERLEAVED    // t1 is barrier id
+    "li t1, " QU(NUM_DMR_GROUPS) " \n\t"
+    "remu t1, t0, t1 \n\t"
+    "addi t1, t1, 1 \n"
+#else
+    "srli t1, t0, 1 \n\t"
+    "addi t1, t1, 1 \n"
+#endif
+
+    "pos_hmr_barrier: \n\t"
+    "sll t1, t1, " QU(EU_BARRIER_SIZE_LOG2) " \n\t"
+    "li t2, " QU(ARCHI_EU_DEMUX_ADDR + EU_BARRIER_DEMUX_OFFSET) " \n\t" // t1 is tmr base address
+    "add t1, t1, t2 \n\t"
+    "p.elw zero, " QU(EU_HW_BARR_TRIGGER_WAIT_CLEAR) "(t1) \n\t" // barrier
+  : : : "memory");
+
+
+  // several nops to delay and allow for core reset
+  __asm__ __volatile__(
+    "nop\n\t"
+    "nop\n\t"
+    "nop\n\t"
+    "nop\n\t"
+    "nop\n\t"
+  : : : "memory");
+
+  pos_hmr_sw_reload();
 }
 
 void __attribute__((naked)) pos_hmr_tmr_synch() {
-  pos_hmr_store_state_to_stack();
+  pos_hmr_store_part_to_stack();
+  pos_hmr_store_rest_to_stack();
 
   // store sp to hmr core reg
   __asm__ __volatile__(
@@ -229,7 +439,37 @@ void __attribute__((naked)) pos_hmr_tmr_synch() {
     "nop\n\t"
   : : : "memory");
 
-  pos_hmr_tmr_reload();
+  pos_hmr_sw_reload();
+}
+
+
+void __attribute__((naked)) pos_hmr_dmr_synch() {
+  pos_hmr_store_part_to_stack();
+  pos_hmr_store_rest_to_stack();
+
+  // store sp to hmr core reg
+  __asm__ __volatile__(
+    "csrr t0, 0xf14 \n\t" // Read core id
+    "li t1, " QU(ARCHI_HMR_ADDR + HMR_CORE_OFFSET) " \n\t"
+    "andi t0, t0, 0x01f \n\t"
+    "sll t0, t0, " QU(HMR_CORE_SLL) " \n\t"
+    "add t0, t0, t1 \n\t"
+    "sw sp, " QU(HMR_CORE_REGS_SP_STORE_REG_OFFSET) "(t0) \n\t"
+  : : : "memory");
+
+  // enter barrier -> this should lock the cores together
+  eu_bar_trig_wait_clr(eu_bar_addr(DMR_BARRIER_ID(DMR_GROUP_ID(core_id()))));
+
+  // several nops to delay and allow for core reset
+  __asm__ __volatile__(
+    "nop\n\t"
+    "nop\n\t"
+    "nop\n\t"
+    "nop\n\t"
+    "nop\n\t"
+  : : : "memory");
+
+  pos_hmr_sw_reload();
 }
 
 int hmr_tmr_critical_section(int (*function_handle)()) {
@@ -247,6 +487,20 @@ int hmr_tmr_critical_section(int (*function_handle)()) {
   }
 
   return ret;
+}
+
+int hmr_dmr_critical_section(int (*function_handle)()) {
+  int ret = 0;
+  if (DMR_IS_MAIN_CORE(core_id())) {
+    // enter critical section
+    hmr_self_enable_dmr();
+
+    // do critical stuff
+    ret += function_handle();
+
+    // exit critical section
+    hmr_disable_dmr(0, DMR_GROUP_ID(core_id()));
+  }
 }
 
 // void pos_hmr_tmr_unsync() {

@@ -137,7 +137,7 @@ extern "C" {
 
 // DMR configuration enable.
 #define HMR_DMR_REGS_DMR_ENABLE_REG_OFFSET 0x0
-#define HMR_DMR_REGS_DMR_ENABLE_TMR_ENABLE_BIT 0
+#define HMR_DMR_REGS_DMR_ENABLE_DMR_ENABLE_BIT 0
 
 // DMR configuration bits.
 #define HMR_DMR_REGS_DMR_CONFIG_REG_OFFSET 0x4

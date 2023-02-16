@@ -44,7 +44,7 @@ static void cluster_core_init()
     // Enable resynch and synch requests
     eu_irq_maskSet(1<<24 | 1<<23);
     rt_irq_set_handler(24, pos_hmr_tmr_irq);
-    rt_irq_set_handler(23, pos_hmr_tmr_synch);
+    rt_irq_set_handler(23, pos_hmr_synch);
     hal_spr_write(0x304, 1<<24|1<<23);
     hal_irq_enable();
 
