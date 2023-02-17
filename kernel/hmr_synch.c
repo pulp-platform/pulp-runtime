@@ -267,15 +267,15 @@ void __attribute__((naked)) pos_hmr_synch() {
 
     // Set up ra as barrier id
 #if HMR_IN_INTERLEAVED    // ra is barrier id
-    "li t1, " QU(NUM_TMR_GROUPS) " \n\t"
-    "remu t1, t0, t1 \n\t"
-    "addi ra, t1, 1 \n\t"
+    "li ra, " QU(NUM_TMR_GROUPS) " \n\t"
+    "remu ra, t0, ra \n\t"
+    "addi ra, ra, 1 \n\t"
 #else
-    "li t1, 3 \n\t"
-    "divu t1, t0, t1 \n\t"
-    "srli t2, t1, 1 \n\t"
-    "addi t1, t1, 1 \n\t"
-    "add ra, t1, t2 \n\t"
+    "li ra, 3 \n\t"
+    "divu ra, t0, ra \n\t"
+    "srli t2, ra, 1 \n\t"
+    "addi ra, ra, 1 \n\t"
+    "add ra, ra, t2 \n\t"
 #endif    // ra is barrier id
 
     // if not main core, pos_hmr_synch_sw()
