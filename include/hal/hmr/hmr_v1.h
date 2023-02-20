@@ -52,8 +52,6 @@
 #define DMR_IS_MAIN_CORE(core_id)     (DMR_IS_CORE(core_id) && (DMR_CORE_ID(DMR_GROUP_ID(core_id), 0) == core_id))
 
 void pos_hmr_tmr_irq();
-void pos_hmr_tmr_synch();
-void pos_hmr_dmr_synch();
 void pos_hmr_synch();
 
 static inline unsigned int hmr_get_available_config(unsigned int cid) {

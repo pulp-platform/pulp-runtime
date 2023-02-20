@@ -80,6 +80,7 @@
 // #define MCHAN_VERSION       7
 #define IDMA_VERSION        1
 #define PADS_VERSION        2
+#define HMR_VERSION         1
 
 #if defined(MCHAN_VERSION) && defined(IDMA_VERSION)
 #error "MCHAN and IDMA not compatible"
@@ -97,6 +98,18 @@
 #define ARCHI_NB_CLUSTER    1
 
 #define ARCHI_HAS_DMA_DEMUX 1
+
+// #define ARCHI_HMR_NO_RAPID_RECOVERY
+// #define ARCHI_HMR_FORCE_RAPID
+#if defined(ARCHI_HMR_NO_RAPID_RECOVERY) && defined(ARCHI_HMR_FORCE_RAPID)
+#error "Excluding and forcing rapid recovery not compatible"
+#endif
+
+// #define ARCHI_HMR_TMR_ONLY
+// #define ARCHI_HMR_DMR_ONLY
+#if defined(ARCHI_HMR_DMR_ONLY) && defined(ARCHI_HMR_TMR_ONLY)
+#error "TMR only and DMR only not compatible"
+#endif
 
 
 /*

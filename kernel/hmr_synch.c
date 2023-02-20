@@ -243,6 +243,8 @@ void __attribute__((naked)) pos_hmr_synch() {
     "csrr t0, 0xf14 \n\t"
     "andi t0, t0, 0x01f \n\t"
 
+#ifndef ARCHI_HMR_DMR_ONLY
+#ifndef ARCHI_HMR_TMR_ONLY
      // if not a tmr core, check dmr
     "li t1, " QU(LOCAL_NUM_TMR_CORES) " \n\t"
     "bgeu t0, t1, pos_hmr_synch_check_dmr \n\t"
@@ -264,6 +266,7 @@ void __attribute__((naked)) pos_hmr_synch() {
 
     // if tmr is not intended, pos_hmr_synch_check_dmr()
     "beq t2, zero, pos_hmr_synch_check_dmr \n\t"
+#endif // !ARCHI_HMR_TMR_ONLY
 
     // Set up ra as barrier id
 #if HMR_IN_INTERLEAVED    // ra is barrier id
@@ -278,6 +281,7 @@ void __attribute__((naked)) pos_hmr_synch() {
     "add ra, ra, t2 \n\t"
 #endif    // ra is barrier id
 
+#ifndef ARCHI_HMR_NO_RAPID_RECOVERY
     // if not main core, pos_hmr_synch_sw()
 #if HMR_IN_INTERLEAVED
     "li t2, " QU(NUM_TMR_GROUPS) " \n\t"
@@ -288,20 +292,29 @@ void __attribute__((naked)) pos_hmr_synch() {
     "mul t2, t1, t2 \n\t"
     "bneq t2, t0, pos_hmr_synch_sw \n\t"
 
+#ifndef ARCHI_HMR_FORCE_RAPID
     // Fix t1 base address
     "slli t1, t1, " QU(HMR_TMR_SLL) " \n\t"
     "li t2, " QU(ARCHI_HMR_ADDR + HMR_TMR_OFFSET) " \n\t"
     "add t1, t1, t2 \n\t" // t1 is tmr base address
+#endif // !ARCHI_HMR_FORCE_RAPID
 #endif
 
+#ifndef ARCHI_HMR_FORCE_RAPID
     // if not rapidrecover, pos_hmr_synch_sw()
     "lw t2, " QU(HMR_TMR_REGS_TMR_CONFIG_REG_OFFSET) "(t1) \n\t"
     "andi t2, t2, " QU(1<<HMR_TMR_REGS_TMR_CONFIG_RAPID_RECOVERY_BIT) " \n\t"
     "beq t2, zero, pos_hmr_synch_sw \n\t"
+#endif
 
     // This is main core in rapidrecover mode
     "j pos_hmr_synch_rapid \n"
+#else // ARCHI_HMR_NO_RAPID_RECOVERY
+    "j pos_hmr_synch_sw \n\t"
+#endif // !ARCHI_HMR_NO_RAPID_RECOVERY
 
+#endif // !ARCHI_HMR_DMR_ONLY
+#ifndef ARCHI_HMR_TMR_ONLY
     // Assume DMR! (we are not in TMR, but in reliability entry, so this is implied)
     "pos_hmr_synch_check_dmr: \n\t"
 
@@ -333,6 +346,7 @@ void __attribute__((naked)) pos_hmr_synch() {
     "bneq t2, t0, pos_hmr_synch_sw \n\t"
 #endif
 
+#ifndef ARCHI_HMR_FORCE_RAPID
     // if not rapidrecover, pos_hmr_synch_sw()
     "slli t1, t1, " QU(HMR_DMR_SLL) " \n\t"
     "li t2, " QU(ARCHI_HMR_ADDR + HMR_DMR_OFFSET) " \n\t"
@@ -340,7 +354,11 @@ void __attribute__((naked)) pos_hmr_synch() {
     "lw t2, " QU(HMR_DMR_REGS_DMR_CONFIG_REG_OFFSET) "(t1) \n\t"
     "andi t2, t2, " QU(1<<HMR_DMR_REGS_DMR_CONFIG_RAPID_RECOVERY_BIT) " \n\t"
     "beq t2, zero, pos_hmr_synch_sw \n\t"
+#endif
 
+#endif // !ARCHI_HMR_TMR_ONLY
+
+#ifndef ARCHI_HMR_NO_RAPID_RECOVERY
     // This is main core in rapidrecover mode
     "pos_hmr_synch_rapid: \n\t"
     "sll t1, ra, " QU(EU_BARRIER_SIZE_LOG2) " \n\t"
@@ -353,6 +371,7 @@ void __attribute__((naked)) pos_hmr_synch() {
     "nop\n\t"
     "nop\n\t"
     "j pos_hmr_load_part_from_stack \n" // Executes mret
+#endif // !ARCHI_HMR_NO_RAPID_RECOVERY
 
     // Rest is the normal SW routine
     "pos_hmr_synch_sw: \n\t"
