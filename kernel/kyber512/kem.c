@@ -8,7 +8,7 @@
 #include <stdint.h>
 
 /*************************************************
-* Name:        PQCLEAN_KYBER768_CLEAN_crypto_kem_keypair
+* Name:        PQCLEAN_KYBER512_CLEAN_crypto_kem_keypair
 *
 * Description: Generates public and private key
 *              for CCA-secure Kyber key encapsulation mechanism
@@ -20,10 +20,10 @@
 *
 * Returns 0 (success)
 **************************************************/
-int PQCLEAN_KYBER768_CLEAN_crypto_kem_keypair(uint8_t *pk,
+int PQCLEAN_KYBER512_CLEAN_crypto_kem_keypair(uint8_t *pk,
         uint8_t *sk) {
     size_t i;
-    PQCLEAN_KYBER768_CLEAN_indcpa_keypair(pk, sk);
+    PQCLEAN_KYBER512_CLEAN_indcpa_keypair(pk, sk);
     for (i = 0; i < KYBER_INDCPA_PUBLICKEYBYTES; i++) {
         sk[i + KYBER_INDCPA_SECRETKEYBYTES] = pk[i];
     }
@@ -34,7 +34,7 @@ int PQCLEAN_KYBER768_CLEAN_crypto_kem_keypair(uint8_t *pk,
 }
 
 /*************************************************
-* Name:        PQCLEAN_KYBER768_CLEAN_crypto_kem_enc
+* Name:        PQCLEAN_KYBER512_CLEAN_crypto_kem_enc
 *
 * Description: Generates cipher text and shared
 *              secret for given public key
@@ -48,7 +48,7 @@ int PQCLEAN_KYBER768_CLEAN_crypto_kem_keypair(uint8_t *pk,
 *
 * Returns 0 (success)
 **************************************************/
-int PQCLEAN_KYBER768_CLEAN_crypto_kem_enc(uint8_t *ct,
+int PQCLEAN_KYBER512_CLEAN_crypto_kem_enc(uint8_t *ct,
         uint8_t *ss,
         const uint8_t *pk) {
     uint8_t buf[2 * KYBER_SYMBYTES];
@@ -64,7 +64,7 @@ int PQCLEAN_KYBER768_CLEAN_crypto_kem_enc(uint8_t *ct,
     hash_g(kr, buf, 2 * KYBER_SYMBYTES);
 
     /* coins are in kr+KYBER_SYMBYTES */
-    PQCLEAN_KYBER768_CLEAN_indcpa_enc(ct, buf, pk, kr + KYBER_SYMBYTES);
+    PQCLEAN_KYBER512_CLEAN_indcpa_enc(ct, buf, pk, kr + KYBER_SYMBYTES);
 
     /* overwrite coins in kr with H(c) */
     hash_h(kr + KYBER_SYMBYTES, ct, KYBER_CIPHERTEXTBYTES);
@@ -74,7 +74,7 @@ int PQCLEAN_KYBER768_CLEAN_crypto_kem_enc(uint8_t *ct,
 }
 
 /*************************************************
-* Name:        PQCLEAN_KYBER768_CLEAN_crypto_kem_dec
+* Name:        PQCLEAN_KYBER512_CLEAN_crypto_kem_dec
 *
 * Description: Generates shared secret for given
 *              cipher text and private key
@@ -90,7 +90,7 @@ int PQCLEAN_KYBER768_CLEAN_crypto_kem_enc(uint8_t *ct,
 *
 * On failure, ss will contain a pseudo-random value.
 **************************************************/
-int PQCLEAN_KYBER768_CLEAN_crypto_kem_dec(uint8_t *ss,
+int PQCLEAN_KYBER512_CLEAN_crypto_kem_dec(uint8_t *ss,
         const uint8_t *ct,
         const uint8_t *sk) {
     size_t i;
@@ -101,7 +101,7 @@ int PQCLEAN_KYBER768_CLEAN_crypto_kem_dec(uint8_t *ss,
     uint8_t cmp[KYBER_CIPHERTEXTBYTES];
     const uint8_t *pk = sk + KYBER_INDCPA_SECRETKEYBYTES;
 
-    PQCLEAN_KYBER768_CLEAN_indcpa_dec(buf, ct, sk);
+    PQCLEAN_KYBER512_CLEAN_indcpa_dec(buf, ct, sk);
 
     /* Multitarget countermeasure for coins + contributory KEM */
     for (i = 0; i < KYBER_SYMBYTES; i++) {
@@ -110,15 +110,15 @@ int PQCLEAN_KYBER768_CLEAN_crypto_kem_dec(uint8_t *ss,
     hash_g(kr, buf, 2 * KYBER_SYMBYTES);
 
     /* coins are in kr+KYBER_SYMBYTES */
-    PQCLEAN_KYBER768_CLEAN_indcpa_enc(cmp, buf, pk, kr + KYBER_SYMBYTES);
+    PQCLEAN_KYBER512_CLEAN_indcpa_enc(cmp, buf, pk, kr + KYBER_SYMBYTES);
 
-    fail = PQCLEAN_KYBER768_CLEAN_verify(ct, cmp, KYBER_CIPHERTEXTBYTES);
+    fail = PQCLEAN_KYBER512_CLEAN_verify(ct, cmp, KYBER_CIPHERTEXTBYTES);
 
     /* overwrite coins in kr with H(c) */
     hash_h(kr + KYBER_SYMBYTES, ct, KYBER_CIPHERTEXTBYTES);
 
     /* Overwrite pre-k with z on re-encryption failure */
-    PQCLEAN_KYBER768_CLEAN_cmov(kr, sk + KYBER_SECRETKEYBYTES - KYBER_SYMBYTES, KYBER_SYMBYTES, (uint8_t)fail);
+    PQCLEAN_KYBER512_CLEAN_cmov(kr, sk + KYBER_SECRETKEYBYTES - KYBER_SYMBYTES, KYBER_SYMBYTES, (uint8_t)fail);
 
     /* hash concatenation of pre-k and H(c) to k */
     kdf(ss, kr, 2 * KYBER_SYMBYTES);

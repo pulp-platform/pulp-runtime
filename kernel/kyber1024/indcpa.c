@@ -5,11 +5,8 @@
 #include "polyvec.h"
 #include "randombytes.h"
 #include "symmetric.h"
-
 #include <stddef.h>
 #include <stdint.h>
-#include <stdio.h>
-#include <string.h>
 
 /*************************************************
 * Name:        pack_pk
@@ -26,7 +23,7 @@ static void pack_pk(uint8_t r[KYBER_INDCPA_PUBLICKEYBYTES],
                     polyvec *pk,
                     const uint8_t seed[KYBER_SYMBYTES]) {
     size_t i;
-    PQCLEAN_KYBER768_CLEAN_polyvec_tobytes(r, pk);
+    PQCLEAN_KYBER1024_CLEAN_polyvec_tobytes(r, pk);
     for (i = 0; i < KYBER_SYMBYTES; i++) {
         r[i + KYBER_POLYVECBYTES] = seed[i];
     }
@@ -46,7 +43,7 @@ static void unpack_pk(polyvec *pk,
                       uint8_t seed[KYBER_SYMBYTES],
                       const uint8_t packedpk[KYBER_INDCPA_PUBLICKEYBYTES]) {
     size_t i;
-    PQCLEAN_KYBER768_CLEAN_polyvec_frombytes(pk, packedpk);
+    PQCLEAN_KYBER1024_CLEAN_polyvec_frombytes(pk, packedpk);
     for (i = 0; i < KYBER_SYMBYTES; i++) {
         seed[i] = packedpk[i + KYBER_POLYVECBYTES];
     }
@@ -61,7 +58,7 @@ static void unpack_pk(polyvec *pk,
 *              - polyvec *sk: pointer to input vector of polynomials (secret key)
 **************************************************/
 static void pack_sk(uint8_t r[KYBER_INDCPA_SECRETKEYBYTES], polyvec *sk) {
-    PQCLEAN_KYBER768_CLEAN_polyvec_tobytes(r, sk);
+    PQCLEAN_KYBER1024_CLEAN_polyvec_tobytes(r, sk);
 }
 
 /*************************************************
@@ -73,7 +70,7 @@ static void pack_sk(uint8_t r[KYBER_INDCPA_SECRETKEYBYTES], polyvec *sk) {
 *              - const uint8_t *packedsk: pointer to input serialized secret key
 **************************************************/
 static void unpack_sk(polyvec *sk, const uint8_t packedsk[KYBER_INDCPA_SECRETKEYBYTES]) {
-    PQCLEAN_KYBER768_CLEAN_polyvec_frombytes(sk, packedsk);
+    PQCLEAN_KYBER1024_CLEAN_polyvec_frombytes(sk, packedsk);
 }
 
 /*************************************************
@@ -88,8 +85,8 @@ static void unpack_sk(polyvec *sk, const uint8_t packedsk[KYBER_INDCPA_SECRETKEY
 *              poly *v: pointer to the input polynomial v
 **************************************************/
 static void pack_ciphertext(uint8_t r[KYBER_INDCPA_BYTES], polyvec *b, poly *v) {
-    PQCLEAN_KYBER768_CLEAN_polyvec_compress(r, b);
-    PQCLEAN_KYBER768_CLEAN_poly_compress(r + KYBER_POLYVECCOMPRESSEDBYTES, v);
+    PQCLEAN_KYBER1024_CLEAN_polyvec_compress(r, b);
+    PQCLEAN_KYBER1024_CLEAN_poly_compress(r + KYBER_POLYVECCOMPRESSEDBYTES, v);
 }
 
 /*************************************************
@@ -103,8 +100,8 @@ static void pack_ciphertext(uint8_t r[KYBER_INDCPA_BYTES], polyvec *b, poly *v) 
 *              - const uint8_t *c: pointer to the input serialized ciphertext
 **************************************************/
 static void unpack_ciphertext(polyvec *b, poly *v, const uint8_t c[KYBER_INDCPA_BYTES]) {
-    PQCLEAN_KYBER768_CLEAN_polyvec_decompress(b, c);
-    PQCLEAN_KYBER768_CLEAN_poly_decompress(v, c + KYBER_POLYVECCOMPRESSEDBYTES);
+    PQCLEAN_KYBER1024_CLEAN_polyvec_decompress(b, c);
+    PQCLEAN_KYBER1024_CLEAN_poly_decompress(v, c + KYBER_POLYVECCOMPRESSEDBYTES);
 }
 
 /*************************************************
@@ -144,11 +141,11 @@ static unsigned int rej_uniform(int16_t *r,
     return ctr;
 }
 
-#define gen_a(A,B)  PQCLEAN_KYBER768_CLEAN_gen_matrix(A,B,0)
-#define gen_at(A,B) PQCLEAN_KYBER768_CLEAN_gen_matrix(A,B,1)
+#define gen_a(A,B)  PQCLEAN_KYBER1024_CLEAN_gen_matrix(A,B,0)
+#define gen_at(A,B) PQCLEAN_KYBER1024_CLEAN_gen_matrix(A,B,1)
 
 /*************************************************
-* Name:        PQCLEAN_KYBER768_CLEAN_gen_matrix
+* Name:        PQCLEAN_KYBER1024_CLEAN_gen_matrix
 *
 * Description: Deterministically generate matrix A (or the transpose of A)
 *              from a seed. Entries of the matrix are polynomials that look
@@ -161,7 +158,7 @@ static unsigned int rej_uniform(int16_t *r,
 **************************************************/
 #define GEN_MATRIX_NBLOCKS ((12*KYBER_N/8*(1 << 12)/KYBER_Q + XOF_BLOCKBYTES)/XOF_BLOCKBYTES)
 // Not static for benchmarking
-void PQCLEAN_KYBER768_CLEAN_gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed) {
+void PQCLEAN_KYBER1024_CLEAN_gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed) {
     unsigned int ctr, i, j, k;
     unsigned int buflen, off;
     uint8_t buf[GEN_MATRIX_NBLOCKS * XOF_BLOCKBYTES + 2];
@@ -194,7 +191,7 @@ void PQCLEAN_KYBER768_CLEAN_gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMB
 }
 
 /*************************************************
-* Name:        PQCLEAN_KYBER768_CLEAN_indcpa_keypair
+* Name:        PQCLEAN_KYBER1024_CLEAN_indcpa_keypair
 *
 * Description: Generates public and private key for the CPA-secure
 *              public-key encryption scheme underlying Kyber
@@ -204,7 +201,7 @@ void PQCLEAN_KYBER768_CLEAN_gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMB
 *              - uint8_t *sk: pointer to output private key
                               (of length KYBER_INDCPA_SECRETKEYBYTES bytes)
 **************************************************/
-void PQCLEAN_KYBER768_CLEAN_indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
+void PQCLEAN_KYBER1024_CLEAN_indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
         uint8_t sk[KYBER_INDCPA_SECRETKEYBYTES]) {
     unsigned int i;
     uint8_t buf[2 * KYBER_SYMBYTES];
@@ -213,41 +210,36 @@ void PQCLEAN_KYBER768_CLEAN_indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTE
     uint8_t nonce = 0;
     polyvec a[KYBER_K], e, pkpv, skpv;
 
-	//printf("randombytes for buf");
-	//for (int i=0; i<64; i++){
-		//buf[i]= (uint8_t) i;	
-	//}
-
     randombytes(buf, KYBER_SYMBYTES);
     hash_g(buf, buf, KYBER_SYMBYTES);
 
     gen_a(a, publicseed);
 
     for (i = 0; i < KYBER_K; i++) {
-        PQCLEAN_KYBER768_CLEAN_poly_getnoise_eta1(&skpv.vec[i], noiseseed, nonce++);
+        PQCLEAN_KYBER1024_CLEAN_poly_getnoise_eta1(&skpv.vec[i], noiseseed, nonce++);
     }
     for (i = 0; i < KYBER_K; i++) {
-        PQCLEAN_KYBER768_CLEAN_poly_getnoise_eta1(&e.vec[i], noiseseed, nonce++);
+        PQCLEAN_KYBER1024_CLEAN_poly_getnoise_eta1(&e.vec[i], noiseseed, nonce++);
     }
 
-    PQCLEAN_KYBER768_CLEAN_polyvec_ntt(&skpv);
-    PQCLEAN_KYBER768_CLEAN_polyvec_ntt(&e);
+    PQCLEAN_KYBER1024_CLEAN_polyvec_ntt(&skpv);
+    PQCLEAN_KYBER1024_CLEAN_polyvec_ntt(&e);
 
     // matrix-vector multiplication
     for (i = 0; i < KYBER_K; i++) {
-        PQCLEAN_KYBER768_CLEAN_polyvec_basemul_acc_montgomery(&pkpv.vec[i], &a[i], &skpv);
-        PQCLEAN_KYBER768_CLEAN_poly_tomont(&pkpv.vec[i]);
+        PQCLEAN_KYBER1024_CLEAN_polyvec_basemul_acc_montgomery(&pkpv.vec[i], &a[i], &skpv);
+        PQCLEAN_KYBER1024_CLEAN_poly_tomont(&pkpv.vec[i]);
     }
 
-    PQCLEAN_KYBER768_CLEAN_polyvec_add(&pkpv, &pkpv, &e);
-    PQCLEAN_KYBER768_CLEAN_polyvec_reduce(&pkpv);
+    PQCLEAN_KYBER1024_CLEAN_polyvec_add(&pkpv, &pkpv, &e);
+    PQCLEAN_KYBER1024_CLEAN_polyvec_reduce(&pkpv);
 
     pack_sk(sk, &skpv);
     pack_pk(pk, &pkpv, publicseed);
 }
 
 /*************************************************
-* Name:        PQCLEAN_KYBER768_CLEAN_indcpa_enc
+* Name:        PQCLEAN_KYBER1024_CLEAN_indcpa_enc
 *
 * Description: Encryption function of the CPA-secure
 *              public-key encryption scheme underlying Kyber.
@@ -262,10 +254,10 @@ void PQCLEAN_KYBER768_CLEAN_indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTE
 *                                      (of length KYBER_SYMBYTES) to deterministically
 *                                      generate all randomness
 **************************************************/
-void PQCLEAN_KYBER768_CLEAN_indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
-                                       const uint8_t m[KYBER_INDCPA_MSGBYTES],
-                                       const uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
-                                       const uint8_t coins[KYBER_SYMBYTES]) {
+void PQCLEAN_KYBER1024_CLEAN_indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
+                                        const uint8_t m[KYBER_INDCPA_MSGBYTES],
+                                        const uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
+                                        const uint8_t coins[KYBER_SYMBYTES]) {
     unsigned int i;
     uint8_t seed[KYBER_SYMBYTES];
     uint8_t nonce = 0;
@@ -273,40 +265,40 @@ void PQCLEAN_KYBER768_CLEAN_indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
     poly v, k, epp;
 
     unpack_pk(&pkpv, seed, pk);
-    PQCLEAN_KYBER768_CLEAN_poly_frommsg(&k, m);
+    PQCLEAN_KYBER1024_CLEAN_poly_frommsg(&k, m);
     gen_at(at, seed);
 
     for (i = 0; i < KYBER_K; i++) {
-        PQCLEAN_KYBER768_CLEAN_poly_getnoise_eta1(sp.vec + i, coins, nonce++);
+        PQCLEAN_KYBER1024_CLEAN_poly_getnoise_eta1(sp.vec + i, coins, nonce++);
     }
     for (i = 0; i < KYBER_K; i++) {
-        PQCLEAN_KYBER768_CLEAN_poly_getnoise_eta2(ep.vec + i, coins, nonce++);
+        PQCLEAN_KYBER1024_CLEAN_poly_getnoise_eta2(ep.vec + i, coins, nonce++);
     }
-    PQCLEAN_KYBER768_CLEAN_poly_getnoise_eta2(&epp, coins, nonce++);
+    PQCLEAN_KYBER1024_CLEAN_poly_getnoise_eta2(&epp, coins, nonce++);
 
-    PQCLEAN_KYBER768_CLEAN_polyvec_ntt(&sp);
+    PQCLEAN_KYBER1024_CLEAN_polyvec_ntt(&sp);
 
     // matrix-vector multiplication
     for (i = 0; i < KYBER_K; i++) {
-        PQCLEAN_KYBER768_CLEAN_polyvec_basemul_acc_montgomery(&b.vec[i], &at[i], &sp);
+        PQCLEAN_KYBER1024_CLEAN_polyvec_basemul_acc_montgomery(&b.vec[i], &at[i], &sp);
     }
 
-    PQCLEAN_KYBER768_CLEAN_polyvec_basemul_acc_montgomery(&v, &pkpv, &sp);
+    PQCLEAN_KYBER1024_CLEAN_polyvec_basemul_acc_montgomery(&v, &pkpv, &sp);
 
-    PQCLEAN_KYBER768_CLEAN_polyvec_invntt_tomont(&b);
-    PQCLEAN_KYBER768_CLEAN_poly_invntt_tomont(&v);
+    PQCLEAN_KYBER1024_CLEAN_polyvec_invntt_tomont(&b);
+    PQCLEAN_KYBER1024_CLEAN_poly_invntt_tomont(&v);
 
-    PQCLEAN_KYBER768_CLEAN_polyvec_add(&b, &b, &ep);
-    PQCLEAN_KYBER768_CLEAN_poly_add(&v, &v, &epp);
-    PQCLEAN_KYBER768_CLEAN_poly_add(&v, &v, &k);
-    PQCLEAN_KYBER768_CLEAN_polyvec_reduce(&b);
-    PQCLEAN_KYBER768_CLEAN_poly_reduce(&v);
+    PQCLEAN_KYBER1024_CLEAN_polyvec_add(&b, &b, &ep);
+    PQCLEAN_KYBER1024_CLEAN_poly_add(&v, &v, &epp);
+    PQCLEAN_KYBER1024_CLEAN_poly_add(&v, &v, &k);
+    PQCLEAN_KYBER1024_CLEAN_polyvec_reduce(&b);
+    PQCLEAN_KYBER1024_CLEAN_poly_reduce(&v);
 
     pack_ciphertext(c, &b, &v);
 }
 
 /*************************************************
-* Name:        PQCLEAN_KYBER768_CLEAN_indcpa_dec
+* Name:        PQCLEAN_KYBER1024_CLEAN_indcpa_dec
 *
 * Description: Decryption function of the CPA-secure
 *              public-key encryption scheme underlying Kyber.
@@ -318,21 +310,21 @@ void PQCLEAN_KYBER768_CLEAN_indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
 *              - const uint8_t *sk: pointer to input secret key
 *                                   (of length KYBER_INDCPA_SECRETKEYBYTES)
 **************************************************/
-void PQCLEAN_KYBER768_CLEAN_indcpa_dec(uint8_t m[KYBER_INDCPA_MSGBYTES],
-                                       const uint8_t c[KYBER_INDCPA_BYTES],
-                                       const uint8_t sk[KYBER_INDCPA_SECRETKEYBYTES]) {
+void PQCLEAN_KYBER1024_CLEAN_indcpa_dec(uint8_t m[KYBER_INDCPA_MSGBYTES],
+                                        const uint8_t c[KYBER_INDCPA_BYTES],
+                                        const uint8_t sk[KYBER_INDCPA_SECRETKEYBYTES]) {
     polyvec b, skpv;
     poly v, mp;
 
     unpack_ciphertext(&b, &v, c);
     unpack_sk(&skpv, sk);
 
-    PQCLEAN_KYBER768_CLEAN_polyvec_ntt(&b);
-    PQCLEAN_KYBER768_CLEAN_polyvec_basemul_acc_montgomery(&mp, &skpv, &b);
-    PQCLEAN_KYBER768_CLEAN_poly_invntt_tomont(&mp);
+    PQCLEAN_KYBER1024_CLEAN_polyvec_ntt(&b);
+    PQCLEAN_KYBER1024_CLEAN_polyvec_basemul_acc_montgomery(&mp, &skpv, &b);
+    PQCLEAN_KYBER1024_CLEAN_poly_invntt_tomont(&mp);
 
-    PQCLEAN_KYBER768_CLEAN_poly_sub(&mp, &v, &mp);
-    PQCLEAN_KYBER768_CLEAN_poly_reduce(&mp);
+    PQCLEAN_KYBER1024_CLEAN_poly_sub(&mp, &v, &mp);
+    PQCLEAN_KYBER1024_CLEAN_poly_reduce(&mp);
 
-    PQCLEAN_KYBER768_CLEAN_poly_tomsg(m, &mp);
+    PQCLEAN_KYBER1024_CLEAN_poly_tomsg(m, &mp);
 }

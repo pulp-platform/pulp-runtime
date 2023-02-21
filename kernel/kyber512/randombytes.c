@@ -13,6 +13,10 @@
  * scenario where you are expecting actual cryptography to happen.
  */
 
+/**
+Reference to: Fritzmann, T., Sigl, G., & Sepúlveda, J. (2020). RISQ-V: Tightly Coupled RISC-V Accelerators for Post-Quantum Cryptography. IACR Transactions on Cryptographic Hardware and Embedded Systems, 2020(4), 239280. https://doi.org/10.13154/tches.v2020.i4.239-280
+ */
+
 static uint32_t seed[32] = { 3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 8, 9, 7, 9, 3,
                              2, 3, 8, 4, 6, 2, 6, 4, 3, 3, 8, 3, 2, 7, 9, 5
                            };

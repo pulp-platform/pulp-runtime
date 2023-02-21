@@ -70,7 +70,7 @@ static const uint64_t KeccakF_RoundConstants[NROUNDS] = {
  *
  * Arguments:   - uint64_t *state: pointer to input/output Keccak state
  **************************************************/
-static void KeccakF1600_StatePermute(uint64_t *state) {
+/*static void KeccakF1600_StatePermute(uint64_t *state) {
     int round;
 
     uint64_t Aba, Abe, Abi, Abo, Abu;
@@ -332,7 +332,7 @@ static void KeccakF1600_StatePermute(uint64_t *state) {
     state[23] = Aso;
     state[24] = Asu;
 }
-
+*/
 /*************************************************
  * Name:        keccak_absorb
  *
@@ -361,7 +361,7 @@ static void keccak_absorb(uint64_t *s, uint32_t r, const uint8_t *m,
             s[i] ^= load64(m + 8 * i);
         }
 
-        KeccakF1600_StatePermute(s);
+        KeccakF1600_StatePermute(s, s);
         mlen -= r;
         m += r;
     }
@@ -395,7 +395,7 @@ static void keccak_absorb(uint64_t *s, uint32_t r, const uint8_t *m,
 static void keccak_squeezeblocks(uint8_t *h, size_t nblocks,
                                  uint64_t *s, uint32_t r) {
     while (nblocks > 0) {
-        KeccakF1600_StatePermute(s);
+        KeccakF1600_StatePermute(s, s);
         for (size_t i = 0; i < (r >> 3); i++) {
             store64(h + 8 * i, s[i]);
         }
@@ -452,7 +452,7 @@ static void keccak_inc_absorb(uint64_t *s_inc, uint32_t r, const uint8_t *m,
         m += r - s_inc[25];
         s_inc[25] = 0;
 
-        KeccakF1600_StatePermute(s_inc);
+        KeccakF1600_StatePermute(s_inc, s_inc);
     }
 
     for (i = 0; i < mlen; i++) {
@@ -511,7 +511,7 @@ static void keccak_inc_squeeze(uint8_t *h, size_t outlen,
 
     /* Then squeeze the remaining necessary blocks */
     while (outlen > 0) {
-        KeccakF1600_StatePermute(s_inc);
+        KeccakF1600_StatePermute(s_inc, s_inc);
 
         for (i = 0; i < outlen && i < r; i++) {
             h[i] = (uint8_t)(s_inc[i >> 3] >> (8 * (i & 0x07)));
