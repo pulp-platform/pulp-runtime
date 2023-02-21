@@ -127,7 +127,7 @@ SECTIONS
     . = ALIGN(4);
     . = ALIGN(16);
     stack_start = .;
-    . = . + 0x4000;
+    . = . + 0x6000;
     stack = .;
   } > L2
 
