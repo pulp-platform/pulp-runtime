@@ -18,18 +18,18 @@
 
 void pos_soc_init()
 {
-#if __PLATFORM__ != ARCHI_PLATFORM_FPGA
-
-  pos_fll_constructor();
-
-  pos_freq_domains[PI_FREQ_DOMAIN_FC] = pos_fll_init(POS_FLL_FC);
-
-  pos_freq_domains[PI_FREQ_DOMAIN_PERIPH] = pos_fll_init(POS_FLL_PERIPH);
-
-
-  pos_freq_domains[PI_FREQ_DOMAIN_CL] = pos_fll_init(POS_FLL_CL);
-
-#else
+//#if __PLATFORM__ != ARCHI_PLATFORM_FPGA
+//
+//  pos_fll_constructor();
+//
+//  pos_freq_domains[PI_FREQ_DOMAIN_FC] = pos_fll_init(POS_FLL_FC);
+//
+//  pos_freq_domains[PI_FREQ_DOMAIN_PERIPH] = pos_fll_init(POS_FLL_PERIPH);
+//
+//
+//  pos_freq_domains[PI_FREQ_DOMAIN_CL] = pos_fll_init(POS_FLL_CL);
+//
+//#else
 
   pos_freq_domains[PI_FREQ_DOMAIN_FC] = ARCHI_FPGA_SOC_FREQUENCY;
 
@@ -37,6 +37,6 @@ void pos_soc_init()
 
   pos_freq_domains[PI_FREQ_DOMAIN_CL] = ARCHI_FPGA_CL_FREQUENCY;
 
-#endif
+  //#endif
 }
 

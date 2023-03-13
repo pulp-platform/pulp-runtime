@@ -105,12 +105,12 @@
  * FC
  */
 
-#ifndef ARCHI_NO_FC
-#define ARCHI_FC_CID        31
-#define ARCHI_HAS_FC_ITC     1
-#define ARCHI_HAS_FC         1
-#define ARCHI_CORE_HAS_1_10  1
-#endif
+//#ifndef ARCHI_NO_FC
+//#define ARCHI_FC_CID        31
+//#define ARCHI_HAS_FC_ITC     1
+//#define ARCHI_HAS_FC         1
+//#define ARCHI_CORE_HAS_1_10  1
+//#endif
 
 
 /*

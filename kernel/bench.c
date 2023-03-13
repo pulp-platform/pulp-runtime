@@ -108,6 +108,7 @@ void run_benchmark(testcase_t *test, testresult_t *result)
 
   bench_timer_reset();
 
+  printf("x\n", test);
   test->test(result, bench_timer_start, bench_timer_stop);
 
   result->time = get_time();

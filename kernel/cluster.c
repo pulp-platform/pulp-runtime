@@ -17,15 +17,16 @@
 #include "pulp.h"
 #include <stdio.h>
 #include <stdlib.h>
+//#include "init.c"
 
 volatile void *cluster_entry;
 
 L1_DATA char *cluster_stacks;
 
-
 static volatile int cluster_running;
 static volatile int cluster_retval;
 
+extern int main(int argc, const char * const argv[]);
 
 static void pos_wait_forever()
 {
@@ -43,12 +44,22 @@ static void cluster_core_init()
     eu_bar_setup(eu_bar_addr(0), (1<<ARCHI_CLUSTER_NB_PE) - 1);
 }
 
+// executed by the FC!
 void cluster_entry_stub()
 {
     cluster_core_init();
 
+    synch_barrier();
+
+    if(hal_core_id()==0)
+      cluster_start(hal_cluster_id(), main);
+
+    synch_barrier();
+
     int retval = ((int (*)())cluster_entry)();
 
+    synch_barrier();
+    
     if (hal_core_id() == 0)
     {
         cluster_retval = retval;
@@ -65,7 +76,7 @@ void cluster_start(int cid, int (*entry)())
     cluster_entry = entry;
 
     // Init FLL
-    pos_fll_init(POS_FLL_CL);
+    //pos_fll_init(POS_FLL_CL);
       
     // Initialize cluster L1 memory allocator
     alloc_init_l1(cid);
@@ -73,26 +84,26 @@ void cluster_start(int cid, int (*entry)())
     // Activate icache
     hal_icache_cluster_enable(cid);
 
-    if (!hal_is_fc())
-    {
-        cluster_core_init();
-    }
+//    if (!hal_is_fc())
+//    {
+//        cluster_core_init();
+//    }
 
     alloc_init_l1(cid);
 
     cluster_stacks = pi_l1_malloc(cid, ARCHI_CLUSTER_NB_PE*CLUSTER_STACK_SIZE);
-    if (cluster_stacks == NULL)
-        return;
-
-    cluster_running = 1;
-
+//    if (cluster_stacks == NULL)
+//        return;
+//
+//    cluster_running = 1;
+//
     // Fetch all cores
-    for (int i=0; i<ARCHI_CLUSTER_NB_PE; i++)
-    {
-      plp_ctrl_core_bootaddr_set_remote(cid, i, (int)_start);
-    }
-
-    eoc_fetch_enable_remote(cid, (1<<ARCHI_CLUSTER_NB_PE) - 1);
+//    for (int i=0; i<ARCHI_CLUSTER_NB_PE; i++)
+//    {
+//      plp_ctrl_core_bootaddr_set_remote(cid, i, (int)_start);
+//    }
+//
+//    eoc_fetch_enable_remote(cid, (1<<ARCHI_CLUSTER_NB_PE) - 1);
 }
 
 

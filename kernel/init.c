@@ -58,21 +58,23 @@ void pos_init_start()
   hal_pmu_bypass_set (ARCHI_REG_FIELD_SET (hal_pmu_bypass_get (), 1, 11, 1) );
 #endif
 
+  if(hal_core_id()==0) {
   pos_soc_init();
 
   pos_irq_init();
 
-  pos_soc_event_init();
+  // pos_soc_event_init();
 
   // Initialize first the memory allocators and the utils so that they are
   // available for constructors, especially to let them declare
   // callbacks
   //__rt_utils_init();
+  
   pos_allocs_init();
 
   // Call global and static constructors
   // Each module may do private initializations there
-  pos_init_do_ctors();
+  //pos_init_do_ctors();
 
   // Now that the system is ready, activate IO
   pos_io_start();
@@ -80,10 +82,18 @@ void pos_init_start()
   // Now now the minimal init are done, we can activate interruptions
   hal_irq_enable();
 
-  if (!hal_is_fc())
-  {
-      cluster_start(hal_cluster_id(), main);
   }
+
+  cluster_entry_stub();
+  
+  //if (!hal_is_fc())
+  //{
+  //    cluster_start(hal_cluster_id(), main);
+  //} else
+  //{
+  //  cluster_entry_stub();
+  //}
+  
 }
 
 
