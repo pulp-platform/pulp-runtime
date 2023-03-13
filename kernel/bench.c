@@ -131,7 +131,8 @@ int run_suite(testcase_t *tests)
     errors += result.errors;
   }
 
-  print_summary(errors);
+  if (rt_core_id() == 0)
+    print_summary(errors);
 
   return errors;
 }

@@ -63,3 +63,6 @@ The uart can be selected for the printf with this option:
 The baudrate can also be specified with:
 
     $ make all run io=uart CONFIG_IO_UART_BAUDRATE=9600
+
+It is possible to generate code that can be executed on a standalone PULP cluster by appending the `CONFIG_NO_FC` define when compiling the code:
+    $ make all CONFIG_NO_FC=1
