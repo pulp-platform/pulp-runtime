@@ -23,17 +23,21 @@
 
 #ifndef LANGUAGE_ASSEMBLY
 
-#include <bench/bench.h>
-#include <archi/pulp.h>
-#include <hal/pulp.h>
-#include <data/data.h>
-
 typedef enum {
   PI_FREQ_DOMAIN_FC     = 0,
   PI_FREQ_DOMAIN_CL     = 1,
   PI_FREQ_DOMAIN_PERIPH = 2,
   PI_FREQ_NB_DOMAINS    = 3
 } pi_freq_domain_e;
+
+#include <stdint.h>
+// #include <bench/bench.h>
+#include <data/data.h>
+#include <implem/implem.h>
+#include <archi/pulp.h>
+#include <hal/pulp.h>
+#include <hal/pulp_io.h>
+
 
 #ifdef ARCHI_HAS_CLUSTER
 
@@ -58,7 +62,7 @@ static inline int cluster_wait(int cid)
 
 void _start();
 
-#include <implem/implem.h>
+// #include <implem/implem.h>
 
 #define get_core_id hal_core_id
 #define rt_core_id hal_core_id

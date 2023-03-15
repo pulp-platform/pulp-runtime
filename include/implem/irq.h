@@ -166,7 +166,7 @@ static inline void rt_irq_wait_for_interrupt()
 {
 #if !defined(ARCHI_HAS_FC) || defined(ARCHI_HAS_FC_EU)
     eu_evt_wait();
-#else
+#elif defined(ITC_VERSION)
     hal_itc_wait_for_interrupt();
 #endif
 }

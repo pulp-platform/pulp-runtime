@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 ETH Zurich, University of Bologna
+ * Copyright (C) 2023 ETH Zurich, University of Bologna
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-#ifndef __POS_IMPLEM_ALLOC_H__
-#define __POS_IMPLEM_ALLOC_H__
 
-#include <data/data.h>
+#ifndef __ARCHI_CHIPS_SAFETY_ISLAND_H__
+#define __ARCHI_CHIPS_SAFETY_ISLAND_H__
 
-void pos_allocs_init();
+#include "archi/chips/safety-island/properties.h"
+#include "archi/chips/safety-island/safety_soc_ctrl.h"
 
-void pos_alloc_info(pos_alloc_t *a, int *_size, void **first_chunk, int *_nb_chunks);
+// cv32e40p-specific
+#include "archi/cv32e40p/cv32e40p.h"
+#include "archi/riscv/priv_1_12.h"
 
-void pos_alloc_dump(pos_alloc_t *a);
-
-void pos_alloc_init(pos_alloc_t *a, void *_chunk, int size);
-
-void *pos_alloc(pos_alloc_t *a, int size);
-
-void *pos_alloc_align(pos_alloc_t *a, int size, int align);
-
-void __attribute__((noinline)) pos_free(pos_alloc_t *a, void *_chunk, int size);
+#include "archi/chips/safety-island/memory_map.h"
+#include "archi/stdout/stdout_v3.h"
 
 #endif

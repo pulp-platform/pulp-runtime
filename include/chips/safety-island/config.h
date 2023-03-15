@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 ETH Zurich, University of Bologna
+ * Copyright (C) 2023 ETH Zurich, University of Bologna
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef __POS_IMPLEM_ALLOC_H__
-#define __POS_IMPLEM_ALLOC_H__
+#ifndef __SAFETY_ISLAND_CONFIG_H__
+#define __SAFETY_ISLAND_CONFIG_H__
 
-#include <data/data.h>
+#include "archi/pulp_defs.h"
 
-void pos_allocs_init();
-
-void pos_alloc_info(pos_alloc_t *a, int *_size, void **first_chunk, int *_nb_chunks);
-
-void pos_alloc_dump(pos_alloc_t *a);
-
-void pos_alloc_init(pos_alloc_t *a, void *_chunk, int size);
-
-void *pos_alloc(pos_alloc_t *a, int size);
-
-void *pos_alloc_align(pos_alloc_t *a, int size, int align);
-
-void __attribute__((noinline)) pos_free(pos_alloc_t *a, void *_chunk, int size);
+#define PULP_CHIP CHIP_SAFETY_ISLAND
+#define PULP_CHIP_FAMILY CHIP_SAFETY_ISLAND
+#define CONFIG_PULP 1
+#define PULP_CHIP_STR safety-island
+#define PULP_CHIP_FAMILY_STR safety-island
 
 #endif
