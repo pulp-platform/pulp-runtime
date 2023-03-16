@@ -74,7 +74,7 @@ void pos_init_start()
 
   // Call global and static constructors
   // Each module may do private initializations there
-  //pos_init_do_ctors();
+  pos_init_do_ctors();
 
   // Now that the system is ready, activate IO
   pos_io_start();
@@ -84,7 +84,7 @@ void pos_init_start()
 
   }
 
-  cluster_entry_stub();
+  //  cluster_entry_stub();
   
   //if (!hal_is_fc())
   //{

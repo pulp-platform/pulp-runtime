@@ -108,7 +108,6 @@ void run_benchmark(testcase_t *test, testresult_t *result)
 
   bench_timer_reset();
 
-  printf("x\n", test);
   test->test(result, bench_timer_start, bench_timer_stop);
 
   result->time = get_time();
@@ -127,12 +126,13 @@ int run_suite(testcase_t *tests)
   for (i = 0; i < num; i++) {
     testresult_t result;
     run_benchmark(&tests[i], &result);
-    if(enable_printf) print_result(&tests[i], &result);
-
+    if(enable_printf && (get_core_id()==0))
+      print_result(&tests[i], &result);    
     errors += result.errors;
   }
-
-  print_summary(errors);
+  
+  if(get_core_id() == 0)
+    print_summary(errors);
 
   return errors;
 }

@@ -26,18 +26,12 @@ pos_init_entry:
 #if defined(ARCHI_HAS_CLUSTER)
     csrr    a0, 0xF14
     andi    a1, a0, 0x1f
-    srli    a0, a0, 5
-    li  x2, 0x10200000
-    li  x3, 0x1
-    la  x4, _start
-    sw  x4, 0x40(x2)
-    sw  x3, 8(x2)
 //#ifdef ARCHI_CL_BOOT
 //
 //      li      a2, ARCHI_FC_CID
 //      j       do_cl_boot
-////      beq     a0, a2, do_cl_boot // FC will go there
-////      bnez    a1, pe_start // cluster will go here
+//      beq     a0, a2,  // FC will go there
+      bnez    a0, cluster_entry_stub // cluster will go here
 //
 //#else
 //
@@ -50,8 +44,12 @@ pos_init_entry:
 //#endif
 //
 #endif
-
-
+    srli    a0, a0, 5
+    li  x2, 0x10200000
+    li  x3, 0x1
+    la  x4, _start
+    sw  x4, 0x40(x2)
+    sw  x3, 8(x2)
 
     # Clear the bss segment
     la      t0, _bss_start
@@ -64,13 +62,14 @@ pos_init_entry:
 
 
     # Stack initialization
-    la   x2, stack
+//    la   x2, stack
 
 
 
     /* Do all other initializations from C code */
     jal  x1, pos_init_start
 
+    j cluster_entry_stub
 
 
 .section .text
@@ -140,7 +139,7 @@ pos_init_entry:
     .org 0x80
     .global _start
 _start:
-    jal x0, pos_init_entry
+    jal x0, pe_start
 
 
 pos_illegal_instr:
@@ -159,15 +158,17 @@ pos_semihosting_call:
 
 #if defined(ARCHI_HAS_CLUSTER)
 pe_start:
+    csrr    a0, 0xF14
+    andi    a1, a0, 0x1f
     la   x2, cluster_stacks
     lw   x2, 0(x2)
     li   x3, CLUSTER_STACK_SIZE
     addi a1, a1, 1
     mul  x1, x3, a1
     add  x2, x2, x1
-    j    cluster_entry_stub // fc will go here
+    j    pos_init_entry // fc will go here
 #endif
-
+  
 do_cl_boot:
     li  x2, 0x10200000
     li  x3, 0x1
