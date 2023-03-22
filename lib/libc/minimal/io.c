@@ -223,7 +223,8 @@ char *strchr(const char *s, int c)
 
 static void pos_libc_putc_stdout(char c)
 {
-    *(volatile uint32_t *)(long)(ARCHI_STDOUT_ADDR + STDOUT_PUTC_OFFSET + (hal_core_id()<<3) + (hal_cluster_id()<<7)) = c;
+  //    *(volatile uint32_t *)(long)(ARCHI_STDOUT_ADDR + STDOUT_PUTC_OFFSET + (hal_core_id()<<3) + (hal_cluster_id()<<7)) = c;
+    *(volatile uint32_t *)(long)(ARCHI_STDOUT_ADDR + STDOUT_PUTC_OFFSET) = c;
 }
 
 
