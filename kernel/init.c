@@ -58,12 +58,16 @@ void pos_init_start()
   hal_pmu_bypass_set (ARCHI_REG_FIELD_SET (hal_pmu_bypass_get (), 1, 11, 1) );
 #endif
 
+  #ifdef ARCHI_NO_FC
   if(hal_core_id()==0) {
+  #endif
   pos_soc_init();
 
   pos_irq_init();
 
-  // pos_soc_event_init();
+  #ifdef ARCHI_NO_FC
+  pos_soc_event_init();
+  #endif
 
   // Initialize first the memory allocators and the utils so that they are
   // available for constructors, especially to let them declare
@@ -84,15 +88,12 @@ void pos_init_start()
 
   }
 
-  //  cluster_entry_stub();
-  
-  //if (!hal_is_fc())
-  //{
-  //    cluster_start(hal_cluster_id(), main);
-  //} else
-  //{
-  //  cluster_entry_stub();
-  //}
+  #ifndef ARCHI_NO_FC
+  if (!hal_is_fc())
+  {
+      cluster_start(hal_cluster_id(), main);
+  }
+  #endif
   
 }
 

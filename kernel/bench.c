@@ -276,6 +276,9 @@ extern int main(int argc, const char * const argv[]);
 
 int bench_cluster_forward(int cid)
 {
+  #ifdef ARCHI_NO_FC
   return 0;
-  //  return bench_cluster_exec(cid, main);
+  #else
+  return bench_cluster_exec(cid, main);
+  #endif
 }

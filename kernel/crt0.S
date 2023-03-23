@@ -26,31 +26,39 @@ pos_init_entry:
 #if defined(ARCHI_HAS_CLUSTER)
     csrr    a0, 0xF14
     andi    a1, a0, 0x1f
-//#ifdef ARCHI_CL_BOOT
-//
-//      li      a2, ARCHI_FC_CID
-//      j       do_cl_boot
-//      beq     a0, a2,  // FC will go there
-      bnez    a0, cluster_entry_stub // cluster will go here
-//
-//#else
-//
-//#ifdef ARCHI_FC_CID
-//    li      a2, ARCHI_FC_CID
-//    bne     a0, a2, pe_start
-//#else
-//    bnez    a1, pe_start
-//#endif
-//#endif
-//
-#endif
+#ifdef ARCHI_NO_FC
+    # PEs from 1 to 7 will go to cluster_entry_stub. PE0 will reach them
+    # later after the pos_init_start
+    bnez    a0, cluster_entry_stub 
+#else   
     srli    a0, a0, 5
+#ifdef ARCHI_CL_BOOT
+
+    li      a2, ARCHI_FC_CID
+    beq     a0, a2, do_cl_boot
+    bnez    a1, pe_start
+
+#else
+
+#ifdef ARCHI_FC_CID
+    li      a2, ARCHI_FC_CID
+    bne     a0, a2, pe_start
+#else
+    bnez    a1, pe_start
+#endif
+#endif
+#endif
+#endif
+
+
+#ifdef ARCHI_NO_FC
+    srli    a0, a0, 5  
     li  x2, 0x10200000
     li  x3, 0x1
     la  x4, _start
     sw  x4, 0x40(x2)
     sw  x3, 8(x2)
-
+#endif
     # Clear the bss segment
     la      t0, _bss_start
     la      t1, _bss_end
@@ -62,15 +70,17 @@ pos_init_entry:
 
 
     # Stack initialization
-//    la   x2, stack
-
+#ifndef ARCHI_NO_FC
+    la   x2, stack
+#endif
 
 
     /* Do all other initializations from C code */
     jal  x1, pos_init_start
 
+#ifdef ARCHI_NO_FC
     j cluster_entry_stub
-
+#endif
 
 .section .text
 
@@ -139,9 +149,12 @@ pos_init_entry:
     .org 0x80
     .global _start
 _start:
+#ifdef ARCHI_NO_FC
     jal x0, pe_start
-
-
+#else
+    jal x0, pos_init_entry
+#endif
+  
 pos_illegal_instr:
     j __rt_handle_illegal_instr
 
@@ -158,15 +171,21 @@ pos_semihosting_call:
 
 #if defined(ARCHI_HAS_CLUSTER)
 pe_start:
+#if defined(ARCHI_NO_FC)
     csrr    a0, 0xF14
     andi    a1, a0, 0x1f
+#endif
     la   x2, cluster_stacks
     lw   x2, 0(x2)
     li   x3, CLUSTER_STACK_SIZE
     addi a1, a1, 1
     mul  x1, x3, a1
     add  x2, x2, x1
-    j    pos_init_entry // fc will go here
+#if defined(ARCHI_NO_FC)
+    j    pos_init_entry 
+#else
+    j    cluster_entry_stub 
+#endif 
 #endif
   
 do_cl_boot:

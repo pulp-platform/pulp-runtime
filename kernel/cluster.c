@@ -17,7 +17,9 @@
 #include "pulp.h"
 #include <stdio.h>
 #include <stdlib.h>
-//#include "init.c"
+#ifndef ARCHI_NO_FC
+ #include "init.c"
+#endif
 
 volatile void *cluster_entry;
 
@@ -26,7 +28,9 @@ L1_DATA char *cluster_stacks;
 static volatile int cluster_running;
 static volatile int cluster_retval;
 
+#ifdef ARCHI_NO_FC
 extern int main(int argc, const char * const argv[]);
+#endif
 
 static void pos_wait_forever()
 {
@@ -44,21 +48,24 @@ static void cluster_core_init()
     eu_bar_setup(eu_bar_addr(0), (1<<ARCHI_CLUSTER_NB_PE) - 1);
 }
 
-// executed by the FC!
 void cluster_entry_stub()
 {
     cluster_core_init();
 
+    #ifdef ARCHI_NO_FC
     synch_barrier();
 
     if(hal_core_id()==0)
       cluster_start(hal_cluster_id(), main);
 
     synch_barrier();
-
+    #endif
+    
     int retval = ((int (*)())cluster_entry)();
 
+    #ifdef ARCHI_NO_FC
     synch_barrier();
+    #endif
     
     if (hal_core_id() == 0)
     {
@@ -76,34 +83,40 @@ void cluster_start(int cid, int (*entry)())
     cluster_entry = entry;
 
     // Init FLL
-    //pos_fll_init(POS_FLL_CL);
-      
+    #ifndef ARCHI_NO_FC
+    pos_fll_init(POS_FLL_CL);
+    #endif
+    
     // Initialize cluster L1 memory allocator
     alloc_init_l1(cid);
 
     // Activate icache
     hal_icache_cluster_enable(cid);
 
-//    if (!hal_is_fc())
-//    {
-//        cluster_core_init();
-//    }
+    #ifndef ARCHI_NO_FC
+    if (!hal_is_fc())
+    {
+        cluster_core_init();
+    }
+    #endif
 
     alloc_init_l1(cid);
 
     cluster_stacks = pi_l1_malloc(cid, ARCHI_CLUSTER_NB_PE*CLUSTER_STACK_SIZE);
-//    if (cluster_stacks == NULL)
-//        return;
-//
-//    cluster_running = 1;
-//
+    if (cluster_stacks == NULL)
+        return;
+
+    cluster_running = 1;
+
     // Fetch all cores
-//    for (int i=0; i<ARCHI_CLUSTER_NB_PE; i++)
-//    {
-//      plp_ctrl_core_bootaddr_set_remote(cid, i, (int)_start);
-//    }
-//
-//    eoc_fetch_enable_remote(cid, (1<<ARCHI_CLUSTER_NB_PE) - 1);
+    #ifndef ARCHI_NO_FC
+    for (int i=0; i<ARCHI_CLUSTER_NB_PE; i++)
+    {
+      plp_ctrl_core_bootaddr_set_remote(cid, i, (int)_start);
+    }
+
+    eoc_fetch_enable_remote(cid, (1<<ARCHI_CLUSTER_NB_PE) - 1);
+    #endif
 }
 
 
