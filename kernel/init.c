@@ -58,9 +58,6 @@ void pos_init_start()
   hal_pmu_bypass_set (ARCHI_REG_FIELD_SET (hal_pmu_bypass_get (), 1, 11, 1) );
 #endif
 
-  #ifdef ARCHI_NO_FC
-  if(hal_core_id()==0) {
-  #endif
   pos_soc_init();
 
   pos_irq_init();
@@ -73,7 +70,7 @@ void pos_init_start()
   // available for constructors, especially to let them declare
   // callbacks
   //__rt_utils_init();
-  
+
   pos_allocs_init();
 
   // Call global and static constructors
@@ -88,13 +85,12 @@ void pos_init_start()
 
   #ifdef ARCHI_NO_FC
   cluster_start(hal_cluster_id(), main);
-  }
-  #else
+  #endif
+
   if (!hal_is_fc())
   {
       cluster_start(hal_cluster_id(), main);
   }
-  #endif
   
 }
 

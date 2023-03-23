@@ -170,7 +170,7 @@ pe_start:
     addi a1, a1, 1
     mul  x1, x3, a1
     add  x2, x2, x1
-    j    cluster_entry_stub 
+    j    cluster_entry_stub
 #endif
   
 do_cl_boot:
@@ -179,8 +179,6 @@ do_cl_boot:
     la  x4, _start
     sw  x4, 0x40(x2)
     sw  x3, 8(x2)
-    li x2, 0x1a109800
-    sw x0, 0(x2)
 
 loop:
     li x2, 0x1a109800

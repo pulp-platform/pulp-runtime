@@ -25,9 +25,6 @@ L1_DATA char *cluster_stacks;
 static volatile int cluster_running;
 static volatile int cluster_retval;
 
-#ifdef ARCHI_NO_FC
-extern int main(int argc, const char * const argv[]);
-#endif
 
 static void pos_wait_forever()
 {
@@ -54,10 +51,8 @@ void cluster_entry_stub()
     
     int retval = ((int (*)())cluster_entry)();
 
-    #ifdef ARCHI_NO_FC
     synch_barrier();
-    #endif
-    
+
     if (hal_core_id() == 0)
     {
         cluster_retval = retval;
