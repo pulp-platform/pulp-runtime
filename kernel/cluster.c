@@ -45,18 +45,12 @@ static void cluster_core_init()
     eu_bar_setup(eu_bar_addr(0), (1<<ARCHI_CLUSTER_NB_PE) - 1);
 }
 
+
 void cluster_entry_stub()
 {
     cluster_core_init();
 
-    #ifdef ARCHI_NO_FC
     synch_barrier();
-
-    if(hal_core_id()==0)
-      cluster_start(hal_cluster_id(), main);
-
-    synch_barrier();
-    #endif
     
     int retval = ((int (*)())cluster_entry)();
 
@@ -69,7 +63,6 @@ void cluster_entry_stub()
         cluster_retval = retval;
         cluster_running = 0;
         #ifdef ARCHI_NO_FC
-        pos_init_stop();
         exit(cluster_retval);
         #endif
     }

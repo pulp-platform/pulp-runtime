@@ -87,6 +87,7 @@ void pos_init_start()
   hal_irq_enable();
 
   #ifdef ARCHI_NO_FC
+  cluster_start(hal_cluster_id(), main);
   }
   #else
   if (!hal_is_fc())
