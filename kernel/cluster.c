@@ -17,9 +17,6 @@
 #include "pulp.h"
 #include <stdio.h>
 #include <stdlib.h>
-#ifndef ARCHI_NO_FC
- #include "init.c"
-#endif
 
 volatile void *cluster_entry;
 

@@ -86,9 +86,9 @@ void pos_init_start()
   // Now now the minimal init are done, we can activate interruptions
   hal_irq_enable();
 
+  #ifdef ARCHI_NO_FC
   }
-
-  #ifndef ARCHI_NO_FC
+  #else
   if (!hal_is_fc())
   {
       cluster_start(hal_cluster_id(), main);
