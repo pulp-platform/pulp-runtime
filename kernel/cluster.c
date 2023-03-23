@@ -68,6 +68,10 @@ void cluster_entry_stub()
     {
         cluster_retval = retval;
         cluster_running = 0;
+        #ifdef ARCHI_NO_FC
+        pos_init_stop();
+        exit(cluster_retval);
+        #endif
     }
 
     pos_wait_forever();

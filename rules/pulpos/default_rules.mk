@@ -28,6 +28,8 @@ endif
 
 ifdef gui
 override runner_args += --config-opt=**/vsim/gui=true
+else
+vsim-flags = -c
 endif
 
 ifdef io
@@ -317,20 +319,28 @@ $(TARGET_BUILD_DIR)/stdout:
 $(TARGET_BUILD_DIR)/fs:
 	mkdir -p $@
 
-
+ifeq '$(pulp_chip)' 'pulp_cluster'
+run:
+	vsim $(vsim-flags) -do "set  VSIM_PATH $(VSIM_PATH); source $(VSIM_PATH)/scripts/start.tcl"
+else
 run: $(TARGET_BUILD_DIR)/modelsim.ini $(TARGET_BUILD_DIR)/work  $(TARGET_BUILD_DIR)/boot $(TARGET_BUILD_DIR)/tcl_files $(TARGET_BUILD_DIR)/stdout $(TARGET_BUILD_DIR)/fs $(TARGET_BUILD_DIR)/waves
 	$(PULPRT_HOME)/bin/stim_utils.py --binary=$(TARGETS) --vectors=$(TARGET_BUILD_DIR)/vectors/stim.txt
 	$(PULPRT_HOME)/bin/plp_mkflash  --flash-boot-binary=$(TARGETS)  --stimuli=$(TARGET_BUILD_DIR)/vectors/qspi_stim.slm --flash-type=spi --qpi
 	$(PULPRT_HOME)/bin/slm_hyper.py  --input=$(TARGET_BUILD_DIR)/vectors/qspi_stim.slm  --output=$(TARGET_BUILD_DIR)/vectors/hyper_stim.slm
+endif
 ifndef VSIM_PATH
 	$(error "VSIM_PATH is undefined. Either call \
 	'source $$YOUR_HW_DIR/setup/vsim.sh' or set it manually.")
 endif
 
+ifneq '$(pulp_chip)' 'pulp_cluster'
+
 ifdef gui
 	cd $(TARGET_BUILD_DIR) && export VSIM_RUNNER_FLAGS='$(vsim_flags)' && export VOPT_ACC_ENA="YES" && $(VSIM) -64 -do 'source $(VSIM_PATH)/tcl_files/config/run_and_exit.tcl' -do 'source $(VSIM_PATH)/tcl_files/run.tcl; '
 else
 	cd $(TARGET_BUILD_DIR) && export VSIM_RUNNER_FLAGS='$(vsim_flags)' && $(VSIM) -64 -c -do 'source $(VSIM_PATH)/tcl_files/config/run_and_exit.tcl' -do 'source $(VSIM_PATH)/tcl_files/run.tcl; run_and_exit;'
+endif
+
 endif
 
 endif
