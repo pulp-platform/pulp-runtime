@@ -31,7 +31,7 @@ typedef enum {
 } pi_freq_domain_e;
 
 #include <stdint.h>
-// #include <bench/bench.h>
+#include <bench/bench.h>
 #include <data/data.h>
 #include <implem/implem.h>
 #include <archi/pulp.h>

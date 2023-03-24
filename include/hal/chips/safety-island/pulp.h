@@ -21,5 +21,7 @@
 #include "hal/cv32e40p/cv32e40p.h"
 
 #include "hal/apb_soc/safety_soc_ctrl.h"
+#include "hal/timer/timer_v2.h"
+//#include "hal/cluster_ctrl/cluster_ctrl_v2.h" // TODO Add me!
 
 #endif
