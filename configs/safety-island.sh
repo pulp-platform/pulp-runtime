@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
-export PULPRT_TARGET=safety_island
-export PULPRUN_TARGET=safety_island
+export PULPRT_TARGET=safety-island
+export PULPRUN_TARGET=safety-island
 
 if [  -n "${ZSH_VERSION:-}" ]; then
         DIR="$(readlink -f -- "${(%):-%x}")"
