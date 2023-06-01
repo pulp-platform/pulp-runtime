@@ -32,21 +32,24 @@
 #include "keccak/keccak_auto.h"
 #include "keccak/keccak_driver.h"
 
+#include "ntt_intt_pwm/ntt_intt_pwm_auto.h"
+#include "ntt_intt_pwm/ntt_intt_pwm_driver.h"
+
 //#include "SHA3/fips_202.h"
 
-#include "kyber1024/api.h"
-#include "kyber1024/cbd.h"
-#include "kyber1024/fips202.h"
-#include "kyber1024/indcpa.h"
-#include "kyber1024/kem.h"
-#include "kyber1024/ntt.h"
-#include "kyber1024/params.h"
-#include "kyber1024/poly.h"
-#include "kyber1024/polyvec.h"
-#include "kyber1024/randombytes.h"
-#include "kyber1024/reduce.h"
-#include "kyber1024/symmetric.h"
-#include "kyber1024/verify.h"
+#include "ntt_test/api.h"
+#include "ntt_test/cbd.h"
+#include "ntt_test/fips202.h"
+#include "ntt_test/indcpa.h"
+#include "ntt_test/kem.h"
+//#include "ntt_test/ntt.h"
+#include "ntt_test/params.h"
+#include "ntt_test/poly.h"
+#include "ntt_test/polyvec.h"
+#include "ntt_test/randombytes.h"
+#include "ntt_test/reduce.h"
+#include "ntt_test/symmetric.h"
+#include "ntt_test/verify.h"
 
 typedef enum {
   PI_FREQ_DOMAIN_FC     = 0,

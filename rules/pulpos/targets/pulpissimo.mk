@@ -63,27 +63,22 @@ PULP_SRCS     += kernel/fll-v$(fll/version).c
 PULP_SRCS     += kernel/freq-domains.c
 PULP_SRCS     += kernel/chips/pulpissimo/soc.c
 
-#keccak
-#PULP_SRCS     += kernel/keccak/keccak.c
-
 #KECCAK_IP
 PULP_SRCS     += drivers/keccak_driver.c
-
-#SHA3
-#PULP_SRCS     += kernel/SHA3/fips_202.c
+#NTT_INTT_PWM_IP
+PULP_SRCS     += drivers/ntt_intt_pwm_driver.c
 
 #kyber_ip
-PULP_SRCS     += kernel/kyber1024/cbd.c
-PULP_SRCS     += kernel/kyber1024/fips202.c
-PULP_SRCS     += kernel/kyber1024/indcpa.c
-PULP_SRCS     += kernel/kyber1024/kem.c
-PULP_SRCS     += kernel/kyber1024/ntt.c
-PULP_SRCS     += kernel/kyber1024/poly.c
-PULP_SRCS     += kernel/kyber1024/polyvec.c
-PULP_SRCS     += kernel/kyber1024/randombytes.c
-PULP_SRCS     += kernel/kyber1024/reduce.c
-PULP_SRCS     += kernel/kyber1024/symmetric-shake.c
-PULP_SRCS     += kernel/kyber1024/verify.c
+PULP_SRCS     += kernel/ntt_intt_pwm/cbd.c
+PULP_SRCS     += kernel/ntt_intt_pwm/fips202.c
+PULP_SRCS     += kernel/ntt_intt_pwm/indcpa.c
+PULP_SRCS     += kernel/ntt_intt_pwm/kem.c
+PULP_SRCS     += kernel/ntt_intt_pwm/poly.c
+PULP_SRCS     += kernel/ntt_intt_pwm/polyvec.c
+PULP_SRCS     += kernel/ntt_intt_pwm/randombytes.c
+PULP_SRCS     += kernel/ntt_intt_pwm/reduce.c
+PULP_SRCS     += kernel/ntt_intt_pwm/symmetric-shake.c
+PULP_SRCS     += kernel/ntt_intt_pwm/verify.c
 
 include $(PULPRT_HOME)/rules/pulpos/configs/default.mk
 
