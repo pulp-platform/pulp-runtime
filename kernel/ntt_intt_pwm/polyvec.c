@@ -21,14 +21,28 @@ static void printbytes(const uint8_t *x, size_t xlen) {
 **************************************************/
 void PQCLEAN_KYBER768_CLEAN_polyvec_ntt(polyvec *r) {
     unsigned int i;
-	int16_t Din[256], Dout[256];
+	int32_t Din[128], Dout[128];
+    poly vector;
+	uint32_t concatenated;
 
-	for (i = 0; i < 256; i++) {	 
-		Din[i] = &r->vec[0].coeffs[i];
-	}
+    vector = r->vec[0];
 
-	printf("NTT accelerator starts working!\n");
+	for (i = 0; i <= 254; i += 2) {
+        concatenated = 0;
+        concatenated = ((int32_t)vector.coeffs[i] << 16) | ((int32_t)vector.coeffs[i + 1] & 0xFFFF);
+        Din[i/2] = concatenated;
+    }
+
+    for (i = 0; i < 128; i++) {
+        printf("%08x-", Din[i]);
+    }
+
+	printf("\nNTT accelerator starts working!\n");
 	KYBER_poly_ntt(Din[256], Dout[256]);
+
+	for (i = 0; i < 256; i++) {
+        printf("%hx-", Dout[i]);
+    }
 	printf("NTT accelerator ends working!\n");
 
 	/*printf("after NTT:\n");

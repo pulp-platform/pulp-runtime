@@ -7,9 +7,7 @@
 extern "C" {
 #endif
 
-//starting address
-#define NTT_INTT_PWM0_BASE_ADDR 0x11a4100
-
+#define NTT_INTT_PWM0_BASE_ADDR 0x1A401000
 // auto added parameter
 #define NTT_INTT_PWM_PARAM_DIN 1
 
@@ -22,26 +20,22 @@ extern "C" {
 // Common Interrupt Offsets
 
 // Subword of input of ntt_intt_pwm module (common parameters)
-#define NTT_INTT_PWM_DIN_DIN_FIELD_WIDTH 16
-#define NTT_INTT_PWM_DIN_DIN_FIELDS_PER_REG 2
+#define NTT_INTT_PWM_DIN_DIN_FIELD_WIDTH 32
+#define NTT_INTT_PWM_DIN_DIN_FIELDS_PER_REG 1
 #define NTT_INTT_PWM_DIN_MULTIREG_COUNT 1
 
 // Subword of input of ntt_intt_pwm module
 #define NTT_INTT_PWM_DIN(id) (NTT_INTT_PWM##id##_BASE_ADDR + 0x0)
 #define NTT_INTT_PWM_DIN_REG_OFFSET 0x0
-#define NTT_INTT_PWM_DIN_DIN_0_MASK 0xffff
-#define NTT_INTT_PWM_DIN_DIN_0_OFFSET 0
 
 // Subword of results. (common parameters)
-#define NTT_INTT_PWM_DOUT_DOUT_FIELD_WIDTH 16
-#define NTT_INTT_PWM_DOUT_DOUT_FIELDS_PER_REG 2
+#define NTT_INTT_PWM_DOUT_DOUT_FIELD_WIDTH 32
+#define NTT_INTT_PWM_DOUT_DOUT_FIELDS_PER_REG 1
 #define NTT_INTT_PWM_DOUT_MULTIREG_COUNT 1
 
 // Subword of results.
 #define NTT_INTT_PWM_DOUT(id) (NTT_INTT_PWM##id##_BASE_ADDR + 0x4)
 #define NTT_INTT_PWM_DOUT_REG_OFFSET 0x4
-#define NTT_INTT_PWM_DOUT_DOUT_0_MASK 0xffff
-#define NTT_INTT_PWM_DOUT_DOUT_0_OFFSET 0
 
 // Controls signals of ntt_intt_pwm
 #define NTT_INTT_PWM_CTRL(id) (NTT_INTT_PWM##id##_BASE_ADDR + 0x8)

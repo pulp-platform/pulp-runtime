@@ -1,9 +1,15 @@
 #include <stdint.h>
 
 void set_input_ntt_intt_pwm(void);
-void wait_for_input(void);
+
+void wait_for_input(int32_t Din[128]);
+
 void trigger_ntt(void);
-void poll_done_ntt_intt_pwm(void);
-//void get_result_ntt_intt_pwm(int16_t* Dout);
-void KYBER_poly_ntt(int16_t Din[256], int16_t Dout[256]);
+
+void set_output_ntt_intt_pwm(void);
+
+void wait_for_output(int32_t Dout[128]);
+
+/***MAIN**/
+void KYBER_poly_ntt(int32_t Din[128], int32_t Dout[128]);
 
