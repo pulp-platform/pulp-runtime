@@ -105,13 +105,14 @@ void wait_for_output(int32_t Dout[128]){
 
   printf("\nwait_for_output()\n");
 }*/
+
+
+
 /*************************************************************************/
 /***********************  MAIN *******************************************/
 /*************************************************************************/
 void KYBER_poly_ntt(uint32_t Din[128], uint32_t Dout[128]){
-	uint32_t ctrl_reg = (uint32_t)NTT_INTT_PWM_CTRL(0);
 
-	memset(ctrl_reg, 0, sizeof(ctrl_reg));
 	set_input_ntt(Din);
 
 	trigger_input_ntt();
