@@ -6,8 +6,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define NTT_INTT_PWM0_BASE_ADDR 0x1A401000
+#define KECCAK0_BASE_ADDR 0x1a401000
 // auto added parameter
 #define NTT_INTT_PWM_PARAM_DIN 128
 

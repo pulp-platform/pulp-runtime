@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 // starting address of keccak regs file
-#define KECCAK0_BASE_ADDR 0x1a400000
+#define KECCAK0_BASE_ADDR 0x1a401000
 
 // auto added parameter
 #define KECCAK_PARAM_DIN 50

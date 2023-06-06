@@ -13,10 +13,11 @@
 #define CC_PWM 647
 
 
-void set_input_ntt(int32_t* Din){
-   int32_t volatile *Din_reg = (uint32_t*)NTT_INTT_PWM_DIN_0(0);
-   for (int i = 0; i<128; i++)
-   {
+void set_input_ntt(uint32_t* Din){
+   uint32_t *Din_reg = (uint32_t*)NTT_INTT_PWM_DIN_0(0);
+   
+   for (int i = 0; i<128; i++){
+	 printf("%08x-", Din[i]);
      Din_reg[i] = Din[i];
    }
 }
@@ -107,8 +108,10 @@ void wait_for_output(int32_t Dout[128]){
 /*************************************************************************/
 /***********************  MAIN *******************************************/
 /*************************************************************************/
-void KYBER_poly_ntt(int32_t Din[128], int32_t Dout[128]){
-	
+void KYBER_poly_ntt(uint32_t Din[128], uint32_t Dout[128]){
+	uint32_t ctrl_reg = (uint32_t)NTT_INTT_PWM_CTRL(0);
+
+	memset(ctrl_reg, 0, sizeof(ctrl_reg));
 	set_input_ntt(Din);
 
 	trigger_input_ntt();
