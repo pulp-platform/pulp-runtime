@@ -42,7 +42,6 @@
 #include "ntt_test/fips202.h"
 #include "ntt_test/indcpa.h"
 #include "ntt_test/kem.h"
-//#include "ntt_test/ntt.h"
 #include "ntt_test/params.h"
 #include "ntt_test/poly.h"
 #include "ntt_test/polyvec.h"

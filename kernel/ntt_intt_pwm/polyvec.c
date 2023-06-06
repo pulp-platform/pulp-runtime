@@ -24,6 +24,13 @@ void PQCLEAN_KYBER768_CLEAN_polyvec_ntt(polyvec *r) {
 	int32_t Din[128], Dout[128];
     poly vector;
 	uint32_t concatenated;
+	uint32_t k_in[50];
+	uint32_t k_out[50];
+
+	memset(k_in, 0, sizeof(k_in));
+	memset(k_out, 0, sizeof(k_out));
+	memset(Din, 0, sizeof(Din));
+	memset(Dout, 0, sizeof(Dout));
 
     vector = r->vec[0];
 
@@ -38,19 +45,24 @@ void PQCLEAN_KYBER768_CLEAN_polyvec_ntt(polyvec *r) {
     }
 
 	printf("\nNTT accelerator starts working!\n");
-	KYBER_poly_ntt(Din[256], Dout[256]);
+	KYBER_poly_ntt(Din[128], Dout[128]);
+	printf("\nNTT accelerator ends working!\n");
 
-	for (i = 0; i < 256; i++) {
+	/*for (i = 0; i < 256; i++) {
         printf("%hx-", Dout[i]);
-    }
-	printf("NTT accelerator ends working!\n");
-
-	/*printf("after NTT:\n");
-	for (i = 0; i < 256; i++) {	 
-		printbytes(Dout[i], 4);
-	}*/
-
+    }*/
 	
+
+	printf("*--------------------------------------*\nPROVA KECCAK");
+	k_in[0] = 0x7369C667;
+	k_in[1] = 0xEC4AFF51;
+	k_in[2] = 0xABBACD29;
+	k_in[3] = 0x00000010;
+	k_in[31] = 0x80000000;
+	KeccakF1600_StatePermute(k_in, k_out);
+	printf("*--------------------------------------*\nEND KECCAK!");
+
+
 
 }
 
