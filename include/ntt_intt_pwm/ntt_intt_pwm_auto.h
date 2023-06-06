@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-#define NTT_INTT_PWM_BASE_ADDR 0x1A400300
+#define NTT_INTT_PWM0_BASE_ADDR 0x1A400300
 // Register width
 #define NTT_INTT_PWM_PARAM_REG_WIDTH 32
 

@@ -14,7 +14,7 @@
 
 
 void set_input_ntt(uint32_t* Din){
-   uint32_t *Din_reg = (uint32_t*)NTT_INTT_PWM_DIN_0(0);
+   uint32_t *Din_reg = (uint32_t*)NTT_INTT_PWM_DIN(0);
    
    for (int i = 0; i<128; i++){
 	 printf("%08x-", Din[i]);
