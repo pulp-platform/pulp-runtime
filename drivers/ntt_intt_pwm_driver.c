@@ -13,13 +13,10 @@
 #define CC_PWM 647
 
 
-void set_input_ntt(uint32_t* Din){
-   uint32_t *Din_reg = (uint32_t*)NTT_INTT_PWM_DIN(0);
-   
-   for (int i = 0; i<128; i++){
-	 printf("%08x-", Din[i]);
-     Din_reg[i] = Din[i];
-   }
+void set_input_ntt(uint32_t Din){
+   uint32_t *Din_reg_start = (uint32_t*)NTT_INTT_PWM_DIN(0);
+
+   *Din_reg_start = Din;
 }
 
 
@@ -27,36 +24,16 @@ void trigger_input_ntt(void){
 
   uint32_t volatile * ctrl_reg = (uint32_t*)NTT_INTT_PWM_CTRL(0);
 
-  asm volatile ("": : : "memory");
   *ctrl_reg = 1 << NTT_INTT_PWM_CTRL_LOAD_A_F;
-  asm volatile ("": : : "memory");
-  *ctrl_reg = 0 << NTT_INTT_PWM_CTRL_LOAD_A_I;
-  *ctrl_reg = 0 << NTT_INTT_PWM_CTRL_LOAD_B_F;
-  *ctrl_reg = 0 << NTT_INTT_PWM_CTRL_LOAD_B_I;
-  *ctrl_reg = 0 << NTT_INTT_PWM_CTRL_READ_A;
-  *ctrl_reg = 0 << NTT_INTT_PWM_CTRL_READ_B;
-  *ctrl_reg = 0 << NTT_INTT_PWM_CTRL_START_AB;
-  *ctrl_reg = 0 << NTT_INTT_PWM_CTRL_START_NTT;
-  *ctrl_reg = 0 << NTT_INTT_PWM_CTRL_START_PWM;
-  *ctrl_reg = 0 << NTT_INTT_PWM_CTRL_START_INTT;
 
-  asm volatile ("": : : "memory");
   *ctrl_reg = 0 << NTT_INTT_PWM_CTRL_LOAD_A_F;
-  asm volatile ("": : : "memory");
-	
+  
 }
-
-/*
-void wait_for_input(int32_t Din){
-  int32_t volatile *DIN_reg = (int32_t*)NTT_INTT_PWM_DIN(0);
-
-  *DIN_reg = (int32_t)Din;
-}*/
 
 
 void trigger_ntt(void)
 {
-  uint32_t volatile * ctrl_reg = (uint32_t*)NTT_INTT_PWM_CTRL(0);
+  uint32_t volatile *ctrl_reg = (uint32_t*)NTT_INTT_PWM_CTRL(0);
   int cnt = 0;
 
   asm volatile ("": : : "memory");
@@ -69,42 +46,33 @@ void trigger_ntt(void)
 }
 
 
-/*
-void set_output_ntt_intt_pwm(void){
-
-  uint32_t volatile * ctrl_reg = (uint32_t*)NTT_INTT_PWM_CTRL(0);
-
-  asm volatile ("": : : "memory");
-  *ctrl_reg = 1 << NTT_INTT_PWM_CTRL_READ_A;
-  asm volatile ("": : : "memory");
-  printf("set_output_ntt_intt_pwm()\n");
+void poll_done_ntt_intt_pwm(void){
+   uint32_t volatile *status_reg = (uint32_t*)NTT_INTT_PWM_STATUS(0);
+   uint32_t current_status;
+   
+   do {
+   	current_status = (*status_reg)&(1<<NTT_INTT_PWM_STATUS_STATUS);
+   } while ( current_status == BUSY);
 
 }
 
 
+void trigger_output_ntt(void){
 
-void wait_for_output(int32_t Dout[128]){
-  int cnt = 0;
   uint32_t volatile * ctrl_reg = (uint32_t*)NTT_INTT_PWM_CTRL(0);
-  int32_t volatile *DOUT_reg = (int32_t*)NTT_INTT_PWM_DOUT(0);
 
-  asm volatile ("": : : "memory");
+  *ctrl_reg = 1 << NTT_INTT_PWM_CTRL_READ_A;
+
   *ctrl_reg = 0 << NTT_INTT_PWM_CTRL_READ_A;
-  asm volatile ("": : : "memory");
- 
-  
-   for (int i = 0; i<128; i++)
-   {
-     Dout[i] = DOUT_reg[i] ;
-   }
+}
 
-  while ( cnt != CC_output_NTT ){
-		cnt += 1;
-	 	printf("%d-", cnt);
+
+
+void set_output_ntt(uint32_t Dout){
+  uint32_t *Dout_reg_start = (uint32_t*)NTT_INTT_PWM_DOUT(0);
+
+   Dout = Dout_reg_start;
 	}
-
-  printf("\nwait_for_output()\n");
-}*/
 
 
 
@@ -113,13 +81,19 @@ void wait_for_output(int32_t Dout[128]){
 /*************************************************************************/
 void KYBER_poly_ntt(uint32_t Din[128], uint32_t Dout[128]){
 
-	set_input_ntt(Din);
-
 	trigger_input_ntt();
-    
+ 
+  for (int i = 0; i<128; i++){
+	  set_input_ntt(Din[i]);
+  }
+     
 	trigger_ntt();
+  
+  poll_done_ntt_intt_pwm();
 
-	//set_output_ntt_intt_pwm();
-	//wait_for_output(Dout[128]);
+	trigger_output_ntt();
+	for (int i = 0; i<128; i++){
+	  set_output_ntt(Dout[i]);
+  }
 
 }
