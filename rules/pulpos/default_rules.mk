@@ -336,8 +336,14 @@ endif
 endif
 
 ifeq '$(platform)' 'fpga'
-run:
-	$(PULPRT_HOME)/bin/elf_run_genesys2.sh $(TARGETS)
+launch_fpga:
+	@echo "file $(TARGETS)" > $@
+	@echo "target remote :3333" >> $@
+	@echo "monitor reset halt" >> $@
+	@echo "load" >> $@
+	@echo "c" >> $@
+run: launch_fpga
+	/opt/riscv/bin/riscv32-unknown-elf-gdb -x launch_fpga
 endif
 
 dis:
