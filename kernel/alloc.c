@@ -15,14 +15,9 @@
  */
 
 #include "pulp.h"
+#include "implem/trace.h"
 #include <string.h>
 #include <stdio.h>
-
-#if !defined(__TRACE_ALL__) && !defined(__TRACE_ALLOC__)
-#define ALLOC_TRACE(x...)
-#else
-#define ALLOC_TRACE(x...) POS_TRACE(x)
-#endif
 
 // Allocate at least 4 bytes to avoid misaligned accesses when parsing free blocks
 // and actually 8 to fit free chunk header size and make sure a e free block to always have
