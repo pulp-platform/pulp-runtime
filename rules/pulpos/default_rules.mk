@@ -152,7 +152,7 @@ endif
 #
 # VSIM Flags
 #
-vsim_flags ?= +ENTRY_POINT=0x00010080 -permit_unmatched_virtual_intf -gBAUDRATE=115200
+vsim_flags ?= +ENTRY_POINT=0x00010080 -permit_unmatched_virtual_intf -gBAUDRATE=115200 +BINARY=$(BINARY)
 
 ifdef CONFIG_PLUSARG_SIM
 
