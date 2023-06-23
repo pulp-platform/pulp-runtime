@@ -2,8 +2,8 @@
 PULP_LDFLAGS +=
 PULP_CFLAGS += -D__cv32e40p__ -U__riscv__ -UARCHI_CORE_HAS_PULPV2
 
-PULP_ARCH_CFLAGS    ?= -march=rv32imc_zfinx_xcorev -mabi=ilp32 -mno-pulp-hwloop
-PULP_ARCH_LDFLAGS   ?= -march=rv32imc_zfinx_xcorev -mabi=ilp32 -mno-pulp-hwloop
+PULP_ARCH_CFLAGS    ?= -march=rv32imac_zfinx_xcorev -mabi=ilp32 -mno-pulp-hwloop
+PULP_ARCH_LDFLAGS   ?= -march=rv32imac_zfinx_xcorev -mabi=ilp32 -mno-pulp-hwloop
 PULP_ARCH_OBJDFLAGS ?= 
 
 PULP_CFLAGS    += -fdata-sections -ffunction-sections -include chips/safety-island/config.h -I$(PULPRT_HOME)/include/chips/safety-island

@@ -103,8 +103,6 @@ void pi_l1_free(int cid, void *chunk, int size)
 
 #endif
 
-
-
 void *pi_l2_malloc(int size)
 {
     return pos_alloc(&pos_alloc_l2[0], size);
@@ -114,6 +112,18 @@ void pi_l2_free(void *_chunk, int size)
 {
     return pos_free(&pos_alloc_l2[0], _chunk, size);
 }
+
+#if defined(ARCHI_HAS_L2_MULTI)
+void *pi_l2_shared_malloc(int size)
+{
+    return pos_alloc(&pos_alloc_l2[2], size);
+}
+
+void pi_l2_shared_free(void *_chunk, int size)
+{
+    return pos_free(&pos_alloc_l2[2], _chunk, size);
+}
+#endif
 
 #if defined(ARCHI_HAS_FC_TCDM)
 void *pi_fc_tcdm_malloc(int size)

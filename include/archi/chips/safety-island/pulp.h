@@ -27,5 +27,6 @@
 
 #include "archi/chips/safety-island/memory_map.h"
 #include "archi/stdout/stdout_v3.h"
+#include "archi/bus_err_unit/bus_err_unit_v1.h"
 
 #endif
