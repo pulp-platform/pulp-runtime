@@ -29,7 +29,7 @@ void bench_disable_printf(void) {
 
 void bench_timer_start(void) {
   if (get_core_id()==0)
-    start_timer();
+    start_timer((int) get_cluster_id());
 #ifdef PROFILE
   perf_start();
 #endif
@@ -37,7 +37,7 @@ void bench_timer_start(void) {
 
 void bench_timer_stop(void) {
   if (get_core_id()==0)
-    stop_timer();
+    stop_timer((int) get_cluster_id());
 
 #ifdef PROFILE
   perf_stop();
@@ -47,8 +47,8 @@ void bench_timer_stop(void) {
 
 void bench_timer_reset(void) {
   if (get_core_id()==0) {
-    stop_timer();
-    reset_timer();
+    stop_timer((int) get_cluster_id());
+    reset_timer((int) get_cluster_id());
   }
 #ifdef PROFILE
   perf_reset();
@@ -79,7 +79,7 @@ void print_result(testcase_t *test, testresult_t *result)
 void print_summary(unsigned int errors)
 {
   #ifdef RTL_SDK
-  volatile int* ptr = (int*)(0x10001000+get_core_id()*4*2);
+  volatile int* ptr = (int*)(pos_l1_base+get_core_id()*4*2);
   ptr[1] = errors;
   #endif
 
@@ -110,7 +110,7 @@ void run_benchmark(testcase_t *test, testresult_t *result)
 
   test->test(result, bench_timer_start, bench_timer_stop);
 
-  result->time = get_time();
+  result->time = get_time((int) get_cluster_id());
 }
 
 int run_suite(testcase_t *tests)

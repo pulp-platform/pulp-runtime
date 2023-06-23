@@ -37,24 +37,24 @@ static inline int get_time_hi() {return *(volatile int*) GET_TIME_HI_ADDR;}
 
 #if !defined(ARCHI_HAS_FC)
 
-static inline void start_timer()
+static inline void start_timer(int cid)
 {
-  timer_start(timer_base_cl(0, 0, 1));
+  timer_start(timer_base_cl(cid, 0, 1));
 }
 
-static inline void stop_timer()
+static inline void stop_timer(int cid)
 {
-  timer_conf_set(timer_base_cl(0, 0, 1), 0);
+  timer_conf_set(timer_base_cl(cid, 0, 1), 0);
 }
 
-static inline void reset_timer()
+static inline void reset_timer(int cid)
 {
-  timer_reset(timer_base_cl(0, 0, 1));
+  timer_reset(timer_base_cl(cid, 0, 1));
 }
 
-static inline int get_time()
+static inline int get_time(int cid)
 {
-  return timer_count_get(timer_base_cl(0, 0, 1));
+  return timer_count_get(timer_base_cl(cid, 0, 1));
 }
 
 #else

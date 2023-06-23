@@ -221,12 +221,16 @@ SECTIONS
     . = ALIGN(4);
   } > L2
 
+  __l2_data_end = .;
+
   .l1cluster_g : {
     . = ALIGN(4);
+    __heap_sram = .;
     *(.heapsram)
     *(.heapsram.*)
     *(.l1cluster_g)
     *(.l1cluster_g.*)
+    __data_l1 = .;
     *(.data_l1)
     *(.data_l1.*)
     . = ALIGN(4);
@@ -245,7 +249,7 @@ SECTIONS
 
   __l1_end = ALIGN(4);
 
-  __l2_shared_end = LOADADDR(.bss_l1) + SIZEOF(.bss_l1);
+  __l2_shared_end = __l2_data_end + SIZEOF(.l1cluster_g) + SIZEOF(.bss_l1);
 
 
 

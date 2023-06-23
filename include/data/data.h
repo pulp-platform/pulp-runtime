@@ -39,7 +39,7 @@
 #define PI_L2 __attribute__((section(".l2_data")))
 #define L2_DATA PI_L2
 
-#define L1_GLOBAL_DATA __attribute__((section(".data_l1")))
+#define L1_GLOBAL_DATA __attribute__((section("__data_l1")))
 #define L1_DATA L1_GLOBAL_DATA
 
 #ifdef USE_CLUSTER
