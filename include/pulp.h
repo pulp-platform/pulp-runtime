@@ -88,6 +88,10 @@ void pi_l1_free(int cid, void *chunk, int size);
 void *pi_l2_malloc(int size);
 void pi_l2_free(void *_chunk, int size);
 
+#if defined(ARCHI_HAS_L2_MULTI)
+void *pi_l2_shared_malloc(int size);
+void pi_l2_shared_free(void *_chunk, int size);
+#endif
 
 
 
