@@ -47,4 +47,5 @@ void KeccakF1600_StatePermute(uint32_t Din[50], uint32_t Dout[50] ){
 	trigger_keccak();
 	poll_done();
 	get_result(Dout);	
+
 }

@@ -212,13 +212,14 @@ void PQCLEAN_KYBER768_CLEAN_indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTE
     const uint8_t *noiseseed = buf + KYBER_SYMBYTES;
     uint8_t nonce = 0;
     polyvec a[KYBER_K], e, pkpv, skpv;
-
-	//printf("randombytes for buf");
-	//for (int i=0; i<64; i++){
-		//buf[i]= (uint8_t) i;	
-	//}
+    uint8_t A;
 
     randombytes(buf, KYBER_SYMBYTES);
+    /*printf("\nRANDOM BUF:\n");
+    for (int j = 0; j < 64; j++) {
+        A = buf[j];
+        printf("%02X-", A);
+    }*/
     hash_g(buf, buf, KYBER_SYMBYTES);
 
     gen_a(a, publicseed);
@@ -230,7 +231,8 @@ void PQCLEAN_KYBER768_CLEAN_indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTE
         PQCLEAN_KYBER768_CLEAN_poly_getnoise_eta1(&e.vec[i], noiseseed, nonce++);
     }
 
-    PQCLEAN_KYBER768_CLEAN_polyvec_ntt(&skpv);
+    
+    PQCLEAN_KYBER768_CLEAN_polyvec_ntt(&skpv);    
     PQCLEAN_KYBER768_CLEAN_polyvec_ntt(&e);
 
     // matrix-vector multiplication
@@ -271,20 +273,56 @@ void PQCLEAN_KYBER768_CLEAN_indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
     uint8_t nonce = 0;
     polyvec sp, pkpv, ep, at[KYBER_K], b;
     poly v, k, epp;
+    
+    poly vector;
+    uint32_t Din_v[128], Dout_v[128];
+	  uint32_t concatenated1, concatenated2;
+    uint16_t A;
 
     unpack_pk(&pkpv, seed, pk);
     PQCLEAN_KYBER768_CLEAN_poly_frommsg(&k, m);
     gen_at(at, seed);
 
+    /*printf("\nCOINS:\n");
+    for (int j = 0; j < 32; j++) {
+        A = coins[j];
+        printf("%02X-", A);
+    }*/
     for (i = 0; i < KYBER_K; i++) {
         PQCLEAN_KYBER768_CLEAN_poly_getnoise_eta1(sp.vec + i, coins, nonce++);
     }
+    
+    /*printf("\nsp after getnoise:\n");
+    for (i = 0; i < KYBER_K; i++) {
+        for (int j = 0; j < KYBER_N; j++) {
+            printf("%04X-", sp.vec[i].coeffs[j]);
+        }
+        printf("\n------------------------------\n");
+    }*/
+    
+    
     for (i = 0; i < KYBER_K; i++) {
         PQCLEAN_KYBER768_CLEAN_poly_getnoise_eta2(ep.vec + i, coins, nonce++);
     }
     PQCLEAN_KYBER768_CLEAN_poly_getnoise_eta2(&epp, coins, nonce++);
 
+    /*printf("\nsp before ntt:\n");
+    for (i = 0; i < KYBER_K; i++) {
+        for (int j = 0; j < KYBER_N; j++) {
+            printf("%04X-", sp.vec[i].coeffs[j]);
+        }
+        printf("\n------------------------------\n");
+    }*/
+    
     PQCLEAN_KYBER768_CLEAN_polyvec_ntt(&sp);
+    
+    /*printf("\n\nsp after ntt:\n");
+    for (i = 0; i < KYBER_K; i++) {
+        for (int j = 0; j < KYBER_N; j++) {
+            printf("%04X-", sp.vec[i].coeffs[j]);
+        }
+        printf("\n------------------------------\n");
+    }*/
 
     // matrix-vector multiplication
     for (i = 0; i < KYBER_K; i++) {
@@ -292,9 +330,70 @@ void PQCLEAN_KYBER768_CLEAN_indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
     }
 
     PQCLEAN_KYBER768_CLEAN_polyvec_basemul_acc_montgomery(&v, &pkpv, &sp);
-
+    printf("KEY-B before intt:\n");
+    for (i = 0; i < KYBER_K; i++) {
+        for (int j = 0; j < KYBER_N; j++) {
+            A = b.vec[i].coeffs[j];
+            printf("%04X-", A);
+        }
+    }
     PQCLEAN_KYBER768_CLEAN_polyvec_invntt_tomont(&b);
-    PQCLEAN_KYBER768_CLEAN_poly_invntt_tomont(&v);
+    printf("\n\nKEY-B after intt:\n");
+    for (i = 0; i < KYBER_K; i++) {
+        for (int j = 0; j < KYBER_N; j++) {
+            A = b.vec[i].coeffs[j];
+            printf("%04X-", A);
+        }
+    }
+    
+    
+
+    vector = v;
+        
+
+    for (int k1 = 0; k1 <= 254; k1 += 4) {
+        concatenated1 = 0;
+        concatenated2 = 0;
+        concatenated1 = ((uint32_t)vector.coeffs[k1] << 16) | ((uint32_t)vector.coeffs[k1 + 2] & 0xFFFF);
+        concatenated2 = ((uint32_t)vector.coeffs[k1+1] << 16) | ((uint32_t)vector.coeffs[k1 + 3] & 0xFFFF);
+        Din_v[k1 / 2] = concatenated1;
+        Din_v[k1 / 2 + 1] = concatenated2;
+    }
+        
+    /*printf("\npoly_INTT INPUT on 32bit *******************************\n");
+    for (int j = 0; j < 128; j++) {
+        printf("%08x-", Din_v[j]);
+    }
+    printf("\n");
+        
+     
+    printf("\nINTT accelerator starts working!\n");*/
+    KYBER_poly_intt(Din_v, Dout_v);
+    /*printf("\nINTT accelerator ends working!\n");
+   
+    printf("\nOUTPUT from INVNTT - DOUT [%d]\n", i);
+    for (int i = 0; i < 128; i++) {	 
+      printf("%08x-",Dout_v[i]);
+    }*/
+
+    for (int k2 = 0; k2 < 128; k2++) {
+      uint32_t value = Dout_v[k2];
+      uint16_t msb = (value >> 16) & 0xFFFF;
+      uint16_t lsb = value & 0xFFFF;
+
+      // Assign the MSB and LSB to the corresponding elements in r
+      v.coeffs[k2] = msb; // Assign MSB
+      v.coeffs[k2 + 128] = lsb; // Assign LSB
+    }
+    
+    printf("\nOUTPUT INVNTT from polyvec [%d]\n", i);
+    for (int k3 = 0; k3 < 256; k3++) {
+        printf("%04x-", v.coeffs[k3]);
+    }
+    
+    
+    //PQCLEAN_KYBER768_CLEAN_poly_invntt_tomont(&v);
+    
 
     PQCLEAN_KYBER768_CLEAN_polyvec_add(&b, &b, &ep);
     PQCLEAN_KYBER768_CLEAN_poly_add(&v, &v, &epp);
@@ -323,13 +422,57 @@ void PQCLEAN_KYBER768_CLEAN_indcpa_dec(uint8_t m[KYBER_INDCPA_MSGBYTES],
                                        const uint8_t sk[KYBER_INDCPA_SECRETKEYBYTES]) {
     polyvec b, skpv;
     poly v, mp;
+    
+    poly vector;
+    uint32_t Din[128], Dout[128];
+	  uint32_t concatenated1, concatenated2;
+    uint16_t A;
 
     unpack_ciphertext(&b, &v, c);
     unpack_sk(&skpv, sk);
-
+   
     PQCLEAN_KYBER768_CLEAN_polyvec_ntt(&b);
     PQCLEAN_KYBER768_CLEAN_polyvec_basemul_acc_montgomery(&mp, &skpv, &b);
-    PQCLEAN_KYBER768_CLEAN_poly_invntt_tomont(&mp);
+    
+    
+    //PQCLEAN_KYBER768_CLEAN_poly_invntt_tomont(&mp);
+    
+    vector = mp;
+        
+
+    for (int k1 = 0; k1 <= 254; k1 += 4) {
+        concatenated1 = 0;
+        concatenated2 = 0;
+        concatenated1 = ((uint32_t)vector.coeffs[k1] << 16) | ((uint32_t)vector.coeffs[k1 + 2] & 0xFFFF);
+        concatenated2 = ((uint32_t)vector.coeffs[k1+1] << 16) | ((uint32_t)vector.coeffs[k1 + 3] & 0xFFFF);
+        Din[k1 / 2] = concatenated1;
+        Din[k1 / 2 + 1] = concatenated2;
+    }
+        
+     
+    //printf("\nINTT accelerator starts working!\n");
+    KYBER_poly_intt(Din, Dout);
+    /*printf("\nINTT accelerator ends working!\n");
+   
+    printf("\nOUTPUT from INVNTT - DOUT\n");
+    for (int i = 0; i < 128; i++) {	 
+      printf("%08x-",Dout[i]);
+    }*/
+
+    for (int k2 = 0; k2 < 128; k2++) {
+      uint32_t value = Dout[k2];
+      uint16_t msb = (value >> 16) & 0xFFFF;
+      uint16_t lsb = value & 0xFFFF;
+
+      // Assign the MSB and LSB to the corresponding elements in r
+      mp.coeffs[k2] = msb; // Assign MSB
+      mp.coeffs[k2 + 128] = lsb; // Assign LSB
+    }
+    
+    /*printf("\nOUTPUT INVNTT from polyvec\n");
+    for (int k3 = 0; k3 < 256; k3++) {
+        printf("%04x-", v.coeffs[k3]);
+    }*/
 
     PQCLEAN_KYBER768_CLEAN_poly_sub(&mp, &v, &mp);
     PQCLEAN_KYBER768_CLEAN_poly_reduce(&mp);

@@ -34,21 +34,58 @@
 
 #include "ntt_intt_pwm/ntt_intt_pwm_auto.h"
 #include "ntt_intt_pwm/ntt_intt_pwm_driver.h"
+#include "ntt_intt_pwm/intt_driver.h"
+#include "ntt_intt_pwm/pwm_driver.h"
 
 //#include "SHA3/fips_202.h"
 
-#include "ntt_test/api.h"
-#include "ntt_test/cbd.h"
-#include "ntt_test/fips202.h"
-#include "ntt_test/indcpa.h"
-#include "ntt_test/kem.h"
-#include "ntt_test/params.h"
-#include "ntt_test/poly.h"
-#include "ntt_test/polyvec.h"
-#include "ntt_test/randombytes.h"
-#include "ntt_test/reduce.h"
-#include "ntt_test/symmetric.h"
-#include "ntt_test/verify.h"
+
+//KYBER768
+#include "kyber768/api.h"
+#include "kyber768/cbd.h"
+#include "kyber768/fips202.h"
+#include "kyber768/indcpa.h"
+#include "kyber768/kem.h"
+#include "kyber768/ntt.h"
+#include "kyber768/params.h"
+#include "kyber768/poly.h"
+#include "kyber768/polyvec.h"
+#include "kyber768/randombytes.h"
+#include "kyber768/reduce.h"
+#include "kyber768/symmetric.h"
+#include "kyber768/verify.h"
+
+//KYBER512
+/*#include "kyber512/api.h"
+#include "kyber512/cbd.h"
+#include "kyber512/fips202.h"
+#include "kyber512/indcpa.h"
+#include "kyber512/kem.h"
+#include "kyber512/ntt.h"
+#include "kyber512/params.h"
+#include "kyber512/poly.h"
+#include "kyber512/polyvec.h"
+#include "kyber512/randombytes.h"
+#include "kyber512/reduce.h"
+#include "kyber512/symmetric.h"
+#include "kyber512/verify.h"*/
+
+//KYBER1024
+/*
+#include "kyber1024/api.h"
+#include "kyber1024/cbd.h"
+#include "kyber1024/fips202.h"
+#include "kyber1024/indcpa.h"
+#include "kyber1024/kem.h"
+#include "kyber1024/ntt.h"
+#include "kyber1024/params.h"
+#include "kyber1024/poly.h"
+#include "kyber1024/polyvec.h"
+#include "kyber1024/randombytes.h"
+#include "kyber1024/reduce.h"
+#include "kyber1024/symmetric.h"
+#include "kyber1024/verify.h"
+*/
 
 typedef enum {
   PI_FREQ_DOMAIN_FC     = 0,

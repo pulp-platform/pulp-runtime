@@ -2,6 +2,7 @@
 #include "poly.h"
 #include "polyvec.h"
 #include <stdint.h>
+#include <stdio.h>
 
 /*************************************************
 * Name:        PQCLEAN_KYBER768_CLEAN_polyvec_compress
@@ -104,9 +105,59 @@ void PQCLEAN_KYBER768_CLEAN_polyvec_frombytes(polyvec *r, const uint8_t a[KYBER_
 * Arguments:   - polyvec *r: pointer to in/output vector of polynomials
 **************************************************/
 void PQCLEAN_KYBER768_CLEAN_polyvec_ntt(polyvec *r) {
-    unsigned int i;
+    unsigned int i, k2;
+	  uint32_t Din[128], Dout[128];
+    poly vector;
+	  uint32_t concatenated;
+
+
     for (i = 0; i < KYBER_K; i++) {
-        PQCLEAN_KYBER768_CLEAN_poly_ntt(&r->vec[i]);
+        vector = r->vec[i];
+    
+         for (int k1 = 0; k1 <= 254; k1 += 2) {
+            concatenated = 0;
+            concatenated = ((uint32_t)vector.coeffs[k1] << 16) | ((uint32_t)vector.coeffs[k1 + 1] & 0xFFFF);
+            Din[k1 / 2] = concatenated;
+        }
+        
+        /*printf("\npoly_INTT INPUT on 32bit *******************************\n");
+        for (int j = 0; j < 128; j++) {
+            printf("%08x-", Din[j]);
+        }
+        printf("\n");
+        printf("\nNTT accelerator starts working!\n");*/
+        
+        KYBER_poly_ntt(Din, Dout);
+        /*printf("\nNTT accelerator ends working!\n");
+       
+        printf("\nOUTPUT from NTT - DOUT [%d]\n", i);
+        for (int i = 0; i < 128; i++) {	 
+		      printf("%08x-",Dout[i]);
+	      }*/
+    
+        for (k2 = 0; k2 < 128; k2+=2) {
+          uint32_t value1 = Dout[k2];
+          uint16_t msb1 = (value1 >> 16) & 0xFFFF;
+          uint16_t lsb1 = value1 & 0xFFFF;
+
+          uint32_t value2 = Dout[k2+1];
+          uint16_t msb2 = (value2 >> 16) & 0xFFFF;
+          uint16_t lsb2 = value2 & 0xFFFF;
+          
+   
+          // Assign the MSB and LSB to the corresponding elements in r
+          r->vec[i].coeffs[2 * k2] = msb1; // Assign MSB1
+          r->vec[i].coeffs[2 * k2 + 1] = msb2; // Assign MSB2
+          r->vec[i].coeffs[2 * k2 + 2] = lsb1; // Assign LSB1
+          r->vec[i].coeffs[2 * k2 + 3] = lsb2; // Assign LSB2
+          
+        }
+        
+        /*printf("\nOUTPUT from polyvec [%d]\n", i);
+        for (int k3 = 0; k3 < 256; k3++) {
+            printf("%04x-", r->vec[i].coeffs[k3]);
+        }*/
+     
     }
 }
 
@@ -119,9 +170,63 @@ void PQCLEAN_KYBER768_CLEAN_polyvec_ntt(polyvec *r) {
 * Arguments:   - polyvec *r: pointer to in/output vector of polynomials
 **************************************************/
 void PQCLEAN_KYBER768_CLEAN_polyvec_invntt_tomont(polyvec *r) {
-    unsigned int i;
+    /*unsigned int i;
     for (i = 0; i < KYBER_K; i++) {
         PQCLEAN_KYBER768_CLEAN_poly_invntt_tomont(&r->vec[i]);
+    }*/
+    
+    unsigned int i, k2;
+	  uint32_t Din[128], Dout[128];
+    poly vector;
+	  uint32_t concatenated1, concatenated2;
+
+
+    for (i = 0; i < KYBER_K; i++) {
+        vector = r->vec[i];
+        
+
+        for (int k1 = 0; k1 <= 254; k1 += 4) {
+            concatenated1 = 0;
+            concatenated2 = 0;
+            concatenated1 = ((uint32_t)vector.coeffs[k1] << 16) | ((uint32_t)vector.coeffs[k1 + 2] & 0xFFFF);
+            concatenated2 = ((uint32_t)vector.coeffs[k1+1] << 16) | ((uint32_t)vector.coeffs[k1 + 3] & 0xFFFF);
+            Din[k1 / 2] = concatenated1;
+            Din[k1 / 2 + 1] = concatenated2;
+        }
+        
+        printf("\npoly_INTT INPUT on 32bit *******************************\n");
+        for (int j = 0; j < 128; j++) {
+            printf("%08x-", Din[j]);
+        }
+        printf("\n");
+        
+     
+        printf("\nINTT accelerator starts working!\n");
+        KYBER_poly_intt(Din, Dout);
+        printf("\nINTT accelerator ends working!\n");
+       
+        printf("\nOUTPUT from INVNTT - DOUT [%d]\n", i);
+        for (int i = 0; i < 128; i++) {	 
+		      printf("%08x-",Dout[i]);
+	      }
+    
+        for (k2 = 0; k2 < 128; k2++) {
+          uint32_t value = Dout[k2];
+          uint16_t msb = (value >> 16) & 0xFFFF;
+          uint16_t lsb = value & 0xFFFF;
+
+          // Assign the MSB and LSB to the corresponding elements in r
+          r->vec[i].coeffs[k2] = msb; // Assign MSB
+          r->vec[i].coeffs[k2 + 128] = lsb; // Assign LSB
+
+          
+        }
+        
+        printf("\nOUTPUT INVNTT from polyvec [%d]\n", i);
+        for (int k3 = 0; k3 < 256; k3++) {
+            printf("%04x-", r->vec[i].coeffs[k3]);
+        }
+     
     }
 }
 
@@ -138,10 +243,35 @@ void PQCLEAN_KYBER768_CLEAN_polyvec_invntt_tomont(polyvec *r) {
 void PQCLEAN_KYBER768_CLEAN_polyvec_basemul_acc_montgomery(poly *r, const polyvec *a, const polyvec *b) {
     unsigned int i;
     poly t;
+    uint16_t DIN_1, DIN_2, DOUT, DOUTa;
 
-    PQCLEAN_KYBER768_CLEAN_poly_basemul_montgomery(r, &a->vec[0], &b->vec[0]);
+    /*printf("\nDIN1:\n");
+    for (int j = 0; j < KYBER_N; j++) {
+        DIN_1 = a[0].vec[0].coeffs[j];
+        printf("%02X-", DIN_1);
+    }
+    printf("\nDIN2:\n");
+    for (int j = 0; j < KYBER_N; j++) {
+        DIN_2 = b[0].vec[0].coeffs[j];
+        printf("%02X-", DIN_2);
+    }*/
+
+   PQCLEAN_KYBER768_CLEAN_poly_basemul_montgomery(r, &a->vec[0], &b->vec[0]);
+   
+   /*printf("\nDOT:\n");
+   for (int j = 0; j < KYBER_N; j++) {
+        DOUT = r[0].coeffs[j];
+        printf("%02X-", DOUT);
+    }*/
+    
+    
     for (i = 1; i < KYBER_K; i++) {
         PQCLEAN_KYBER768_CLEAN_poly_basemul_montgomery(&t, &a->vec[i], &b->vec[i]);
+        /*printf("\nDOT:\n");
+         for (int j = 0; j < KYBER_N; j++) {
+           DOUTa = t.coeffs[j];
+           printf("%02X-", DOUTa);
+        }*/
         PQCLEAN_KYBER768_CLEAN_poly_add(r, r, &t);
     }
 

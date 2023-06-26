@@ -180,18 +180,19 @@ void PQCLEAN_KYBER768_CLEAN_poly_getnoise_eta2(poly *r, const uint8_t seed[KYBER
 
 
 /*************************************************
-* Name:        PQCLEAN_KYBER768_CLEAN_poly_ntt
+* Name:        PQCLEAN_KYBER768_CLEAN_poly_ntt -> REMOVED: done by the accelerator
 *
 * Description: Computes negacyclic number-theoretic transform (NTT) of
 *              a polynomial in place;
 *              inputs assumed to be in normal order, output in bitreversed order
 *
 * Arguments:   - uint16_t *r: pointer to in/output polynomial
-**************************************************/
+
 void PQCLEAN_KYBER768_CLEAN_poly_ntt(poly *r) {
     PQCLEAN_KYBER768_CLEAN_ntt(r->coeffs);
     PQCLEAN_KYBER768_CLEAN_poly_reduce(r);
 }
+**************************************************/
 
 /*************************************************
 * Name:        PQCLEAN_KYBER768_CLEAN_poly_invntt_tomont
@@ -202,9 +203,9 @@ void PQCLEAN_KYBER768_CLEAN_poly_ntt(poly *r) {
 *
 * Arguments:   - uint16_t *a: pointer to in/output polynomial
 **************************************************/
-void PQCLEAN_KYBER768_CLEAN_poly_invntt_tomont(poly *r) {
+/*void PQCLEAN_KYBER768_CLEAN_poly_invntt_tomont(poly *r) {
     PQCLEAN_KYBER768_CLEAN_invntt(r->coeffs);
-}
+}*/
 
 /*************************************************
 * Name:        PQCLEAN_KYBER768_CLEAN_poly_basemul_montgomery
@@ -216,11 +217,66 @@ void PQCLEAN_KYBER768_CLEAN_poly_invntt_tomont(poly *r) {
 *              - const poly *b: pointer to second input polynomial
 **************************************************/
 void PQCLEAN_KYBER768_CLEAN_poly_basemul_montgomery(poly *r, const poly *a, const poly *b) {
-    size_t i;
-    for (i = 0; i < KYBER_N / 4; i++) {
+
+    unsigned int i, k2;
+    uint32_t DIN_1[128], DIN_2[128], DOUT[128];
+    poly vector_DIN1, vector_DIN2;
+    uint32_t concatenated1a, concatenated1b, concatenated2a, concatenated2b;
+
+    for (int k1 = 0; k1 <= 254; k1 += 4) {
+        concatenated1a = 0;
+        concatenated2b = 0;
+        concatenated1b = 0;
+        concatenated2b = 0;
+        
+        concatenated1a = ((uint32_t)a->coeffs[k1] << 16) | ((uint32_t)a->coeffs[k1 + 2] & 0xFFFF);
+        concatenated1b= ((uint32_t)a->coeffs[k1+1] << 16) | ((uint32_t)a->coeffs[k1 + 3] & 0xFFFF);
+        
+        concatenated2a = ((uint32_t)b->coeffs[k1] << 16) | ((uint32_t)b->coeffs[k1 + 2] & 0xFFFF);
+        concatenated2b = ((uint32_t)b->coeffs[k1+1] << 16) | ((uint32_t)b->coeffs[k1 + 3] & 0xFFFF);        
+        
+        DIN_1[k1 / 2] = concatenated1a;
+        DIN_1[k1 / 2 + 1] = concatenated1b;
+        
+        DIN_2[k1 / 2] = concatenated2a;
+        DIN_2[k1 / 2 + 1] = concatenated2b;
+    }
+
+    /*printf("\nINSIDE POLY\n\nDIN1:\n");
+    for (int j = 0; j < KYBER_N / 2; j++) {
+        printf("%04X-", DIN_1[j]);
+    }
+    printf("\nDIN2:\n");
+    for (int j = 0; j < KYBER_N / 2; j++) {
+        printf("%04X-", DIN_2[j]);
+    }*/
+    
+  
+   //PQCLEAN_KYBER768_CLEAN_poly_basemul_montgomery(r, &a->vec[0], &b->vec[0]);
+   KYBER_poly_pwm(DOUT, DIN_1, DIN_2);
+    
+   for (k2 = 0; k2 < 128; k2+=2) {
+      uint32_t value1 = DOUT[k2];
+      uint16_t msb1 = (value1 >> 16) & 0xFFFF;
+      uint16_t lsb1 = value1 & 0xFFFF;
+  
+      uint32_t value2 = DOUT[k2+1];
+      uint16_t msb2 = (value2 >> 16) & 0xFFFF;
+      uint16_t lsb2 = value2 & 0xFFFF;
+      
+  
+      // Assign the MSB and LSB to the corresponding elements in r
+      r->coeffs[2 * k2] = msb1; // Assign MSB1
+      r->coeffs[2 * k2 + 1] = msb2; // Assign MSB2
+      r->coeffs[2 * k2 + 2] = lsb1; // Assign LSB1
+      r->coeffs[2 * k2 + 3] = lsb2; // Assign LSB2
+      
+    }
+        
+    /*for (i = 0; i < KYBER_N / 4; i++) {
         PQCLEAN_KYBER768_CLEAN_basemul(&r->coeffs[4 * i], &a->coeffs[4 * i], &b->coeffs[4 * i], PQCLEAN_KYBER768_CLEAN_zetas[64 + i]);
         PQCLEAN_KYBER768_CLEAN_basemul(&r->coeffs[4 * i + 2], &a->coeffs[4 * i + 2], &b->coeffs[4 * i + 2], -PQCLEAN_KYBER768_CLEAN_zetas[64 + i]);
-    }
+    }*/
 }
 
 /*************************************************

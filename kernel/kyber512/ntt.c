@@ -77,6 +77,7 @@ static int16_t fqmul(int16_t a, int16_t b) {
 *
 * Arguments:   - int16_t r[256]: pointer to input/output vector of elements of Zq
 **************************************************/
+/*
 void PQCLEAN_KYBER512_CLEAN_ntt(int16_t r[256]) {
     unsigned int len, start, j, k;
     int16_t t, zeta;
@@ -93,7 +94,7 @@ void PQCLEAN_KYBER512_CLEAN_ntt(int16_t r[256]) {
         }
     }
 }
-
+*/
 /*************************************************
 * Name:        invntt_tomont
 *
@@ -103,7 +104,7 @@ void PQCLEAN_KYBER512_CLEAN_ntt(int16_t r[256]) {
 *
 * Arguments:   - int16_t r[256]: pointer to input/output vector of elements of Zq
 **************************************************/
-void PQCLEAN_KYBER512_CLEAN_invntt(int16_t r[256]) {
+/*void PQCLEAN_KYBER512_CLEAN_invntt(int16_t r[256]) {
     unsigned int start, len, j, k;
     int16_t t, zeta;
     const int16_t f = 1441; // mont^2/128
@@ -125,7 +126,7 @@ void PQCLEAN_KYBER512_CLEAN_invntt(int16_t r[256]) {
         r[j] = fqmul(r[j], f);
     }
 }
-
+*/
 /*************************************************
 * Name:        PQCLEAN_KYBER512_CLEAN_basemul
 *

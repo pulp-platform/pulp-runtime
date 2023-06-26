@@ -104,9 +104,40 @@ void PQCLEAN_KYBER512_CLEAN_polyvec_frombytes(polyvec *r, const uint8_t a[KYBER_
 * Arguments:   - polyvec *r: pointer to in/output vector of polynomials
 **************************************************/
 void PQCLEAN_KYBER512_CLEAN_polyvec_ntt(polyvec *r) {
-    unsigned int i;
+    unsigned int i, k2;
+	  uint32_t Din[128], Dout[128];
+    poly vector;
+	  uint32_t concatenated;
+
+
     for (i = 0; i < KYBER_K; i++) {
-        PQCLEAN_KYBER512_CLEAN_poly_ntt(&r->vec[i]);
+        vector = r->vec[i];
+    
+         for (int k1 = 0; k1 <= 254; k1 += 2) {
+            concatenated = 0;
+            concatenated = ((uint32_t)vector.coeffs[k1] << 16) | ((uint32_t)vector.coeffs[k1 + 1] & 0xFFFF);
+            Din[k1 / 2] = concatenated;
+        }
+        
+        KYBER_poly_ntt(Din, Dout);
+    
+        for (k2 = 0; k2 < 128; k2+=2) {
+          uint32_t value1 = Dout[k2];
+          uint16_t msb1 = (value1 >> 16) & 0xFFFF;
+          uint16_t lsb1 = value1 & 0xFFFF;
+
+          uint32_t value2 = Dout[k2+1];
+          uint16_t msb2 = (value2 >> 16) & 0xFFFF;
+          uint16_t lsb2 = value2 & 0xFFFF;
+          
+   
+          // Assign the MSB and LSB to the corresponding elements in r
+          r->vec[i].coeffs[2 * k2] = msb1; // Assign MSB1
+          r->vec[i].coeffs[2 * k2 + 1] = msb2; // Assign MSB2
+          r->vec[i].coeffs[2 * k2 + 2] = lsb1; // Assign LSB1
+          r->vec[i].coeffs[2 * k2 + 3] = lsb2; // Assign LSB2
+          
+        }
     }
 }
 
@@ -118,10 +149,35 @@ void PQCLEAN_KYBER512_CLEAN_polyvec_ntt(polyvec *r) {
 *
 * Arguments:   - polyvec *r: pointer to in/output vector of polynomials
 **************************************************/
-void PQCLEAN_KYBER512_CLEAN_polyvec_invntt_tomont(polyvec *r) {
-    unsigned int i;
+void PQCLEAN_KYBER512_CLEAN_polyvec_invntt_tomont(polyvec *r) { 
+    unsigned int i, k2;
+	  uint32_t Din[128], Dout[128];
+    poly vector;
+	  uint32_t concatenated1, concatenated2;
+
     for (i = 0; i < KYBER_K; i++) {
-        PQCLEAN_KYBER512_CLEAN_poly_invntt_tomont(&r->vec[i]);
+        vector = r->vec[i];
+    
+        for (int k1 = 0; k1 <= 254; k1 += 4) {
+            concatenated1 = 0;
+            concatenated2 = 0;
+            concatenated1 = ((uint32_t)vector.coeffs[k1] << 16) | ((uint32_t)vector.coeffs[k1 + 2] & 0xFFFF);
+            concatenated2 = ((uint32_t)vector.coeffs[k1+1] << 16) | ((uint32_t)vector.coeffs[k1 + 3] & 0xFFFF);
+            Din[k1 / 2] = concatenated1;
+            Din[k1 / 2 + 1] = concatenated2;
+        }
+        
+        KYBER_poly_intt(Din, Dout);
+ 
+        for (k2 = 0; k2 < 128; k2++) {
+          uint32_t value = Dout[k2];
+          uint16_t msb = (value >> 16) & 0xFFFF;
+          uint16_t lsb = value & 0xFFFF;
+
+          // Assign the MSB and LSB to the corresponding elements in r
+          r->vec[i].coeffs[k2] = msb; // Assign MSB
+          r->vec[i].coeffs[k2 + 128] = lsb; // Assign LSB
+        }
     }
 }
 

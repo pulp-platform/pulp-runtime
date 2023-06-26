@@ -52,7 +52,7 @@ PULP_APP_CFLAGS += -I$(PULPRT_HOME)/include -I$(PULPRT_HOME)/kernel
 #ADDITION FOR H-FILE
 PULP_APP_CFLAGS += -I$(PULPRT_HOME)/include/keccak
 PULP_APP_CFLAGS += -I$(PULPRT_HOME)/include/ntt_intt_pwm
-PULP_APP_CFLAGS += -I$(PULPRT_HOME)/include/ntt_test
+PULP_APP_CFLAGS += -I$(PULPRT_HOME)/include/kyber768
 
 
 PULP_APP_CFLAGS += $(foreach inc,$(PULPOS_MODULES),-I$(inc)/include)

@@ -188,10 +188,10 @@ void PQCLEAN_KYBER512_CLEAN_poly_getnoise_eta2(poly *r, const uint8_t seed[KYBER
 *
 * Arguments:   - uint16_t *r: pointer to in/output polynomial
 **************************************************/
-void PQCLEAN_KYBER512_CLEAN_poly_ntt(poly *r) {
+/*void PQCLEAN_KYBER512_CLEAN_poly_ntt(poly *r) {
     PQCLEAN_KYBER512_CLEAN_ntt(r->coeffs);
     PQCLEAN_KYBER512_CLEAN_poly_reduce(r);
-}
+}*/
 
 /*************************************************
 * Name:        PQCLEAN_KYBER512_CLEAN_poly_invntt_tomont
@@ -202,9 +202,9 @@ void PQCLEAN_KYBER512_CLEAN_poly_ntt(poly *r) {
 *
 * Arguments:   - uint16_t *a: pointer to in/output polynomial
 **************************************************/
-void PQCLEAN_KYBER512_CLEAN_poly_invntt_tomont(poly *r) {
+/*void PQCLEAN_KYBER512_CLEAN_poly_invntt_tomont(poly *r) {
     PQCLEAN_KYBER512_CLEAN_invntt(r->coeffs);
-}
+}*/
 
 /*************************************************
 * Name:        PQCLEAN_KYBER512_CLEAN_poly_basemul_montgomery

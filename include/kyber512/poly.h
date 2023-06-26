@@ -24,8 +24,9 @@ void PQCLEAN_KYBER512_CLEAN_poly_getnoise_eta1(poly *r, const uint8_t seed[KYBER
 
 void PQCLEAN_KYBER512_CLEAN_poly_getnoise_eta2(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t nonce);
 
-void PQCLEAN_KYBER512_CLEAN_poly_ntt(poly *r);
-void PQCLEAN_KYBER512_CLEAN_poly_invntt_tomont(poly *r);
+//void PQCLEAN_KYBER512_CLEAN_poly_ntt(poly *r);
+//void PQCLEAN_KYBER512_CLEAN_poly_invntt_tomont(poly *r);
+
 void PQCLEAN_KYBER512_CLEAN_poly_basemul_montgomery(poly *r, const poly *a, const poly *b);
 void PQCLEAN_KYBER512_CLEAN_poly_tomont(poly *r);
 

@@ -222,8 +222,37 @@ void PQCLEAN_KYBER512_CLEAN_indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTE
         PQCLEAN_KYBER512_CLEAN_poly_getnoise_eta1(&e.vec[i], noiseseed, nonce++);
     }
 
+    printf("\nSKPV before ntt:\n");
+    for (i = 0; i < KYBER_K; i++) {
+        for (int j = 0; j < KYBER_N; j++) {
+            printf("%04X-", skpv.vec[i].coeffs[j]);
+        }
+        printf("\n------------------------------\n");
+    }
     PQCLEAN_KYBER512_CLEAN_polyvec_ntt(&skpv);
+    printf("\nSKPV after ntt:\n");
+    for (i = 0; i < KYBER_K; i++) {
+        for (int j = 0; j < KYBER_N; j++) {
+            printf("%04X-", skpv.vec[i].coeffs[j]);
+        }
+        printf("\n------------------------------\n");
+    }
+    
+    printf("\nE before ntt:\n");
+    for (i = 0; i < KYBER_K; i++) {
+        for (int j = 0; j < KYBER_N; j++) {
+            printf("%04X-", e.vec[i].coeffs[j]);
+        }
+        printf("\n------------------------------\n");
+    }
     PQCLEAN_KYBER512_CLEAN_polyvec_ntt(&e);
+    printf("\nE after ntt:\n");
+    for (i = 0; i < KYBER_K; i++) {
+        for (int j = 0; j < KYBER_N; j++) {
+            printf("%04X-", e.vec[i].coeffs[j]);
+        }
+        printf("\n------------------------------\n");
+    }
 
     // matrix-vector multiplication
     for (i = 0; i < KYBER_K; i++) {
@@ -263,6 +292,10 @@ void PQCLEAN_KYBER512_CLEAN_indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
     uint8_t nonce = 0;
     polyvec sp, pkpv, ep, at[KYBER_K], b;
     poly v, k, epp;
+    
+    poly vector;
+    uint32_t Din_v[128], Dout_v[128];
+	  uint32_t concatenated1, concatenated2;
 
     unpack_pk(&pkpv, seed, pk);
     PQCLEAN_KYBER512_CLEAN_poly_frommsg(&k, m);
@@ -286,7 +319,31 @@ void PQCLEAN_KYBER512_CLEAN_indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
     PQCLEAN_KYBER512_CLEAN_polyvec_basemul_acc_montgomery(&v, &pkpv, &sp);
 
     PQCLEAN_KYBER512_CLEAN_polyvec_invntt_tomont(&b);
-    PQCLEAN_KYBER512_CLEAN_poly_invntt_tomont(&v);
+    
+    
+    vector = v;
+        
+
+    for (int k1 = 0; k1 <= 254; k1 += 4) {
+        concatenated1 = 0;
+        concatenated2 = 0;
+        concatenated1 = ((uint32_t)vector.coeffs[k1] << 16) | ((uint32_t)vector.coeffs[k1 + 2] & 0xFFFF);
+        concatenated2 = ((uint32_t)vector.coeffs[k1+1] << 16) | ((uint32_t)vector.coeffs[k1 + 3] & 0xFFFF);
+        Din_v[k1 / 2] = concatenated1;
+        Din_v[k1 / 2 + 1] = concatenated2;
+    }
+    
+    KYBER_poly_intt(Din_v, Dout_v);
+    
+    for (int k2 = 0; k2 < 128; k2++) {
+      uint32_t value = Dout_v[k2];
+      uint16_t msb = (value >> 16) & 0xFFFF;
+      uint16_t lsb = value & 0xFFFF;
+
+      // Assign the MSB and LSB to the corresponding elements in r
+      v.coeffs[k2] = msb; // Assign MSB
+      v.coeffs[k2 + 128] = lsb; // Assign LSB
+    }
 
     PQCLEAN_KYBER512_CLEAN_polyvec_add(&b, &b, &ep);
     PQCLEAN_KYBER512_CLEAN_poly_add(&v, &v, &epp);
@@ -315,13 +372,40 @@ void PQCLEAN_KYBER512_CLEAN_indcpa_dec(uint8_t m[KYBER_INDCPA_MSGBYTES],
                                        const uint8_t sk[KYBER_INDCPA_SECRETKEYBYTES]) {
     polyvec b, skpv;
     poly v, mp;
-
+    
+    poly vector;
+    uint32_t Din[128], Dout[128];
+	  uint32_t concatenated1, concatenated2;
+    
+    
     unpack_ciphertext(&b, &v, c);
     unpack_sk(&skpv, sk);
 
     PQCLEAN_KYBER512_CLEAN_polyvec_ntt(&b);
     PQCLEAN_KYBER512_CLEAN_polyvec_basemul_acc_montgomery(&mp, &skpv, &b);
-    PQCLEAN_KYBER512_CLEAN_poly_invntt_tomont(&mp);
+    
+    vector = mp;
+        
+    for (int k1 = 0; k1 <= 254; k1 += 4) {
+        concatenated1 = 0;
+        concatenated2 = 0;
+        concatenated1 = ((uint32_t)vector.coeffs[k1] << 16) | ((uint32_t)vector.coeffs[k1 + 2] & 0xFFFF);
+        concatenated2 = ((uint32_t)vector.coeffs[k1+1] << 16) | ((uint32_t)vector.coeffs[k1 + 3] & 0xFFFF);
+        Din[k1 / 2] = concatenated1;
+        Din[k1 / 2 + 1] = concatenated2;
+    }
+        
+    KYBER_poly_intt(Din, Dout);
+    
+    for (int k2 = 0; k2 < 128; k2++) {
+      uint32_t value = Dout[k2];
+      uint16_t msb = (value >> 16) & 0xFFFF;
+      uint16_t lsb = value & 0xFFFF;
+
+      // Assign the MSB and LSB to the corresponding elements in r
+      mp.coeffs[k2] = msb; // Assign MSB
+      mp.coeffs[k2 + 128] = lsb; // Assign LSB
+    }
 
     PQCLEAN_KYBER512_CLEAN_poly_sub(&mp, &v, &mp);
     PQCLEAN_KYBER512_CLEAN_poly_reduce(&mp);

@@ -2,7 +2,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
-#include <ntt_intt_pwm_driver.h>
+#include <intt_driver.h>
 #include <ntt_intt_pwm_auto.h>
 
 #define BUSY 0 
@@ -13,40 +13,40 @@
 #define CC_PWM 647
 
 
-void set_input_ntt(uint32_t Din){
+void set_input_intt(uint32_t Din){
    uint32_t *Din_reg_start = (uint32_t*)NTT_INTT_PWM_DIN(0);
 
    *Din_reg_start = Din;
 }
 
 
-void trigger_input_ntt(void){
+void trigger_input_intt(void){
 
   uint32_t volatile * ctrl_reg = (uint32_t*)NTT_INTT_PWM_CTRL(0);
 
-  *ctrl_reg = 1 << NTT_INTT_PWM_CTRL_LOAD_A_F;
+  *ctrl_reg = 1 << NTT_INTT_PWM_CTRL_LOAD_A_I;
 
-  *ctrl_reg = 0 << NTT_INTT_PWM_CTRL_LOAD_A_F;
+  *ctrl_reg = 0 << NTT_INTT_PWM_CTRL_LOAD_A_I;
   
 }
 
 
-void trigger_ntt(void)
+void trigger_intt(void)
 {
   uint32_t volatile *ctrl_reg = (uint32_t*)NTT_INTT_PWM_CTRL(0);
   int cnt = 0;
 
   asm volatile ("": : : "memory");
-  *ctrl_reg = 1 << NTT_INTT_PWM_CTRL_START_NTT;
+  *ctrl_reg = 1 << NTT_INTT_PWM_CTRL_START_INTT;
   asm volatile ("": : : "memory");
-  *ctrl_reg = 0 << NTT_INTT_PWM_CTRL_START_NTT;
+  *ctrl_reg = 0 << NTT_INTT_PWM_CTRL_START_INTT;
   asm volatile ("": : : "memory");
   
 	
 }
 
 
-void poll_done_ntt_intt_pwm(void){
+void poll_done_intt(void){
    uint32_t volatile *status_reg = (uint32_t*)NTT_INTT_PWM_STATUS(0);
    uint32_t volatile * ctrl_reg = (uint32_t*)NTT_INTT_PWM_CTRL(0);
    uint32_t current_status;
@@ -63,7 +63,7 @@ void poll_done_ntt_intt_pwm(void){
 
 
 
-uint32_t set_output_ntt(){
+uint32_t set_output_intt(){
   uint32_t *Dout_reg_start = (uint32_t*)NTT_INTT_PWM_DOUT(0);
   uint32_t temp;
 
@@ -77,23 +77,24 @@ uint32_t set_output_ntt(){
 /*************************************************************************/
 /***********************  MAIN *******************************************/
 /*************************************************************************/
-void KYBER_poly_ntt(uint32_t Din[128], uint32_t Dout[128]){
+void KYBER_poly_intt(uint32_t Din[128], uint32_t Dout[128]){
 
   uint32_t temp;
   
-	trigger_input_ntt();
+	trigger_input_intt();
  
   for (int i = 0; i<128; i++){
-	  set_input_ntt(Din[i]);
+	  set_input_intt(Din[i]);
   }
      
-	trigger_ntt();
+	trigger_intt();
   
-  poll_done_ntt_intt_pwm();
+  poll_done_intt();
  
+  
 	for (int i = 0; i<128; i++){
-  asm volatile ("nop");
-	  Dout[i]=set_output_ntt();
+    asm volatile ("nop");
+	  Dout[i]=set_output_intt();
   }
   
 }

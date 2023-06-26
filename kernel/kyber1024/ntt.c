@@ -76,7 +76,7 @@ static int16_t fqmul(int16_t a, int16_t b) {
 *              input is in standard order, output is in bitreversed order
 *
 * Arguments:   - int16_t r[256]: pointer to input/output vector of elements of Zq
-**************************************************/
+*************************************************
 void PQCLEAN_KYBER1024_CLEAN_ntt(int16_t r[256]) {
     unsigned int len, start, j, k;
     int16_t t, zeta;
@@ -102,7 +102,7 @@ void PQCLEAN_KYBER1024_CLEAN_ntt(int16_t r[256]) {
 *              Input is in bitreversed order, output is in standard order
 *
 * Arguments:   - int16_t r[256]: pointer to input/output vector of elements of Zq
-**************************************************/
+*************************************************
 void PQCLEAN_KYBER1024_CLEAN_invntt(int16_t r[256]) {
     unsigned int start, len, j, k;
     int16_t t, zeta;
@@ -125,6 +125,7 @@ void PQCLEAN_KYBER1024_CLEAN_invntt(int16_t r[256]) {
         r[j] = fqmul(r[j], f);
     }
 }
+*/
 
 /*************************************************
 * Name:        PQCLEAN_KYBER1024_CLEAN_basemul

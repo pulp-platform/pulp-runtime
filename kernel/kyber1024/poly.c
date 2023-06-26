@@ -200,7 +200,7 @@ void PQCLEAN_KYBER1024_CLEAN_poly_getnoise_eta2(poly *r, const uint8_t seed[KYBE
 *              inputs assumed to be in normal order, output in bitreversed order
 *
 * Arguments:   - uint16_t *r: pointer to in/output polynomial
-**************************************************/
+*************************************************
 void PQCLEAN_KYBER1024_CLEAN_poly_ntt(poly *r) {
     PQCLEAN_KYBER1024_CLEAN_ntt(r->coeffs);
     PQCLEAN_KYBER1024_CLEAN_poly_reduce(r);
@@ -214,7 +214,7 @@ void PQCLEAN_KYBER1024_CLEAN_poly_ntt(poly *r) {
 *              inputs assumed to be in bitreversed order, output in normal order
 *
 * Arguments:   - uint16_t *a: pointer to in/output polynomial
-**************************************************/
+*************************************************
 void PQCLEAN_KYBER1024_CLEAN_poly_invntt_tomont(poly *r) {
     PQCLEAN_KYBER1024_CLEAN_invntt(r->coeffs);
 }
