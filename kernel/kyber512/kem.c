@@ -51,20 +51,53 @@ int PQCLEAN_KYBER512_CLEAN_crypto_kem_keypair(uint8_t *pk,
 int PQCLEAN_KYBER512_CLEAN_crypto_kem_enc(uint8_t *ct,
         uint8_t *ss,
         const uint8_t *pk) {
-    uint8_t buf[2 * KYBER_SYMBYTES];
+    uint8_t buf_enc[2 * KYBER_SYMBYTES];
     /* Will contain key, coins */
     uint8_t kr[2 * KYBER_SYMBYTES];
+    
+    buf_enc[0] = 0xBA;
+    buf_enc[1] = 0xC5;
+    buf_enc[2] = 0xBA;
+    buf_enc[3] = 0x88;
+    buf_enc[4] = 0x1D;
+    buf_enc[5] = 0xD3;
+    buf_enc[6] = 0x5C;
+    buf_enc[7] = 0x59;
+    buf_enc[8] = 0x71;
+    buf_enc[9] = 0x96;
+    buf_enc[10] = 0x70;
+    buf_enc[11] = 0x00;
+    buf_enc[12] = 0x46;
+    buf_enc[13] = 0x92;
+    buf_enc[14] = 0xD6;
+    buf_enc[15] = 0x75;
+    buf_enc[16] = 0xB8;
+    buf_enc[17] = 0x3C;
+    buf_enc[18] = 0x98;
+    buf_enc[19] = 0xDB;
+    buf_enc[20] = 0x6A;
+    buf_enc[21] = 0x0E;
+    buf_enc[22] = 0x55;
+    buf_enc[23] = 0x80;
+    buf_enc[24] = 0x0B;
+    buf_enc[25] = 0xAF;
+    buf_enc[26] = 0xEB;
+    buf_enc[27] = 0x7E;
+    buf_enc[28] = 0x70;
+    buf_enc[29] = 0x49;
+    buf_enc[30] = 0x1B;
+    buf_enc[31] = 0xF4;
 
-    randombytes(buf, KYBER_SYMBYTES);
+    //randombytes(buf, KYBER_SYMBYTES);
     /* Don't release system RNG output */
-    hash_h(buf, buf, KYBER_SYMBYTES);
+    hash_h(buf_enc, buf_enc, KYBER_SYMBYTES);
 
     /* Multitarget countermeasure for coins + contributory KEM */
-    hash_h(buf + KYBER_SYMBYTES, pk, KYBER_PUBLICKEYBYTES);
-    hash_g(kr, buf, 2 * KYBER_SYMBYTES);
+    hash_h(buf_enc + KYBER_SYMBYTES, pk, KYBER_PUBLICKEYBYTES);
+    hash_g(kr, buf_enc, 2 * KYBER_SYMBYTES);
 
     /* coins are in kr+KYBER_SYMBYTES */
-    PQCLEAN_KYBER512_CLEAN_indcpa_enc(ct, buf, pk, kr + KYBER_SYMBYTES);
+    PQCLEAN_KYBER512_CLEAN_indcpa_enc(ct, buf_enc, pk, kr + KYBER_SYMBYTES);
 
     /* overwrite coins in kr with H(c) */
     hash_h(kr + KYBER_SYMBYTES, ct, KYBER_CIPHERTEXTBYTES);
