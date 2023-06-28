@@ -194,21 +194,21 @@ void PQCLEAN_KYBER768_CLEAN_polyvec_invntt_tomont(polyvec *r) {
             Din[k1 / 2 + 1] = concatenated2;
         }
         
-        printf("\npoly_INTT INPUT on 32bit *******************************\n");
+        /*printf("\npoly_INTT INPUT on 32bit *******************************\n");
         for (int j = 0; j < 128; j++) {
             printf("%08x-", Din[j]);
         }
         printf("\n");
         
      
-        printf("\nINTT accelerator starts working!\n");
+        printf("\nINTT accelerator starts working!\n");*/
         KYBER_poly_intt(Din, Dout);
-        printf("\nINTT accelerator ends working!\n");
+        /*printf("\nINTT accelerator ends working!\n");
        
         printf("\nOUTPUT from INVNTT - DOUT [%d]\n", i);
         for (int i = 0; i < 128; i++) {	 
 		      printf("%08x-",Dout[i]);
-	      }
+	      }*/
     
         for (k2 = 0; k2 < 128; k2++) {
           uint32_t value = Dout[k2];
@@ -222,10 +222,10 @@ void PQCLEAN_KYBER768_CLEAN_polyvec_invntt_tomont(polyvec *r) {
           
         }
         
-        printf("\nOUTPUT INVNTT from polyvec [%d]\n", i);
+        /*printf("\nOUTPUT INVNTT from polyvec [%d]\n", i);
         for (int k3 = 0; k3 < 256; k3++) {
             printf("%04x-", r->vec[i].coeffs[k3]);
-        }
+        }*/
      
     }
 }
