@@ -1,5 +1,7 @@
 #include <stdint.h>
 
+void set_clear_intt(void);
+
 void set_input_intt(uint32_t Din);
 
 void trigger_input_intt(void);

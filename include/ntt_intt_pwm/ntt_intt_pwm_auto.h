@@ -34,6 +34,7 @@ extern "C" {
 #define NTT_INTT_PWM_CTRL_START_NTT 7
 #define NTT_INTT_PWM_CTRL_START_PWM 8
 #define NTT_INTT_PWM_CTRL_START_INTT 9
+#define NTT_INTT_PWM_CTRL_CLEAR 10
 
 //  Contains status information about ntt_intt_pwm
 #define NTT_INTT_PWM_STATUS(id) (NTT_INTT_PWM##id##_BASE_ADDR + 0xc)

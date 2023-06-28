@@ -1,5 +1,7 @@
 #include <stdint.h>
 
+void set_clear_ntt(void);
+
 void set_input_ntt(uint32_t Din);
 
 void trigger_input_ntt(void);

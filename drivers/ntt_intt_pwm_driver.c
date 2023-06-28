@@ -12,6 +12,15 @@
 #define CC_INTT 904
 #define CC_PWM 647
 
+void set_clear_ntt(void){
+
+  uint32_t volatile * ctrl_reg = (uint32_t*)NTT_INTT_PWM_CTRL(0);
+
+  *ctrl_reg = 1 << NTT_INTT_PWM_CTRL_CLEAR;
+
+  *ctrl_reg = 0 << NTT_INTT_PWM_CTRL_CLEAR;
+
+}
 
 void set_input_ntt(uint32_t Din){
    uint32_t *Din_reg_start = (uint32_t*)NTT_INTT_PWM_DIN(0);
@@ -81,6 +90,7 @@ void KYBER_poly_ntt(uint32_t Din[128], uint32_t Dout[128]){
 
   uint32_t temp;
   
+  set_clear_ntt();
 	trigger_input_ntt();
  
   for (int i = 0; i<128; i++){

@@ -93,11 +93,11 @@ int PQCLEAN_KYBER768_CLEAN_crypto_kem_enc(uint8_t *ct,
     buf_enc[30] = 0x1B;
     buf_enc[31] = 0xF4;
     
-    printf("\nRANDOM buf_enc:\n");
+    /*printf("\nRANDOM buf_enc:\n");
     for (int j = 0; j < 64; j++) {
         A = buf_enc[j];
         printf("%02X-", A);
-    }
+    }*/
     /* Don't release system RNG output */
     hash_h(buf_enc, buf_enc, KYBER_SYMBYTES);
 

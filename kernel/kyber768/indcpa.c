@@ -330,21 +330,21 @@ void PQCLEAN_KYBER768_CLEAN_indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
     }
 
     PQCLEAN_KYBER768_CLEAN_polyvec_basemul_acc_montgomery(&v, &pkpv, &sp);
-    printf("KEY-B before intt:\n");
+    /*printf("KEY-B before intt:\n");
     for (i = 0; i < KYBER_K; i++) {
         for (int j = 0; j < KYBER_N; j++) {
             A = b.vec[i].coeffs[j];
             printf("%04X-", A);
         }
-    }
+    }*/
     PQCLEAN_KYBER768_CLEAN_polyvec_invntt_tomont(&b);
-    printf("\n\nKEY-B after intt:\n");
+    /*printf("\n\nKEY-B after intt:\n");
     for (i = 0; i < KYBER_K; i++) {
         for (int j = 0; j < KYBER_N; j++) {
             A = b.vec[i].coeffs[j];
             printf("%04X-", A);
         }
-    }
+    }*/
     
     
 
@@ -386,10 +386,10 @@ void PQCLEAN_KYBER768_CLEAN_indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
       v.coeffs[k2 + 128] = lsb; // Assign LSB
     }
     
-    printf("\nOUTPUT INVNTT from polyvec [%d]\n", i);
+    /*printf("\nOUTPUT INVNTT from polyvec [%d]\n", i);
     for (int k3 = 0; k3 < 256; k3++) {
         printf("%04x-", v.coeffs[k3]);
-    }
+    }*/
     
     
     //PQCLEAN_KYBER768_CLEAN_poly_invntt_tomont(&v);

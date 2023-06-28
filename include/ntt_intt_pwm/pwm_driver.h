@@ -1,7 +1,7 @@
 #include <stdint.h>
 
 //void reset_ntt_intt_pwm();
-
+void set_clear_pwm();
 void set_input_pwm(uint32_t Din);
 
 void trigger_input1_pwm(void);
