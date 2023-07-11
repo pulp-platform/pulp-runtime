@@ -36,20 +36,20 @@
 
 /*
  * MEMORIES
- */ 
+ */
 
 #define ARCHI_HAS_L2                   1
 #define ARCHI_HAS_L2_MULTI             1
 #define ARCHI_HAS_L1                   1
 
-#define ARCHI_L2_PRIV0_ADDR  0x1c000000
+#define ARCHI_L2_PRIV0_ADDR  0x78100000
 #define ARCHI_L2_PRIV0_SIZE  0x00008000
 
-#define ARCHI_L2_PRIV1_ADDR  0x1c008000
+#define ARCHI_L2_PRIV1_ADDR  0x78108000
 #define ARCHI_L2_PRIV1_SIZE  0x00008000
 
-#define ARCHI_L2_SHARED_ADDR  0x1c010000
-#define ARCHI_L2_SHARED_SIZE  0x00070000
+#define ARCHI_L2_SHARED_ADDR  0x78110000
+#define ARCHI_L2_SHARED_SIZE  0x002F0000
 
 
 
@@ -88,7 +88,7 @@
 #define ARCHI_HAS_CLUSTER   1
 #define ARCHI_L1_TAS_BIT    20
 #ifndef ARCHI_CLUSTER_NB_PE
-#define ARCHI_CLUSTER_NB_PE 8
+#define ARCHI_CLUSTER_NB_PE 12
 #endif
 #define ARCHI_NB_CLUSTER    1
 

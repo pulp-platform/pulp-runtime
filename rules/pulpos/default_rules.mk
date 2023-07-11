@@ -149,10 +149,15 @@ else
 LOAD_MODE := JTAG
 endif
 
+ifeq '$(pulp_chip)' 'carfield-cluster'
+ENTRY=0x78008080
+else
+ENTRY=0x1c008080
+endif
 #
 # VSIM Flags
 #
-vsim_flags ?= +ENTRY_POINT=0x1c008080 -permit_unmatched_virtual_intf -gBAUDRATE=115200
+vsim_flags ?= +ENTRY_POINT=ENTRY -permit_unmatched_virtual_intf -gBAUDRATE=115200
 
 ifdef CONFIG_PLUSARG_SIM
 
