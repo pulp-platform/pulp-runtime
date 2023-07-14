@@ -222,15 +222,15 @@ void PQCLEAN_KYBER512_CLEAN_indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTE
         PQCLEAN_KYBER512_CLEAN_poly_getnoise_eta1(&e.vec[i], noiseseed, nonce++);
     }
 
-    printf("\nSKPV before ntt:\n");
+    /*printf("\nSKPV before ntt:\n");
     for (i = 0; i < KYBER_K; i++) {
         for (int j = 0; j < KYBER_N; j++) {
             printf("%04X-", skpv.vec[i].coeffs[j]);
         }
         printf("\n------------------------------\n");
-    }
+    }*/
     PQCLEAN_KYBER512_CLEAN_polyvec_ntt(&skpv);
-    printf("\nSKPV after ntt:\n");
+    /*printf("\nSKPV after ntt:\n");
     for (i = 0; i < KYBER_K; i++) {
         for (int j = 0; j < KYBER_N; j++) {
             printf("%04X-", skpv.vec[i].coeffs[j]);
@@ -244,15 +244,15 @@ void PQCLEAN_KYBER512_CLEAN_indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTE
             printf("%04X-", e.vec[i].coeffs[j]);
         }
         printf("\n------------------------------\n");
-    }
+    }*/
     PQCLEAN_KYBER512_CLEAN_polyvec_ntt(&e);
-    printf("\nE after ntt:\n");
+    /*printf("\nE after ntt:\n");
     for (i = 0; i < KYBER_K; i++) {
         for (int j = 0; j < KYBER_N; j++) {
             printf("%04X-", e.vec[i].coeffs[j]);
         }
         printf("\n------------------------------\n");
-    }
+    }*/
 
     // matrix-vector multiplication
     for (i = 0; i < KYBER_K; i++) {

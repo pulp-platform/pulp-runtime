@@ -72,17 +72,17 @@ PULP_SRCS     += drivers/intt_driver.c
 PULP_SRCS     += drivers/pwm_driver.c
 
 #kyber_ip
-PULP_SRCS     += kernel/kyber768/cbd.c
-PULP_SRCS     += kernel/kyber768/fips202.c
-PULP_SRCS     += kernel/kyber768/indcpa.c
-PULP_SRCS     += kernel/kyber768/kem.c
-PULP_SRCS     += kernel/kyber768/ntt.c
-PULP_SRCS     += kernel/kyber768/poly.c
-PULP_SRCS     += kernel/kyber768/polyvec.c
-PULP_SRCS     += kernel/kyber768/randombytes.c
-PULP_SRCS     += kernel/kyber768/reduce.c
-PULP_SRCS     += kernel/kyber768/symmetric-shake.c
-PULP_SRCS     += kernel/kyber768/verify.c
+PULP_SRCS     += kernel/kyber1024/cbd.c
+PULP_SRCS     += kernel/kyber1024/fips202.c
+PULP_SRCS     += kernel/kyber1024/indcpa.c
+PULP_SRCS     += kernel/kyber1024/kem.c
+PULP_SRCS     += kernel/kyber1024/ntt.c
+PULP_SRCS     += kernel/kyber1024/poly.c
+PULP_SRCS     += kernel/kyber1024/polyvec.c
+PULP_SRCS     += kernel/kyber1024/randombytes.c
+PULP_SRCS     += kernel/kyber1024/reduce.c
+PULP_SRCS     += kernel/kyber1024/symmetric-shake.c
+PULP_SRCS     += kernel/kyber1024/verify.c
 
 include $(PULPRT_HOME)/rules/pulpos/configs/default.mk
 
