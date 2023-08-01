@@ -10,10 +10,12 @@ PULP_CFLAGS    += -fdata-sections -ffunction-sections -include chips/carfield/co
 PULP_OMP_CFLAGS    += -fopenmp -mnativeomp
 PULP_LDFLAGS += -nostartfiles -nostdlib -Wl,--gc-sections -L$(PULPRT_HOME)/kernel -Tchips/carfield/link.ld -lgcc
 
-PULP_CC = riscv32-unknown-elf-gcc
-PULP_AR ?= riscv32-unknown-elf-ar
-PULP_LD ?= riscv32-unknown-elf-gcc
-PULP_OBJDUMP ?= riscv32-unknown-elf-objdump
+SAFED_RISCV ?= riscv32-unknown-elf
+
+PULP_CC ?= $(SAFED_RISCV)-gcc
+PULP_AR ?= $(SAFED_RISCV)-ar
+PULP_LD ?= $(SAFED_RISCV)-gcc
+PULP_OBJDUMP ?= $(SAFED_RISCV)-objdump
 
 fc/archi=riscv
 pe/archi=riscv
