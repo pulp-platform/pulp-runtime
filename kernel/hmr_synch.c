@@ -409,7 +409,7 @@ void __attribute__((naked)) pos_hmr_synch() {
   pos_hmr_sw_reload();
 }
 
-void __attribute__((naked)) pos_hmr_tmr_synch() {
+void __attribute__((naked)) pos_hmr_tmr_synch_entry() {
   pos_hmr_store_part_to_stack();
   pos_hmr_store_rest_to_stack();
 
@@ -422,7 +422,9 @@ void __attribute__((naked)) pos_hmr_tmr_synch() {
     "add t0, t0, t1 \n\t"
     "sw sp, " QU(HMR_CORE_REGS_SP_STORE_REG_OFFSET) "(t0) \n\t"
   : : : "memory");
+}
 
+void __attribute__((naked)) pos_hmr_tmr_synch_exit() {
   // enter barrier -> this should lock the cores together
   eu_bar_trig_wait_clr(eu_bar_addr(TMR_BARRIER_ID(TMR_GROUP_ID(core_id()))));
 
@@ -436,6 +438,11 @@ void __attribute__((naked)) pos_hmr_tmr_synch() {
   : : : "memory");
 
   pos_hmr_sw_reload();
+}
+
+void __attribute__((naked)) pos_hmr_tmr_synch() {
+  pos_hmr_tmr_synch_entry();
+  pos_hmr_tmr_synch_exit();
 }
 
 
@@ -497,6 +504,82 @@ int hmr_dmr_critical_section(int (*function_handle)()) {
     // exit critical section
     hmr_disable_dmr(0, DMR_GROUP_ID(core_id()));
   }
+}
+
+void hmr_tmr_performance_section(void (*function_handle)()) {
+  __asm__ __volatile__(
+    "la ra, pos_hmr_perf_help\n\t"
+    "csrw 0x341, ra\n\t"
+  );
+  volatile unsigned int tmr_group_id = TMR_GROUP_ID(core_id());
+  unsigned int tmr_config = hmr_get_tmr_config(0, tmr_group_id);
+  hmr_set_tmr_config_bare(0, tmr_group_id, tmr_config & ~(1<<HMR_REGISTERS_TMR_CONFIG_SETBACK_BIT));
+
+  register unsigned int my_core_id;
+
+  hmr_disable_tmr(0, tmr_group_id);
+
+  __asm__ __volatile__(
+    "nop\n\t"
+    "nop\n\t"
+    "nop\n\t"
+    "csrr %[core_id], 0xf14 \n\t" // Read core id
+  : [core_id] "=r" (my_core_id)  : : "memory");
+  // volatile unsigned int my_core_id = core_id();
+  if (TMR_IS_MAIN_CORE(my_core_id)) {
+    hmr_set_tmr_config_bare(0, TMR_GROUP_ID(my_core_id), tmr_config);
+  } else {
+    // get sp from tmr reg, assumes a5 is empty
+    __asm__ __volatile__(
+      // "csrr a5, 0xf14 \n\t" // Read core id
+      "li sp, " QU(ARCHI_HMR_ADDR + HMR_CORE_OFFSET) " \n\t"
+      "andi %[core_id], %[core_id], 0x01f \n\t"
+      "sll %[core_id], %[core_id], " QU(HMR_CORE_SLL) " \n\t"
+      "add %[core_id], %[core_id], sp \n\t"
+      "lw sp, " QU(HMR_CORE_REGS_SP_STORE_REG_OFFSET) "(%[core_id]) \n\t"
+    : : [core_id] "r" (my_core_id) : "memory");
+    eu_evt_maskSet((1<<PULP_DISPATCH_EVENT) | (1<<PULP_MUTEX_EVENT) | (1<<PULP_HW_BAR_EVENT));
+  }
+
+  function_handle();
+
+  if (TMR_IS_MAIN_CORE(core_id())) {
+    pulp_write32(ARCHI_HMR_ADDR + HMR_TMR_OFFSET + HMR_TMR_INCREMENT*core_id() + HMR_TMR_REGS_TMR_ENABLE_REG_OFFSET, 1<<HMR_TMR_REGS_TMR_ENABLE_TMR_ENABLE_BIT);
+#if !defined(ARCHI_HMR_FORCE_RAPID) || !defined(ARCHI_HMR_NO_RAPID_RECOVERY)
+    // TODO check Rapid
+
+#elif defined(ARCHI_HMR_FORCE_RAPID)
+
+#else
+
+#endif
+
+    pos_hmr_tmr_synch_entry();
+
+    // Ugly hack allows for proper cleanup of stack by function
+    __asm__ __volatile__(
+      "auipc t1, 0\n\t"
+      "addi t1, t1, 12\n\t"          // Add instruction increment to after pos_hmr_tmr_synch_exit call
+      "sw   t1,  0x78(sp) \n\t"      // Update mepc on stack for return later
+      "j pos_hmr_tmr_synch_exit\n\t"
+    );
+  } else {
+    __asm__ __volatile__ (
+      "j pos_hmr_tmr_synch_exit\n\t");
+  }
+}
+
+void __attribute__((naked)) pos_hmr_perf_help() {}
+
+void hmr_tmr_perf_setup_sp() {
+  unsigned int core_id_1 = TMR_CORE_ID(TMR_GROUP_ID(core_id()), 1);
+  unsigned int core_id_2 = TMR_CORE_ID(TMR_GROUP_ID(core_id()), 2);
+  unsigned int *extra_sp_1 = (unsigned int *)(ARCHI_HMR_ADDR + HMR_CORE_OFFSET + (core_id_1 << HMR_CORE_SLL) + HMR_CORE_REGS_SP_STORE_REG_OFFSET);
+  unsigned int *extra_sp_2 = (unsigned int *)(ARCHI_HMR_ADDR + HMR_CORE_OFFSET + (core_id_2 << HMR_CORE_SLL) + HMR_CORE_REGS_SP_STORE_REG_OFFSET);
+  eu_bar_setup(eu_bar_addr(TMR_BARRIER_ID(TMR_GROUP_ID(core_id()))), TMR_BARRIER_SETUP(TMR_GROUP_ID(core_id())));
+
+  pulp_write32(extra_sp_1, (unsigned int)((core_id_1+1)*CLUSTER_STACK_SIZE + cluster_stacks));
+  pulp_write32(extra_sp_2, (unsigned int)((core_id_2+1)*CLUSTER_STACK_SIZE + cluster_stacks));
 }
 
 // void pos_hmr_tmr_unsync() {

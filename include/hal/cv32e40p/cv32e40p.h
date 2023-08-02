@@ -26,6 +26,7 @@
 #define CSR_PCMR_ACTIVE 0x1
 
 #define SR_MTVEC  0x305
+#define CSR_MIE   0x304
 
 
 
