@@ -48,12 +48,15 @@ void __attribute__((naked)) pos_hmr_synch();
 void __attribute__((naked)) pos_hmr_tmr_synch_entry();
 void __attribute__((naked)) pos_hmr_tmr_synch_exit();
 void __attribute__((naked)) pos_hmr_tmr_synch();
+void __attribute__((naked)) pos_hmr_dmr_synch_entry();
+void __attribute__((naked)) pos_hmr_dmr_synch_exit();
 void __attribute__((naked)) pos_hmr_dmr_synch();
 int hmr_tmr_critical_section(int (*function_handle)());
 int hmr_dmr_critical_section(int (*function_handle)());
 void hmr_tmr_performance_section(void (*function_handle)());
 void hmr_tmr_perf_setup_sp();
-
+void hmr_dmr_performance_section(void (*function_handle)());
+void hmr_dmr_perf_setup_sp();
 #endif
 
 #ifdef ARCHI_HAS_CLUSTER
