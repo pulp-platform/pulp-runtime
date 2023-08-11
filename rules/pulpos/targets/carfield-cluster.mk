@@ -22,10 +22,12 @@ PULP_CFLAGS    += -fdata-sections -ffunction-sections -include chips/carfield-cl
 PULP_OMP_CFLAGS    += -fopenmp -mnativeomp
 PULP_LDFLAGS += -nostartfiles -nostdlib -Wl,--gc-sections -L$(PULPRT_HOME)/kernel -Tchips/carfield-cluster/link.ld -lgcc
 
-PULP_CC = riscv32-unknown-elf-gcc
-PULP_AR ?= riscv32-unknown-elf-ar
-PULP_LD ?= riscv32-unknown-elf-gcc
-PULP_OBJDUMP ?= riscv32-unknown-elf-objdump
+PULPD_RISCV ?= riscv32-unknown-elf
+
+PULP_CC ?= $(PULPD_RISCV)-gcc
+PULP_AR ?= $(PULPD_RISCV)-ar
+PULP_LD ?= $(PULPD_RISCV)-gcc
+PULP_OBJDUMP ?= $(PULPD_RISCV)-objdump
 
 fc/archi=riscv
 pe/archi=riscv

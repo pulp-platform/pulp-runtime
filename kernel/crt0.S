@@ -29,7 +29,13 @@ pos_init_entry:
 #ifdef ARCHI_NO_FC
     # PEs from 1 to 7 will go to sync_loop and wait. PE0 will reach them
     # later after the pos_init_start. Then, they'll set up their stack into
-    # the L1 and jump to cluster_entry_stub
+  # the L1 and jump to cluster_entry_stub
+#if PULP_CHIP == CHIP_CARFIELD
+    li t0, 0x5003FFF0
+#else
+    li t0, 0x1003FF0
+#endif
+    sw x0, 0(t0)
     # We check if the offset of the core is zero, so that even if the cluster
     # ID is not zero, the execution does not break here
     andi    a2, a0, 0x0f
@@ -77,6 +83,13 @@ pos_init_entry:
 #ifdef ARCHI_NO_FC
     csrr    a0, 0xF14
     andi    a1, a0, 0x1f
+#if PULP_CHIP == CHIP_CARFIELD
+    li t0, 0x5003FFF0
+#else
+    li t0, 0x1003FFF0
+#endif
+    li t1, 0x1
+    sw t1, 0(t0)
     j pe_start
 #endif
 

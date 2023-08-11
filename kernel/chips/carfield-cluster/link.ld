@@ -4,7 +4,7 @@ ENTRY( _start )
 MEMORY
 {
   L2           : ORIGIN = 0x78000000, LENGTH = 0x003FFFFC
-  L1           : ORIGIN = 0x4FC00000, LENGTH = 0x0003FFFC
+  L1           : ORIGIN = 0x50000000, LENGTH = 0x0003FFFC
 }
 
 /*
@@ -180,6 +180,7 @@ SECTIONS
 
   .vectors MAX(0x78008000,ALIGN(256)) :
   {
+    /*. = ALIGN(256);*/
     __irq_vector_base = .;
     KEEP(*(.vectors))
   } > L2
@@ -225,12 +226,10 @@ SECTIONS
 
   .l1cluster_g : {
     . = ALIGN(4);
-    __heap_sram = .;
     *(.heapsram)
     *(.heapsram.*)
     *(.l1cluster_g)
     *(.l1cluster_g.*)
-    __data_l1 = .;
     *(.data_l1)
     *(.data_l1.*)
     . = ALIGN(4);
