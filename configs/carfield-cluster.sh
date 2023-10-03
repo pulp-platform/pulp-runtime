@@ -3,6 +3,7 @@
 export PULPRT_TARGET=carfield-cluster
 export PULPRUN_TARGET=carfield-cluster
 export CONFIG_NO_FC=1
+export ARCHI_HMR=1
 
 if [  -n "${ZSH_VERSION:-}" ]; then
         DIR="$(readlink -f -- "${(%):-%x}")"

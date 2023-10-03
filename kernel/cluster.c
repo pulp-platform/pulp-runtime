@@ -40,7 +40,18 @@ static void cluster_core_init()
 {
     eu_evt_maskSet((1<<PULP_DISPATCH_EVENT) | (1<<PULP_MUTEX_EVENT) | (1<<PULP_HW_BAR_EVENT));
 
+#ifdef ARCHI_HMR
+    // Enable resynch and synch requests
+    eu_irq_maskSet(1<<24 | 1<<23);
+    rt_irq_set_handler(24, pos_hmr_tmr_irq);
+    rt_irq_set_handler(23, pos_hmr_synch);
+    hal_spr_write(0x304, 1<<24|1<<23);
+    hal_irq_enable();
+
+    eu_bar_setup(eu_bar_addr(0), hmr_get_active_cores(0));
+#else
     eu_bar_setup(eu_bar_addr(0), (1<<ARCHI_CLUSTER_NB_PE) - 1);
+#endif
 }
 
 void cluster_entry_stub()
