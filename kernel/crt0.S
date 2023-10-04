@@ -164,6 +164,39 @@ pos_init_entry:
     .org 0x80
     .global _start
 _start:
+    /* Make sure to properly initialize latch based RF */
+    lui x1, 0
+    lui x2, 0
+    lui x3, 0
+    lui x4, 0
+    lui x5, 0
+    lui x6, 0
+    lui x7, 0
+    lui x8, 0
+    lui x9, 0
+    lui x10, 0
+    lui x11, 0
+    lui x12, 0
+    lui x13, 0
+    lui x14, 0
+    lui x15, 0
+    lui x16, 0
+    lui x17, 0
+    lui x18, 0
+    lui x19, 0
+    lui x20, 0
+    lui x21, 0
+    lui x22, 0
+    lui x23, 0
+    lui x24, 0
+    lui x25, 0
+    lui x26, 0
+    lui x27, 0
+    lui x28, 0
+    lui x29, 0
+    lui x30, 0
+    lui x31, 0
+    /* Move on to normal boot */
     jal x0, pos_init_entry
 
 
