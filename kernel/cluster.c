@@ -69,6 +69,7 @@ void cluster_entry_stub()
         cluster_retval = retval;
         cluster_running = 0;
         #ifdef ARCHI_NO_FC
+        hal_cluster_ctrl_return_set_remote(hal_cluster_id(), cluster_retval);
         hal_cluster_ctrl_eoc_set_remote(hal_cluster_id(), 1);
         exit(cluster_retval);
         #endif
