@@ -365,11 +365,12 @@ void __attribute__((naked)) pos_hmr_synch() {
     "li t2, " QU(ARCHI_EU_DEMUX_ADDR + EU_BARRIER_DEMUX_OFFSET) " \n\t" // t1 is tmr base address
     "add t1, t1, t2 \n\t"
     "p.elw zero, " QU(EU_HW_BARR_TRIGGER_WAIT_CLEAR) "(t1) \n\t" // barrier
-    "nop\n\t"
-    "nop\n\t"
-    "nop\n\t"
-    "nop\n\t"
-    "nop\n\t"
+    /* Removing the following nops to allow the cores to continue executing */
+    // "nop\n\t"
+    // "nop\n\t"
+    // "nop\n\t"
+    // "nop\n\t"
+    // "nop\n\t"
     "j pos_hmr_load_part_from_stack \n" // Executes mret
 #endif // !ARCHI_HMR_NO_RAPID_RECOVERY
 

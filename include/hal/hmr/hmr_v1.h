@@ -54,6 +54,11 @@
 void pos_hmr_tmr_irq();
 void pos_hmr_synch();
 
+/* Allows for setting up proper barriers depending on available cores */
+static void hmr_setup_barrier(unsigned int num_avail_cores){
+  eu_bar_setup(eu_bar_addr(0), num_avail_cores);
+}
+
 static inline unsigned int hmr_get_available_config(unsigned int cid) {
   return pulp_read32(ARCHI_HMR_GLOBAL_ADDR(cid) + HMR_TOP_OFFSET + HMR_REGISTERS_AVAIL_CONFIG_REG_OFFSET);
 }
