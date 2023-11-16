@@ -23,6 +23,7 @@
 #include "hal/apb_soc/safety_soc_ctrl.h"
 #include "hal/timer/timer_v2.h"
 #include "hal/bus_err_unit/bus_err_unit_v1.h"
+#include "hal/hmr/hmr_v1.h"
 //#include "hal/cluster_ctrl/cluster_ctrl_v2.h" // TODO Add me!
 
 #endif
