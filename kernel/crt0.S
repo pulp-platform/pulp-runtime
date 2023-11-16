@@ -21,6 +21,12 @@
     .global pos_init_entry
 pos_init_entry:
 
+#if defined(ARCHI_HMR)
+    li t1, ARCHI_HMR_ADDR + HMR_CORE_OFFSET
+    lw t1, HMR_CORE_REGS_SP_STORE_REG_OFFSET(t1)
+    bnez t1, pos_hmr_sw_reload
+#endif
+
     # Cluster PEs will also starts here to avoid aligning another entry point
     # Just re-route them to the right entry
 #if defined(ARCHI_HAS_CLUSTER)
@@ -44,6 +50,7 @@ pos_init_entry:
 #endif
 
 #endif
+
 
 
 

@@ -62,6 +62,7 @@
  * IP VERSIONS
  */
 #define RISCV_VERSION       5
+#define HMR_VERSION 1
 
 /*
  * FC

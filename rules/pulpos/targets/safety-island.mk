@@ -22,6 +22,9 @@ pulp_chip_family=safety-island
 
 PULP_SRCS     += kernel/chips/safety-island/soc.c
 
+# HMR
+PULP_CFLAGS += -DARCHI_HMR -DARCHI_HMR_FIXED
+PULP_SRCS += kernel/hmr_synch.c
 
 include $(PULPRT_HOME)/rules/pulpos/configs/default.mk
 
