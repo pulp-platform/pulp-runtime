@@ -1,3 +1,4 @@
+QUESTA ?= questa-2022.3
 ifdef USE_IBEX
 PULP_LDFLAGS      +=
 PULP_CFLAGS       +=  -D__ibex__ -U__riscv__ -UARCHI_CORE_HAS_PULPV2 -DRV_ISA_RV32
@@ -73,4 +74,4 @@ vsim-flags = -c
 endif
 
 run:
-	vsim $(vsim-flags) -do "set  VSIM_PATH $(VSIM_PATH); source $(VSIM_PATH)/scripts/start.tcl"
+	$(QUESTA) vsim $(vsim-flags) -do "set  VSIM_PATH $(VSIM_PATH); source $(VSIM_PATH)/scripts/start.tcl"
