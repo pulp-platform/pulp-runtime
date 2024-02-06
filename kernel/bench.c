@@ -126,12 +126,13 @@ int run_suite(testcase_t *tests)
   for (i = 0; i < num; i++) {
     testresult_t result;
     run_benchmark(&tests[i], &result);
-    if(enable_printf) print_result(&tests[i], &result);
-
+    if(enable_printf && (get_core_id()==0))
+      print_result(&tests[i], &result);
     errors += result.errors;
   }
 
-  print_summary(errors);
+  if(get_core_id() == 0)
+    print_summary(errors);
 
   return errors;
 }
@@ -275,5 +276,9 @@ extern int main(int argc, const char * const argv[]);
 
 int bench_cluster_forward(int cid)
 {
+  #ifdef ARCHI_NO_FC
+  return 0;
+  #else
   return bench_cluster_exec(cid, main);
+  #endif
 }

@@ -47,12 +47,19 @@ void cluster_entry_stub()
 {
     cluster_core_init();
 
+    synch_barrier();
+
     int retval = ((int (*)())cluster_entry)();
+
+    synch_barrier();
 
     if (hal_core_id() == 0)
     {
         cluster_retval = retval;
         cluster_running = 0;
+        #ifdef ARCHI_NO_FC
+        exit(cluster_retval);
+        #endif
     }
 
     pos_wait_forever();
@@ -65,18 +72,22 @@ void cluster_start(int cid, int (*entry)())
     cluster_entry = entry;
 
     // Init FLL
+    #ifndef ARCHI_NO_FC
     pos_fll_init(POS_FLL_CL);
-      
+    #endif
+
     // Initialize cluster L1 memory allocator
     alloc_init_l1(cid);
 
     // Activate icache
     hal_icache_cluster_enable(cid);
 
+    #ifndef ARCHI_NO_FC
     if (!hal_is_fc())
     {
         cluster_core_init();
     }
+    #endif
 
     alloc_init_l1(cid);
 
@@ -87,12 +98,14 @@ void cluster_start(int cid, int (*entry)())
     cluster_running = 1;
 
     // Fetch all cores
+    #ifndef ARCHI_NO_FC
     for (int i=0; i<ARCHI_CLUSTER_NB_PE; i++)
     {
       plp_ctrl_core_bootaddr_set_remote(cid, i, (int)_start);
     }
 
     eoc_fetch_enable_remote(cid, (1<<ARCHI_CLUSTER_NB_PE) - 1);
+    #endif
 }
 
 
