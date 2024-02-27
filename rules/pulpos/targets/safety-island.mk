@@ -32,4 +32,14 @@ ifeq '$(platform)' 'fpga'
 CONFIG_IO_UART=1
 endif
 
+###########
+# Threadx #
+###########
+
+-include $(TX_DIR)/threadx.mk
+TX_INCS += -I$(TX_DIR)/ports/safety_island/gnu/inc
+PULP_APP_CFLAGS  += -DTEST_STACK_SIZE_PRINTF=4096
+PULP_APP_CFLAGS  += $(TX_INCS)
+PULP_LDFLAGS += $(TX_SW_LIBS)
+
 include $(PULPRT_HOME)/rules/pulpos/default_rules.mk
