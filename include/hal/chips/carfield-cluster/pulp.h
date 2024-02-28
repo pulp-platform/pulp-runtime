@@ -42,5 +42,6 @@
 #include "hal/udma/spim/udma_spim_v3.h"
 #include "hal/udma/uart/udma_uart_v1.h"
 #include "hal/hmr/hmr_v1.h"
+#include "hal/tcdm_scrubber/tcdm_scrubber.h"
 
 #endif
