@@ -37,7 +37,7 @@ static inline unsigned int tcdm_scrubber_get_fix_count(unsigned int cid, unsigne
 
 // Set the number of uncorrectable mismatches detected by the ECC decoders while scrubbing
 static inline unsigned int tcdm_scrubber_get_uncorrectable_count(unsigned int cid, unsigned int bank_id) {
-  return pulp_read32(ARCHI_TCDM_SCRUBBER_GLOBAL_ADDR(cid) + ECC_MANAGER_SCRUB_FIX_COUNT_REG_OFFSET + bank_id*REGISTER_OFFSET);
+  return pulp_read32(ARCHI_TCDM_SCRUBBER_GLOBAL_ADDR(cid) + ECC_MANAGER_SCRUB_UNCORRECTABLE_COUNT_REG_OFFSET + bank_id*REGISTER_OFFSET);
 }
 
 #endif // __HAL_TCDM_SCRUBBER_H__
