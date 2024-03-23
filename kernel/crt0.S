@@ -32,6 +32,8 @@ pos_init_entry:
   # the L1 and jump to cluster_entry_stub
 #if PULP_CHIP == CHIP_CARFIELD
     li t0, 0x5003FFF0
+#elif PULP_CHIP == CHIP_ASTRAL
+    li t0, 0x5003FFF0
 #else
     li t0, 0x1003FF0
 #endif
@@ -84,6 +86,8 @@ pos_init_entry:
     csrr    a0, 0xF14
     andi    a1, a0, 0x1f
 #if PULP_CHIP == CHIP_CARFIELD
+    li t0, 0x5003FFF0
+#elif PULP_CHIP == CHIP_ASTRAL
     li t0, 0x5003FFF0
 #else
     li t0, 0x1003FFF0
