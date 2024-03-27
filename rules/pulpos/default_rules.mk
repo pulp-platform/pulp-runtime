@@ -286,35 +286,35 @@ ifndef VSIM_PATH
 	$(error "VSIM_PATH is undefined. Either call \
 	'source $$YOUR_HW_DIR/setup/vsim.sh' or set it manually.")
 endif
-	ln -s $(VSIM_PATH)/modelsim.ini $@
+	ln -sfn $(VSIM_PATH)/modelsim.ini $@
 
 $(TARGET_BUILD_DIR)/work:
 ifndef VSIM_PATH
 	$(error "VSIM_PATH is undefined. Either call \
 	'source $$YOUR_HW_DIR/setup/vsim.sh' or set it manually.")
 endif
-	ln -s $(VSIM_PATH)/work $@
+	ln -sfn $(VSIM_PATH)/work $@
 
 $(TARGET_BUILD_DIR)/boot:
 ifndef VSIM_PATH
 	$(error "VSIM_PATH is undefined. Either call \
 	'source $$YOUR_HW_DIR/setup/vsim.sh' or set it manually.")
 endif
-	ln -s $(VSIM_PATH)/boot $@
+	ln -sfn $(VSIM_PATH)/boot $@
 
 $(TARGET_BUILD_DIR)/tcl_files:
 ifndef VSIM_PATH
 	$(error "VSIM_PATH is undefined. Either call \
 	'source $$YOUR_HW_DIR/setup/vsim.sh' or set it manually.")
 endif
-	ln -s $(VSIM_PATH)/tcl_files $@
+	ln -sfn $(VSIM_PATH)/tcl_files $@
 
 $(TARGET_BUILD_DIR)/waves:
 ifndef VSIM_PATH
 	$(error "VSIM_PATH is undefined. Either call \
 	'source $$YOUR_HW_DIR/setup/vsim.sh' or set it manually.")
 endif
-	ln -s $(VSIM_PATH)/waves $@
+	ln -sfn $(VSIM_PATH)/waves $@
 
 $(TARGET_BUILD_DIR)/stdout:
 	mkdir -p $@
