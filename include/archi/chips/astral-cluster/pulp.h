@@ -34,7 +34,7 @@
 #include "archi/itc/itc_v1.h"
 #include "archi/riscv/priv_1_10.h"
 
-#include "archi/chips/carfield-cluster/memory_map.h"
+#include "archi/chips/astral-cluster/memory_map.h"
 #include "archi/chips/carfield-cluster/apb_soc.h"
 #include "archi/stdout/stdout_v3.h"
 #include "archi/dma/mchan_v7.h"
@@ -47,5 +47,6 @@
 #include "archi/udma/udma_v3.h"
 #include "archi/hmr/hmr_v1.h"
 #include "archi/tcdm_scrubber/tcdm_scrubber.h"
+#include "archi/hwpe_hci_ecc/hwpe_hci_ecc.h"
 
 #endif
