@@ -15,10 +15,12 @@ VSIM ?= vsim
 ifdef PULP_RUNTIME_GCC_TOOLCHAIN
 PULP_CC := $(PULP_RUNTIME_GCC_TOOLCHAIN)/bin/$(PULP_CC)
 PULP_LD := $(PULP_RUNTIME_GCC_TOOLCHAIN)/bin/$(PULP_LD)
+PULP_OBJDUMP := $(PULP_RUNTIME_GCC_TOOLCHAIN)/bin/$(PULP_OBJDUMP)
 else
 ifdef PULP_RISCV_GCC_TOOLCHAIN
 PULP_CC := $(PULP_RISCV_GCC_TOOLCHAIN)/bin/$(PULP_CC)
 PULP_LD := $(PULP_RISCV_GCC_TOOLCHAIN)/bin/$(PULP_LD)
+PULP_OBJDUMP := $(PULP_RISCV_GCC_TOOLCHAIN)/bin/$(PULP_OBJDUMP)
 else
 $(warning "Warning: Neither PULP_RUNTIME_GCC_TOOLCHAIN nor PULP_RISCV_GCC_TOOLCHAIN is set.\
 Using defaults.")
@@ -41,7 +43,7 @@ VPATH = $(PULPRT_HOME)
 include $(PULPRT_HOME)/rules/pulpos/src.mk
 
 PULP_CFLAGS += $(PULPRT_CONFIG_CFLAGS)
-PULP_CFLAGS += -fno-jump-tables -fno-tree-loop-distribute-patterns
+PULP_CFLAGS += -fno-jump-tables
 
 ifeq '$(CONFIG_LIBC_MINIMAL)' '1'
 PULP_APP_CFLAGS += -I$(PULPRT_HOME)/lib/libc/minimal/include
@@ -167,6 +169,7 @@ else
 # default bootmode
 vsim_flags += +bootmode=jtag
 endif
+vsim_flags += +log_file=trace_core.log +itb_file=$(TARGETS).itb
 
 else
 
@@ -312,8 +315,12 @@ $(TARGET_BUILD_DIR)/stdout:
 $(TARGET_BUILD_DIR)/fs:
 	mkdir -p $@
 
+# ITB file needed by CV32E40X tracer
+$(TARGETS).itb:
+	$(PULP_OBJDUMP) -d -l -s $(disopt) $(TARGETS) > $(TARGETS).dis
+	$(PULPRT_HOME)/bin/objdump2itb.py $(TARGETS).dis > $(TARGETS).itb
 
-run: $(TARGET_BUILD_DIR)/modelsim.ini $(TARGET_BUILD_DIR)/work  $(TARGET_BUILD_DIR)/boot $(TARGET_BUILD_DIR)/tcl_files $(TARGET_BUILD_DIR)/stdout $(TARGET_BUILD_DIR)/fs $(TARGET_BUILD_DIR)/waves
+run: $(TARGET_BUILD_DIR)/modelsim.ini $(TARGET_BUILD_DIR)/work  $(TARGET_BUILD_DIR)/boot $(TARGET_BUILD_DIR)/tcl_files $(TARGET_BUILD_DIR)/stdout $(TARGET_BUILD_DIR)/fs $(TARGET_BUILD_DIR)/waves $(TARGETS).itb
 	$(PULPRT_HOME)/bin/stim_utils.py --binary=$(TARGETS) --vectors=$(TARGET_BUILD_DIR)/vectors/stim.txt
 	$(PULPRT_HOME)/bin/plp_mkflash  --flash-boot-binary=$(TARGETS)  --stimuli=$(TARGET_BUILD_DIR)/vectors/qspi_stim.slm --flash-type=spi --qpi
 	$(PULPRT_HOME)/bin/slm_hyper.py  --input=$(TARGET_BUILD_DIR)/vectors/qspi_stim.slm  --output=$(TARGET_BUILD_DIR)/vectors/hyper_stim.slm

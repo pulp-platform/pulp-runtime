@@ -18,9 +18,9 @@ PULP_ARCH_OBJDFLAGS ?=
 else ifdef USE_CV32E40X
 PULP_LDFLAGS      +=
 PULP_CFLAGS       +=  -D__riscv__ -UARCHI_CORE_HAS_PULPV2 -DRV_ISA_RV32
-PULP_ARCH_CFLAGS ?=  -march=rv32imc -mnohwloop
-PULP_ARCH_LDFLAGS ?=  -march=rv32imc -mnohwloop
-PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imc -mnohwloop
+PULP_ARCH_CFLAGS ?=  -march=rv32imc --target=riscv32
+PULP_ARCH_LDFLAGS ?=  -march=rv32imc --target=riscv32
+PULP_ARCH_OBJDFLAGS ?= -D
 else
 PULP_LDFLAGS      +=
 PULP_CFLAGS       +=  -D__riscv__
@@ -31,12 +31,12 @@ endif
 
 PULP_CFLAGS    += -fdata-sections -ffunction-sections -include chips/pulpissimo/config.h -I$(PULPRT_HOME)/include/chips/pulpissimo
 PULP_OMP_CFLAGS    += -fopenmp -mnativeomp
-PULP_LDFLAGS += -nostartfiles -nostdlib -Wl,--gc-sections -L$(PULPRT_HOME)/kernel -Tchips/pulpissimo/link.ld -lgcc
+PULP_LDFLAGS += -nostartfiles -nostdlib -Wl,--gc-sections -L$(PULPRT_HOME)/kernel -Tchips/pulpissimo/link.ld
 
-PULP_CC = riscv32-unknown-elf-gcc
-PULP_AR ?= riscv32-unknown-elf-ar
-PULP_LD ?= riscv32-unknown-elf-gcc
-PULP_OBJDUMP ?= riscv32-unknown-elf-objdump
+PULP_CC = clang
+PULP_AR ?= llvm-ar
+PULP_LD ?= clang
+PULP_OBJDUMP ?= llvm-objdump
 
 fc/archi=riscv
 pe/archi=riscv
