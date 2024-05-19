@@ -188,23 +188,23 @@ void *memmove(void *d, const void *s, size_t n)
 
 char *strcpy(char *d, const char *s)
 {
-	char *dest = d;
-	while (*s != '\0')
+    char *dest = d;
+    while (*s != '\0')
     {
-		*d = *s;
-		d++;
-		s++;
-	}
-	*d = '\0';
-	return dest;
+        *d = *s;
+        d++;
+        s++;
+    }
+    *d = '\0';
+    return dest;
 }
 
 
 
 char *strcat(char *dest, const char *src)
 {
-	strcpy(dest + strlen(dest), src);
-	return dest;
+    strcpy(dest + strlen(dest), src);
+    return dest;
 }
 
 
