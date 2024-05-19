@@ -10,7 +10,7 @@ endif
 
 platform ?= rtl
 VSIM ?= vsim
-
+gui ?= 0
 
 ifdef PULP_RUNTIME_GCC_TOOLCHAIN
 PULP_CC := $(PULP_RUNTIME_GCC_TOOLCHAIN)/bin/$(PULP_CC)
@@ -28,7 +28,7 @@ endif
 endif
 
 
-ifdef gui
+ifneq '$(gui)' '0'
 override runner_args += --config-opt=**/vsim/gui=true
 endif
 
@@ -260,6 +260,7 @@ $(foreach app, $(PULP_APPS), $(eval $(call declare_app,$(app))))
 conf:
 
 all: $(TARGETS)
+	$(V)rm -rf $(TARGETS).dis $(TARGETS).itb
 
 .PHONY:clean
 clean:
@@ -329,7 +330,7 @@ ifndef VSIM_PATH
 	'source $$YOUR_HW_DIR/setup/vsim.sh' or set it manually.")
 endif
 
-ifdef gui
+ifneq '$(gui)' '0'
 	cd $(TARGET_BUILD_DIR) && export VSIM_RUNNER_FLAGS='$(vsim_flags)' && export VOPT_ACC_ENA="YES" && $(VSIM) -64 -do 'source $(VSIM_PATH)/tcl_files/config/run_and_exit.tcl' -do 'source $(VSIM_PATH)/tcl_files/run.tcl; '
 else
 	cd $(TARGET_BUILD_DIR) && export VSIM_RUNNER_FLAGS='$(vsim_flags)' && $(VSIM) -64 -c -do 'source $(VSIM_PATH)/tcl_files/config/run_and_exit.tcl' -do 'source $(VSIM_PATH)/tcl_files/run.tcl; run_and_exit;'
