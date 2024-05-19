@@ -22,6 +22,7 @@
 
 typedef void (*fptr)(void);
 
+#ifndef PULP_LLVM
 static fptr ctor_list[1] __attribute__((section(".ctors.start"))) = { (fptr) -1 };
 static fptr dtor_list[1] __attribute__((section(".dtors.start"))) = { (fptr) -1 };
 
@@ -46,6 +47,7 @@ static void pos_init_do_dtors(void)
         (**fpp)();
     }
 }
+#endif
 
 
 extern int main(int argc, const char * const argv[]);
@@ -72,7 +74,9 @@ void pos_init_start()
 
   // Call global and static constructors
   // Each module may do private initializations there
+#ifndef PULP_LLVM
   pos_init_do_ctors();
+#endif
 
   // Now that the system is ready, activate IO
   pos_io_start();
@@ -93,5 +97,7 @@ void pos_init_stop()
     pos_io_stop();
 
     /* Call global and static destructors */
+#ifndef PULP_LLVM
     pos_init_do_dtors();
+#endif
 }
