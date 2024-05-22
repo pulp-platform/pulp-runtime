@@ -23,6 +23,23 @@ pos_init_entry:
 
     # Cluster PEs will also starts here to avoid aligning another entry point
     # Just re-route them to the right entry
+    xor ra, ra, ra
+    xor t0, t0, t0
+    xor t1, t1, t1
+    xor t2, t2, t2
+    xor t3, t3, t3
+    xor t4, t4, t4
+    xor t5, t5, t5
+    xor t6, t6, t6
+    xor a0, a0, a0
+    xor a1, a1, a1
+    xor a2, a2, a2
+    xor a3, a3, a3
+    xor a4, a4, a4
+    xor a5, a5, a5
+    xor a6, a6, a6
+    xor a7, a7, a7
+
 #if defined(ARCHI_HAS_CLUSTER)
     csrr    a0, 0xF14
     andi    a1, a0, 0x1f
