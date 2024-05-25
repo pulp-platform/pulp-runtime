@@ -259,9 +259,6 @@ $(foreach app, $(PULP_APPS), $(eval $(call declare_app,$(app))))
 
 conf:
 
-all: $(TARGETS)
-	$(V)rm -rf $(TARGETS).dis $(TARGETS).itb
-
 .PHONY:clean
 clean:
 	@echo "RM  $(TARGET_BUILD_DIR)"
@@ -269,6 +266,8 @@ clean:
 
 .PHONY: run
 ifeq '$(platform)' 'gvsoc'
+all: $(TARGETS)
+
 run:
 	pulp-run --platform=$(platform) --config=$(PULPRUN_TARGET) --dir=$(TARGET_BUILD_DIR) --binary=$(TARGETS) $(runner_args) prepare run
 endif
@@ -321,10 +320,20 @@ $(TARGETS).itb:
 	$(PULP_OBJDUMP) -d -l -s $(disopt) $(TARGETS) > $(TARGETS).dis
 	$(PULPRT_HOME)/bin/objdump2itb.py $(TARGETS).dis > $(TARGETS).itb
 
-run: $(TARGET_BUILD_DIR)/modelsim.ini $(TARGET_BUILD_DIR)/work  $(TARGET_BUILD_DIR)/boot $(TARGET_BUILD_DIR)/tcl_files $(TARGET_BUILD_DIR)/stdout $(TARGET_BUILD_DIR)/fs $(TARGET_BUILD_DIR)/waves $(TARGETS).itb
+.PHONY: prepare
+prepare: $(TARGET_BUILD_DIR)/modelsim.ini $(TARGET_BUILD_DIR)/work  $(TARGET_BUILD_DIR)/boot $(TARGET_BUILD_DIR)/tcl_files $(TARGET_BUILD_DIR)/stdout $(TARGET_BUILD_DIR)/fs $(TARGET_BUILD_DIR)/waves $(TARGETS).itb
 	$(PULPRT_HOME)/bin/stim_utils.py --binary=$(TARGETS) --vectors=$(TARGET_BUILD_DIR)/vectors/stim.txt
 	$(PULPRT_HOME)/bin/plp_mkflash  --flash-boot-binary=$(TARGETS)  --stimuli=$(TARGET_BUILD_DIR)/vectors/qspi_stim.slm --flash-type=spi --qpi
 	$(PULPRT_HOME)/bin/slm_hyper.py  --input=$(TARGET_BUILD_DIR)/vectors/qspi_stim.slm  --output=$(TARGET_BUILD_DIR)/vectors/hyper_stim.slm
+
+all-except-itb: $(TARGETS)
+	$(V)rm -rf $(TARGETS).dis $(TARGETS).itb
+
+.PHONY:all
+all: all-except-itb $(TARGETS).itb prepare
+
+.PHONY: run
+run: $(TARGET_BUILD_DIR)/modelsim.ini $(TARGET_BUILD_DIR)/work  $(TARGET_BUILD_DIR)/boot $(TARGET_BUILD_DIR)/tcl_files $(TARGET_BUILD_DIR)/stdout $(TARGET_BUILD_DIR)/fs $(TARGET_BUILD_DIR)/waves $(TARGETS).itb prepare
 ifndef VSIM_PATH
 	$(error "VSIM_PATH is undefined. Either call \
 	'source $$YOUR_HW_DIR/setup/vsim.sh' or set it manually.")
