@@ -18,8 +18,8 @@ PULP_ARCH_OBJDFLAGS ?=
 else ifdef USE_CV32E40X
 PULP_LDFLAGS      +=
 PULP_CFLAGS       +=  -D__riscv__ -UARCHI_CORE_HAS_PULPV2 -DRV_ISA_RV32 -DPULP_LLVM
-PULP_ARCH_CFLAGS ?=  -march=rv32imcxfir --target=riscv32
-PULP_ARCH_LDFLAGS ?=  -march=rv32imcxfir --target=riscv32
+PULP_ARCH_CFLAGS ?=  -march=rv32imc --target=riscv32
+PULP_ARCH_LDFLAGS ?=  -march=rv32imc --target=riscv32
 PULP_ARCH_OBJDFLAGS ?= -D
 else
 PULP_LDFLAGS      +=
