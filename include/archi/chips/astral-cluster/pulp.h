@@ -35,7 +35,7 @@
 #include "archi/riscv/priv_1_10.h"
 
 #include "archi/chips/astral-cluster/memory_map.h"
-#include "archi/chips/carfield-cluster/apb_soc.h"
+#include "archi/chips/astral-cluster/apb_soc.h"
 #include "archi/stdout/stdout_v3.h"
 #include "archi/dma/mchan_v7.h"
 
