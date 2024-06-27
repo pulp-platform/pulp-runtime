@@ -77,8 +77,14 @@
 #define ITC_VERSION         1
 #define FLL_VERSION         1
 #define RISCV_VERSION       4
+#ifndef USE_IDMA
 #define MCHAN_VERSION       7
+#else
+#define IDMA_VERSION        2
+#endif
 #define PADS_VERSION        2
+
+
 
 
 /*
@@ -91,6 +97,7 @@
 #define ARCHI_CLUSTER_NB_PE 8
 #endif
 #define ARCHI_NB_CLUSTER    1
+#define ARCHI_HAS_DMA_DEMUX 1
 
 
 /*
