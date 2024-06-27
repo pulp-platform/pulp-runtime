@@ -83,6 +83,8 @@
 #define IDMA_VERSION        2
 #endif
 #define PADS_VERSION        2
+#define IDMA_VERSION        2
+
 
 
 
