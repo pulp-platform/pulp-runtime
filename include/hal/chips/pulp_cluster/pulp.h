@@ -26,7 +26,11 @@
 #endif // __ibex__
 #include "hal/eu/eu_v3.h"
 #include "hal/itc/itc_v1.h"
+#ifndef USE_IDMA
 #include "hal/dma/mchan_v7.h"
+#else
+#include "hal/dma/idma_v2.h"
+#endif
 #include "hal/timer/timer_v2.h"
 #include "hal/soc_eu/soc_eu_v2.h"
 #include "hal/cluster_ctrl/cluster_ctrl_v2.h"
