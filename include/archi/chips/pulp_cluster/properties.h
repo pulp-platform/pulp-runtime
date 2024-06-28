@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2018 ETH Zurich, University of Bologna
- *
+n *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -77,9 +77,13 @@
 #define ITC_VERSION         1
 #define FLL_VERSION         1
 #define RISCV_VERSION       4
+#ifndef USE_IDMA
 #define MCHAN_VERSION       7
-#define PADS_VERSION        2
+#else
 #define IDMA_VERSION        2
+#endif
+#define PADS_VERSION        2
+
 
 
 

@@ -18,6 +18,9 @@ PULP_ARCH_LDFLAGS ?=  -march=rv32imcxpulpnn
 PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imcxpulpnn
 endif
 
+ifndef LEGACY_DMA
+PULP_CFLAGS    += USE_IDMA
+endif
 PULP_CFLAGS    += -fdata-sections -ffunction-sections -include chips/pulp_cluster/config.h -I$(PULPRT_HOME)/include/chips/pulp_cluster
 PULP_OMP_CFLAGS    += -fopenmp -mnativeomp
 PULP_LDFLAGS += -nostartfiles -nostdlib -Wl,--gc-sections -L$(PULPRT_HOME)/kernel -Tchips/pulp_cluster/link.ld -lgcc
@@ -67,7 +70,8 @@ ifndef gui
 vsim-flags = -c
 endif
 
-VSIM ?= vsim
+
+VSIM ?= vsim 
 
 run:
 ifdef gui
