@@ -19,7 +19,7 @@ PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imcxpulpnn
 endif
 
 ifndef LEGACY_DMA
-PULP_CFLAGS    += USE_IDMA
+PULP_CFLAGS    += -DUSE_IDMA
 endif
 PULP_CFLAGS    += -fdata-sections -ffunction-sections -include chips/pulp_cluster/config.h -I$(PULPRT_HOME)/include/chips/pulp_cluster
 PULP_OMP_CFLAGS    += -fopenmp -mnativeomp
