@@ -217,6 +217,15 @@ static inline int pulp_idma_L1ToL2_2d(unsigned int src, unsigned int dst, unsign
   */
 static inline int pulp_idma_L2ToL1_2d(unsigned int src, unsigned int dst, unsigned short size, unsigned int src_stride, unsigned int dst_stride, unsigned int num_reps);
 
+/** DMA-based zeromem using the "init" protocol.
+ *
+  \param   dst      Address in memory to fill with zeros. There is no restriction on memory alignment.
+  \param   size     Number of bytes to be transfered. The only restriction is that this size must fit 16 bits, i.e. must be inferior to 65536.
+  \param   dst_prot protocol with which the destination memory is attached (should be AXI or OBI)
+
+  \return           The identifier of the transfer. This can be used with plp_dma_wait to wait for the completion of this transfer.
+  */
+static inline int pulp_idma_zeromem(unsigned int dst, unsigned short size, idma_prot_t dst_prot);
 /** @name DMA wait functions
  */
 
@@ -543,6 +552,7 @@ static inline int pulp_idma_L2ToL1_2d(unsigned int src, unsigned int dst, unsign
   return dma_tx_id;
 }
 
+
 static inline int pulp_idma_L1ToL1_2d(unsigned int src, unsigned int dst, unsigned short size, unsigned int src_stride, unsigned int dst_stride, unsigned int num_reps) {
   unsigned int dma_tx_id;
   unsigned int cfg = IDMA_DEFAULT_CONFIG_L1TOL1_2D;
@@ -558,6 +568,22 @@ static inline int pulp_idma_L1ToL1_2d(unsigned int src, unsigned int dst, unsign
   dma_tx_id = DMA_READ(IDMA_REG32_3D_NEXT_ID_1_REG_OFFSET);
   return dma_tx_id;
 }
+
+static inline int pulp_idma_zeromem(unsigned int dst, unsigned short size, idma_prot_t dst_prot) {
+  unsigned int dma_tx_id;
+  unsigned int cfg = IDMA_DEFAULT_CONFIG;
+  cfg = pulp_idma_set_conf_prot(cfg, IDMA_PROT_INIT, dst_prot);
+  DMA_WRITE(dst, IDMA_REG32_3D_DST_ADDR_LOW_REG_OFFSET);
+  DMA_WRITE(size, IDMA_REG32_3D_LENGTH_LOW_REG_OFFSET);
+  DMA_WRITE(cfg, IDMA_REG32_3D_CONF_REG_OFFSET);
+  if (dst_prot == IDMA_PROT_AXI)
+    dma_tx_id = DMA_READ(IDMA_REG32_3D_NEXT_ID_0_REG_OFFSET);
+  else
+    dma_tx_id = DMA_READ(IDMA_REG32_3D_NEXT_ID_1_REG_OFFSET);
+  asm volatile("" : : : "memory");
+  return dma_tx_id;
+}
+
 
 static inline void plp_dma_barrier() {
   while(plp_dma_status()) {
