@@ -70,6 +70,7 @@ typedef unsigned int dma_ext_t;
   \return       The identifier of the transfer. This can be used with plp_dma_wait to wait for the completion of this transfer.
   */
 static inline int plp_dma_memcpy(dma_ext_t ext, unsigned int loc, unsigned short size, int ext2loc);
+static inline int plp_cl_dma_memcpy(dma_ext_t ext, unsigned int loc, unsigned short size, int ext2loc);
 
 
 /** Cluster memory to external memory transfer with event-based completion.
@@ -80,6 +81,7 @@ static inline int plp_dma_memcpy(dma_ext_t ext, unsigned int loc, unsigned short
   \return       The identifier of the transfer. This can be used with plp_dma_wait to wait for the completion of this transfer.
   */
 static inline int plp_dma_l1ToExt(dma_ext_t ext, unsigned int loc, unsigned short size);
+static inline int plp_cl_dma_l1ToExt(dma_ext_t ext, unsigned int loc, unsigned short size);
 
 
 /** External memory to cluster memory transfer with event-based completion.
@@ -103,6 +105,7 @@ static inline int plp_dma_extToL1(unsigned int loc, dma_ext_t ext, unsigned shor
   \return         The identifier of the transfer. This can be used with plp_dma_wait to wait for the completion of this transfer.
   */
 static inline int plp_dma_memcpy_2d(dma_ext_t ext, unsigned int loc, unsigned int size, unsigned int stride, unsigned int length, int ext2loc);
+static inline int plp_cl_dma_memcpy_2d(dma_ext_t ext, unsigned int loc, unsigned int size, unsigned int stride, unsigned int length, int ext2loc);
 
 
 /** Cluster memory to external memory 2-dimensional transfer with event-based completion.
@@ -115,6 +118,7 @@ static inline int plp_dma_memcpy_2d(dma_ext_t ext, unsigned int loc, unsigned in
   \return         The identifier of the transfer. This can be used with plp_dma_wait to wait for the completion of this transfer.
   */
 static inline int plp_dma_l1ToExt_2d(dma_ext_t ext, unsigned int loc, unsigned short size, unsigned short stride, unsigned short length);
+static inline int plp_cl_dma_l1ToExt_2d(dma_ext_t ext, unsigned int loc, unsigned short size, unsigned short stride, unsigned short length);
 
 /** External memory to cluster memory 2-dimensional transfer with event-based completion.
  *
@@ -124,8 +128,9 @@ static inline int plp_dma_l1ToExt_2d(dma_ext_t ext, unsigned int loc, unsigned s
   \param   stride 2D stride, which is the number of bytes which are added to the beginning of the current line to switch to the next one. Must fit 16 bits, i.e. must be inferior to 65536. This applies only to the external memory.
   \param   length 2D length, which is the number of transfered bytes after which the DMA will switch to the next line. Must fit 16 bits, i.e. must be inferior to 65536. This applies only to the external memory.
   \return         The identifier of the transfer. This can be used with plp_dma_wait to wait for the completion of this transfer
-  */
+*/
 static inline int plp_dma_extToL1_2d(unsigned int loc, dma_ext_t ext, unsigned short size, unsigned short stride, unsigned short length);
+static inline int plp_cl_dma_extToL1_2d(unsigned int loc, dma_ext_t ext, unsigned short size, unsigned short stride, unsigned short length);
 //!@}
 
 
@@ -145,6 +150,7 @@ static inline int plp_dma_extToL1_2d(unsigned int loc, dma_ext_t ext, unsigned s
   \return          The identifier of the transfer. This can be used with plp_dma_wait to wait for the completion of this transfer.
   */
 static inline int pulp_idma_memcpy(unsigned int src, unsigned int dst, unsigned int size, idma_prot_t src_prot, idma_prot_t dst_prot);
+static inline int pulp_cl_idma_memcpy(unsigned int src, unsigned int dst, unsigned int size, idma_prot_t src_prot, idma_prot_t dst_prot);
 
 /** Cluster memory to external memory transfer with event-based completion.
  *
@@ -152,8 +158,9 @@ static inline int pulp_idma_memcpy(unsigned int src, unsigned int dst, unsigned 
   \param   dst  Address in the cluster memory where to load the data. There is no restriction on memory alignment.
   \param   size Number of bytes to be transfered. The only restriction is that this size must fit 16 bits, i.e. must be inferior to 65536.
   \return       The identifier of the transfer. This can be used with plp_dma_wait to wait for the completion of this transfer.
-  */
+*/
 static inline int pulp_idma_L1ToL2(unsigned int src, unsigned int dst, unsigned short size);
+static inline int pulp_cl_idma_L1ToL2(unsigned int src, unsigned int dst, unsigned short size);
 
 /** External memory to cluster memory transfer with event-based completion.
  *
@@ -161,8 +168,9 @@ static inline int pulp_idma_L1ToL2(unsigned int src, unsigned int dst, unsigned 
   \param   dst  Address in the external memory where to load the data. There is no restriction on memory alignment.
   \param   size Number of bytes to be transfered. The only restriction is that this size must fit 16 bits, i.e. must be inferior to 65536.
   \return       The identifier of the transfer. This can be used with plp_dma_wait to wait for the completion of this transfer.
-  */
+*/
 static inline int pulp_idma_L2ToL1(unsigned int src, unsigned int dst, unsigned short size);
+static inline int pulp_cl_idma_L2ToL1(unsigned int src, unsigned int dst, unsigned short size);
 
 
 /** Intra-cluster memory transfer with event-based completion.
@@ -173,6 +181,7 @@ static inline int pulp_idma_L2ToL1(unsigned int src, unsigned int dst, unsigned 
  \return       The identifier of the transfer. This can be used with plp_dma_wait to wait for the completion of this transfer.
 */
 static inline int pulp_idma_L1ToL1(unsigned int src, unsigned int dst, unsigned short size);
+static inline int pulp_cl_idma_L1ToL1(unsigned int src, unsigned int dst, unsigned short size);
 
 /** 2-dimensional memory transfer with event-based completion.
  *
@@ -189,6 +198,7 @@ static inline int pulp_idma_L1ToL1(unsigned int src, unsigned int dst, unsigned 
   \return             The identifier of the transfer. This can be used with plp_dma_wait to wait for the completion of this transfer.
   */
 static inline int pulp_idma_memcpy_2d(unsigned int src, unsigned int dst, unsigned int size, unsigned int src_stride, unsigned int dst_stride, unsigned int num_reps, idma_prot_t src_prot, idma_prot_t dst_prot);
+static inline int pulp_cl_idma_memcpy_2d(unsigned int src, unsigned int dst, unsigned int size, unsigned int src_stride, unsigned int dst_stride, unsigned int num_reps, idma_prot_t src_prot, idma_prot_t dst_prot);
 
 /** Cluster memory to external memory 2-dimensional transfer with event-based completion.
  *
@@ -202,6 +212,7 @@ static inline int pulp_idma_memcpy_2d(unsigned int src, unsigned int dst, unsign
   \return         The identifier of the transfer. This can be used with plp_dma_wait to wait for the completion of this transfer.
   */
 static inline int pulp_idma_L1ToL2_2d(unsigned int src, unsigned int dst, unsigned short size, unsigned int src_stride, unsigned int dst_stride, unsigned int num_reps);
+static inline int pulp_cl_idma_L1ToL2_2d(unsigned int src, unsigned int dst, unsigned short size, unsigned int src_stride, unsigned int dst_stride, unsigned int num_reps);
 
 
 /** Cluster memory to external memory 2-dimensional transfer with event-based completion.
@@ -216,6 +227,7 @@ static inline int pulp_idma_L1ToL2_2d(unsigned int src, unsigned int dst, unsign
   \return         The identifier of the transfer. This can be used with plp_dma_wait to wait for the completion of this transfer.
   */
 static inline int pulp_idma_L2ToL1_2d(unsigned int src, unsigned int dst, unsigned short size, unsigned int src_stride, unsigned int dst_stride, unsigned int num_reps);
+static inline int pulp_cl_idma_L2ToL1_2d(unsigned int src, unsigned int dst, unsigned short size, unsigned int src_stride, unsigned int dst_stride, unsigned int num_reps);
 
 /** DMA-based zeromem using the "init" protocol.
  *
@@ -226,6 +238,7 @@ static inline int pulp_idma_L2ToL1_2d(unsigned int src, unsigned int dst, unsign
   \return           The identifier of the transfer. This can be used with plp_dma_wait to wait for the completion of this transfer.
   */
 static inline int pulp_idma_zeromem(unsigned int dst, unsigned short size, idma_prot_t dst_prot);
+static inline int pulp_cl_idma_zeromem(unsigned int dst, unsigned short size, idma_prot_t dst_prot);
 /** @name DMA wait functions
  */
 
@@ -233,6 +246,7 @@ static inline int pulp_idma_zeromem(unsigned int dst, unsigned short size, idma_
  * This blocks the core until no transfer is on-going in the DMA.
  */
 static inline void plp_dma_barrier();
+static inline void plp_cl_dma_barrier();
 
 /** DMA wait.
   * This blocks the core until the specified transfer is finished.
@@ -240,7 +254,7 @@ static inline void plp_dma_barrier();
   \param   counter  The counter ID identifying the transfer. This has been returned from an enqueued transfer (e.g. plp_dma_l2ToL1_2d)
  */
 static inline void plp_dma_wait(unsigned int dma_tx_id);
-
+static inline void plp_cl_dma_wait(unsigned int dma_tx_id);
 //!@}
 
 
@@ -284,6 +298,7 @@ static inline unsigned int pulp_idma_set_conf_prot(unsigned int conf, idma_prot_
   \return            transfer status. 1 if complete, 0 if still ongoing or waiting.
   */
 static inline unsigned int pulp_idma_tx_cplt(unsigned int dma_tx_id);
+static inline unsigned int pulp_cl_idma_tx_cplt(unsigned int dma_tx_id);
 
 
 /**
@@ -328,6 +343,7 @@ static inline unsigned int pulp_idma_tx_cplt(unsigned int dma_tx_id);
   \return             DMA status. 1 means there are still on-going transfers, 0 means nothing is on-going.
   */
 static inline unsigned int plp_dma_status();
+static inline unsigned int plp_cl_dma_status();
 
 
 //!@}
@@ -341,19 +357,24 @@ static inline unsigned int plp_dma_status();
 #define DMA_ADDR ARCHI_IDMA_EXT_ADDR
 
 #if defined(__riscv__) && !defined(RV_ISA_RV32) && !defined(__LLVM__)
-#ifdef ARCHI_HAS_DMA_DEMUX
-#define DMA_WRITE_DEMUX(value, offset) __builtin_pulp_OffsetedWrite((value), (int *)DMA_DEMUX_ADDR, (offset))
-#define DMA_READ_DEMUX(offset) __builtin_pulp_OffsetedRead((int *)DMA_DEMUX_ADDR, (offset))
-#endif
 #define DMA_WRITE(value, offset) __builtin_pulp_OffsetedWrite((value), (int *)DMA_ADDR, (offset))
 #define DMA_READ(offset) __builtin_pulp_OffsetedRead((int *)DMA_ADDR, (offset))
-#else
 #ifdef ARCHI_HAS_DMA_DEMUX
-#define DMA_WRITE_DEMUX(value, offset) pulp_write32(DMA_DEMUX_ADDR + (offset), (value))
-#define DMA_READ_DEMUX(offset) pulp_read32(DMA_DEMUX_ADDR + (offset))
+#define DMA_CL_WRITE(value, offset) __builtin_pulp_OffsetedWrite((value), (int *)DMA_DEMUX_ADDR, (offset))
+#define DMA_CL_READ(offset) __builtin_pulp_OffsetedRead((int *)DMA_DEMUX_ADDR, (offset))
 #endif
+#else
 #define DMA_WRITE(value, offset) pulp_write32(DMA_ADDR + (offset), (value))
 #define DMA_READ(offset) pulp_read32(DMA_ADDR + (offset))
+#ifdef ARCHI_HAS_DMA_DEMUX
+#define DMA_CL_WRITE(value, offset) pulp_write32(DMA_DEMUX_ADDR + (offset), (value))
+#define DMA_CL_READ(offset) pulp_read32(DMA_DEMUX_ADDR + (offset))
+#endif
+#endif
+// if we don't have the peripheral demux, the cluster write/read functions are equal to the regular versions
+#ifndef ARCHI_HAS_DMA_DEMUX
+#define DMA_CL_WRITE(value, offset) DMA_WRITE(value, offset)
+#define DMA_CL_READ(offset) DMA_READ(value, offset)
 #endif
 
 static inline int plp_dma_memcpy(dma_ext_t ext, unsigned int loc, unsigned short size, int ext2loc) {
@@ -362,13 +383,25 @@ static inline int plp_dma_memcpy(dma_ext_t ext, unsigned int loc, unsigned short
   else
     return pulp_idma_L1ToL2(loc, ext, size);
 }
+static inline int plp_cl_dma_memcpy(dma_ext_t ext, unsigned int loc, unsigned short size, int ext2loc) {
+  if (ext2loc)
+    return pulp_cl_idma_L2ToL1(ext, loc, size);
+  else
+    return pulp_cl_idma_L1ToL2(loc, ext, size);
+}
 
 static inline int plp_dma_l1ToExt(dma_ext_t ext, unsigned int loc, unsigned short size) {
   pulp_idma_L1ToL2(loc, ext, size);
 }
+static inline int plp_cl_dma_l1ToExt(dma_ext_t ext, unsigned int loc, unsigned short size) {
+  pulp_cl_idma_L1ToL2(loc, ext, size);
+}
 
 static inline int plp_dma_extToL1(unsigned int loc, dma_ext_t ext, unsigned short size) {
   pulp_idma_L2ToL1(ext, loc, size);
+}
+static inline int plp_cl_dma_extToL1(unsigned int loc, dma_ext_t ext, unsigned short size) {
+  pulp_cl_idma_L2ToL1(ext, loc, size);
 }
 
 static inline int plp_dma_memcpy_2d(dma_ext_t ext, unsigned int loc, unsigned int size, unsigned int stride, unsigned int length, int ext2loc) {
@@ -377,14 +410,27 @@ static inline int plp_dma_memcpy_2d(dma_ext_t ext, unsigned int loc, unsigned in
   else
     return pulp_idma_L1ToL2_2d(loc, ext, length, length, stride, size/length);
 }
+static inline int plp_cl_dma_memcpy_2d(dma_ext_t ext, unsigned int loc, unsigned int size, unsigned int stride, unsigned int length, int ext2loc) {
+  if (ext2loc)
+    return pulp_cl_idma_L2ToL1_2d(ext, loc, length, stride, length, size/length);
+  else
+    return pulp_cl_idma_L1ToL2_2d(loc, ext, length, length, stride, size/length);
+}
 
 static inline int plp_dma_l1ToExt_2d(dma_ext_t ext, unsigned int loc, unsigned short size, unsigned short stride, unsigned short length) {
   return pulp_idma_L1ToL2_2d(loc, ext, length, length, stride, size/length);
+}
+static inline int plp_cl_dma_l1ToExt_2d(dma_ext_t ext, unsigned int loc, unsigned short size, unsigned short stride, unsigned short length) {
+  return pulp_cl_idma_L1ToL2_2d(loc, ext, length, length, stride, size/length);
 }
 
 static inline int plp_dma_extToL1_2d(unsigned int loc, dma_ext_t ext, unsigned short size, unsigned short stride, unsigned short length) {
   return pulp_idma_L2ToL1_2d(loc, ext, length, stride, length, size/length);
 }
+static inline int plp_cl_dma_extToL1_2d(unsigned int loc, dma_ext_t ext, unsigned short size, unsigned short stride, unsigned short length) {
+  return pulp_cl_idma_L2ToL1_2d(loc, ext, length, stride, length, size/length);
+}
+
 static inline unsigned int pulp_idma_set_conf_prot(unsigned int conf, idma_prot_t src_prot, idma_prot_t dst_prot){
 #if defined(__riscv__)
   conf = __builtin_bitinsert(conf, src_prot,     3, IDMA_REG32_3D_CONF_SRC_PROTOCOL_OFFSET);
@@ -420,14 +466,32 @@ static inline unsigned int pulp_idma_tx_cplt(unsigned int dma_tx_id) {
     return ((done_id & (IDMA_ID_MASK - (1<<(IDMA_ID_COUNTER_WIDTH-1))) < (1<<(IDMA_ID_COUNTER_WIDTH-2))));
   }
 }
+static inline unsigned int pulp_cl_idma_tx_cplt(unsigned int dma_tx_id) {
+  unsigned int done_id = DMA_CL_READ(IDMA_REG32_3D_DONE_ID_0_REG_OFFSET);
+  unsigned int my_id = dma_tx_id & IDMA_ID_MASK;
+  if (done_id >> (IDMA_ID_COUNTER_WIDTH-1) == my_id >> (IDMA_ID_COUNTER_WIDTH-1)) {
+    return my_id <= done_id;
+  } else {
+    return ((done_id & (IDMA_ID_MASK - (1<<(IDMA_ID_COUNTER_WIDTH-1))) < (1<<(IDMA_ID_COUNTER_WIDTH-2))));
+  }
+}
 
 
 static inline unsigned int plp_dma_status() {
   return DMA_READ(IDMA_REG32_3D_STATUS_0_REG_OFFSET);
 }
+static inline unsigned int plp_cl_dma_status() {
+  return DMA_CL_READ(IDMA_REG32_3D_STATUS_0_REG_OFFSET);
+}
 
 static inline void plp_dma_wait(unsigned int dma_tx_id) {
   while(!pulp_idma_tx_cplt(dma_tx_id)) {
+    eu_evt_maskWaitAndClr(1 << IDMA_EVENT);
+  }
+  return;
+}
+static inline void plp_cl_dma_wait(unsigned int dma_tx_id) {
+  while(!pulp_cl_idma_tx_cplt(dma_tx_id)) {
     eu_evt_maskWaitAndClr(1 << IDMA_EVENT);
   }
   return;
@@ -448,7 +512,22 @@ static inline int pulp_idma_memcpy(unsigned int src, unsigned int dst, unsigned 
   else
     dma_tx_id = DMA_READ(IDMA_REG32_3D_NEXT_ID_1_REG_OFFSET);
   return dma_tx_id;
+}
+static inline int pulp_cl_idma_memcpy(unsigned int src, unsigned int dst, unsigned int size, idma_prot_t src_prot, idma_prot_t dst_prot) {
+  unsigned int dma_tx_id;
+  unsigned int cfg = pulp_idma_set_conf_prot(IDMA_DEFAULT_CONFIG, src_prot, dst_prot);
+  DMA_CL_WRITE(src, IDMA_REG32_3D_SRC_ADDR_LOW_REG_OFFSET);
+  DMA_CL_WRITE(dst, IDMA_REG32_3D_DST_ADDR_LOW_REG_OFFSET);
+  DMA_CL_WRITE(size, IDMA_REG32_3D_LENGTH_LOW_REG_OFFSET);
+  DMA_CL_WRITE(cfg, IDMA_REG32_3D_CONF_REG_OFFSET);
 
+  asm volatile("" : : : "memory");
+  // Launch TX
+  if (dst_prot == IDMA_PROT_AXI)
+    dma_tx_id = DMA_CL_READ(IDMA_REG32_3D_NEXT_ID_0_REG_OFFSET);
+  else
+    dma_tx_id = DMA_CL_READ(IDMA_REG32_3D_NEXT_ID_1_REG_OFFSET);
+  return dma_tx_id;
 }
 
 static inline int pulp_idma_L1ToL2(unsigned int src, unsigned int dst, unsigned short size) {
@@ -464,9 +543,21 @@ static inline int pulp_idma_L1ToL2(unsigned int src, unsigned int dst, unsigned 
   dma_tx_id = DMA_READ(IDMA_REG32_3D_NEXT_ID_0_REG_OFFSET);
 
   return dma_tx_id;
-
 }
+static inline int pulp_cl_idma_L1ToL2(unsigned int src, unsigned int dst, unsigned short size) {
+  unsigned int dma_tx_id;
+  unsigned int cfg = IDMA_DEFAULT_CONFIG_L1TOL2;
+  DMA_CL_WRITE(src, IDMA_REG32_3D_SRC_ADDR_LOW_REG_OFFSET);
+  DMA_CL_WRITE(dst, IDMA_REG32_3D_DST_ADDR_LOW_REG_OFFSET);
+  DMA_CL_WRITE(size, IDMA_REG32_3D_LENGTH_LOW_REG_OFFSET);
+  DMA_CL_WRITE(cfg, IDMA_REG32_3D_CONF_REG_OFFSET);
 
+  asm volatile("" : : : "memory");
+  // Launch TX
+  dma_tx_id = DMA_CL_READ(IDMA_REG32_3D_NEXT_ID_0_REG_OFFSET);
+
+  return dma_tx_id;
+}
 
 static inline int pulp_idma_L2ToL1(unsigned int src, unsigned int dst, unsigned short size) {
   unsigned int dma_tx_id;
@@ -481,7 +572,20 @@ static inline int pulp_idma_L2ToL1(unsigned int src, unsigned int dst, unsigned 
   dma_tx_id = DMA_READ(IDMA_REG32_3D_NEXT_ID_1_REG_OFFSET);
 
   return dma_tx_id;
+}
+static inline int pulp_cl_idma_L2ToL1(unsigned int src, unsigned int dst, unsigned short size) {
+  unsigned int dma_tx_id;
+  unsigned int cfg = IDMA_DEFAULT_CONFIG_L2TOL1;
+  DMA_CL_WRITE(src, IDMA_REG32_3D_SRC_ADDR_LOW_REG_OFFSET);
+  DMA_CL_WRITE(dst, IDMA_REG32_3D_DST_ADDR_LOW_REG_OFFSET);
+  DMA_CL_WRITE(size, IDMA_REG32_3D_LENGTH_LOW_REG_OFFSET);
+  DMA_CL_WRITE(cfg, IDMA_REG32_3D_CONF_REG_OFFSET);
 
+  asm volatile("" : : : "memory");
+  // Launch TX
+  dma_tx_id = DMA_CL_READ(IDMA_REG32_3D_NEXT_ID_1_REG_OFFSET);
+
+  return dma_tx_id;
 }
 
 static inline int pulp_idma_L1ToL1(unsigned int src, unsigned int dst, unsigned short size) {
@@ -498,6 +602,21 @@ static inline int pulp_idma_L1ToL1(unsigned int src, unsigned int dst, unsigned 
 
   return dma_tx_id;
 }
+static inline int pulp_cl_idma_L1ToL1(unsigned int src, unsigned int dst, unsigned short size) {
+  unsigned int dma_tx_id;
+  unsigned int cfg = IDMA_DEFAULT_CONFIG_L1TOL1;
+  DMA_CL_WRITE(src, IDMA_REG32_3D_SRC_ADDR_LOW_REG_OFFSET);
+  DMA_CL_WRITE(dst, IDMA_REG32_3D_DST_ADDR_LOW_REG_OFFSET);
+  DMA_CL_WRITE(size, IDMA_REG32_3D_LENGTH_LOW_REG_OFFSET);
+  DMA_CL_WRITE(cfg, IDMA_REG32_3D_CONF_REG_OFFSET);
+
+  asm volatile("" : : : "memory");
+  // Launch TX
+  dma_tx_id = DMA_CL_READ(IDMA_REG32_3D_NEXT_ID_1_REG_OFFSET);
+
+  return dma_tx_id;
+}
+
 static inline int pulp_idma_memcpy_2d(unsigned int src, unsigned int dst, unsigned int size, unsigned int src_stride, unsigned int dst_stride, unsigned int num_reps, idma_prot_t src_prot, idma_prot_t dst_prot) {
     unsigned int dma_tx_id;
     unsigned int cfg = IDMA_DEFAULT_CONFIG_2D;
@@ -517,7 +636,25 @@ static inline int pulp_idma_memcpy_2d(unsigned int src, unsigned int dst, unsign
       dma_tx_id = DMA_READ(IDMA_REG32_3D_NEXT_ID_1_REG_OFFSET);
     return dma_tx_id;
 }
+static inline int pulp_cl_idma_memcpy_2d(unsigned int src, unsigned int dst, unsigned int size, unsigned int src_stride, unsigned int dst_stride, unsigned int num_reps, idma_prot_t src_prot, idma_prot_t dst_prot) {
+  unsigned int dma_tx_id;
+  unsigned int cfg = IDMA_DEFAULT_CONFIG_2D;
+  cfg = pulp_idma_set_conf_prot(cfg, src_prot, dst_prot);
+  DMA_CL_WRITE(src, IDMA_REG32_3D_SRC_ADDR_LOW_REG_OFFSET);
+  DMA_CL_WRITE(dst, IDMA_REG32_3D_DST_ADDR_LOW_REG_OFFSET);
+  DMA_CL_WRITE(size, IDMA_REG32_3D_LENGTH_LOW_REG_OFFSET);
+  DMA_CL_WRITE(src_stride, IDMA_REG32_3D_SRC_STRIDE_2_LOW_REG_OFFSET);
+  DMA_CL_WRITE(dst_stride, IDMA_REG32_3D_DST_STRIDE_2_LOW_REG_OFFSET);
+  DMA_CL_WRITE(num_reps, IDMA_REG32_3D_REPS_2_LOW_REG_OFFSET);
 
+  asm volatile("" : : : "memory");
+  // Launch TX
+  if (dst_prot == IDMA_PROT_AXI)
+    dma_tx_id = DMA_CL_READ(IDMA_REG32_3D_NEXT_ID_0_REG_OFFSET);
+  else
+    dma_tx_id = DMA_CL_READ(IDMA_REG32_3D_NEXT_ID_1_REG_OFFSET);
+  return dma_tx_id;
+}
 
 static inline int pulp_idma_L1ToL2_2d(unsigned int src, unsigned int dst, unsigned short size, unsigned int src_stride, unsigned int dst_stride, unsigned int num_reps) {
   unsigned int dma_tx_id;
@@ -534,7 +671,21 @@ static inline int pulp_idma_L1ToL2_2d(unsigned int src, unsigned int dst, unsign
   dma_tx_id = DMA_READ(IDMA_REG32_3D_NEXT_ID_0_REG_OFFSET);
   return dma_tx_id;
 }
+static inline int pulp_cl_idma_L1ToL2_2d(unsigned int src, unsigned int dst, unsigned short size, unsigned int src_stride, unsigned int dst_stride, unsigned int num_reps) {
+  unsigned int dma_tx_id;
+  unsigned int cfg = IDMA_DEFAULT_CONFIG_L1TOL2_2D;
+  DMA_CL_WRITE(src, IDMA_REG32_3D_SRC_ADDR_LOW_REG_OFFSET);
+  DMA_CL_WRITE(dst, IDMA_REG32_3D_DST_ADDR_LOW_REG_OFFSET);
+  DMA_CL_WRITE(size, IDMA_REG32_3D_LENGTH_LOW_REG_OFFSET);
+  DMA_CL_WRITE(cfg, IDMA_REG32_3D_CONF_REG_OFFSET);
+  DMA_CL_WRITE(src_stride, IDMA_REG32_3D_SRC_STRIDE_2_LOW_REG_OFFSET);
+  DMA_CL_WRITE(dst_stride, IDMA_REG32_3D_DST_STRIDE_2_LOW_REG_OFFSET);
+  DMA_CL_WRITE(num_reps, IDMA_REG32_3D_REPS_2_LOW_REG_OFFSET);
 
+  asm volatile("" : : : "memory");
+  dma_tx_id = DMA_CL_READ(IDMA_REG32_3D_NEXT_ID_0_REG_OFFSET);
+  return dma_tx_id;
+}
 
 static inline int pulp_idma_L2ToL1_2d(unsigned int src, unsigned int dst, unsigned short size, unsigned int src_stride, unsigned int dst_stride, unsigned int num_reps) {
   unsigned int dma_tx_id;
@@ -549,6 +700,21 @@ static inline int pulp_idma_L2ToL1_2d(unsigned int src, unsigned int dst, unsign
 
   asm volatile("" : : : "memory");
   dma_tx_id = DMA_READ(IDMA_REG32_3D_NEXT_ID_1_REG_OFFSET);
+  return dma_tx_id;
+}
+static inline int pulp_cl_idma_L2ToL1_2d(unsigned int src, unsigned int dst, unsigned short size, unsigned int src_stride, unsigned int dst_stride, unsigned int num_reps) {
+  unsigned int dma_tx_id;
+  unsigned int cfg = IDMA_DEFAULT_CONFIG_L2TOL1_2D;
+  DMA_CL_WRITE(src, IDMA_REG32_3D_SRC_ADDR_LOW_REG_OFFSET);
+  DMA_CL_WRITE(dst, IDMA_REG32_3D_DST_ADDR_LOW_REG_OFFSET);
+  DMA_CL_WRITE(size, IDMA_REG32_3D_LENGTH_LOW_REG_OFFSET);
+  DMA_CL_WRITE(cfg, IDMA_REG32_3D_CONF_REG_OFFSET);
+  DMA_CL_WRITE(src_stride, IDMA_REG32_3D_SRC_STRIDE_2_LOW_REG_OFFSET);
+  DMA_CL_WRITE(dst_stride, IDMA_REG32_3D_DST_STRIDE_2_LOW_REG_OFFSET);
+  DMA_CL_WRITE(num_reps, IDMA_REG32_3D_REPS_2_LOW_REG_OFFSET);
+
+  asm volatile("" : : : "memory");
+  dma_tx_id = DMA_CL_READ(IDMA_REG32_3D_NEXT_ID_1_REG_OFFSET);
   return dma_tx_id;
 }
 
@@ -568,6 +734,21 @@ static inline int pulp_idma_L1ToL1_2d(unsigned int src, unsigned int dst, unsign
   dma_tx_id = DMA_READ(IDMA_REG32_3D_NEXT_ID_1_REG_OFFSET);
   return dma_tx_id;
 }
+static inline int pulp_cl_idma_L1ToL1_2d(unsigned int src, unsigned int dst, unsigned short size, unsigned int src_stride, unsigned int dst_stride, unsigned int num_reps) {
+  unsigned int dma_tx_id;
+  unsigned int cfg = IDMA_DEFAULT_CONFIG_L1TOL1_2D;
+  DMA_CL_WRITE(src, IDMA_REG32_3D_SRC_ADDR_LOW_REG_OFFSET);
+  DMA_CL_WRITE(dst, IDMA_REG32_3D_DST_ADDR_LOW_REG_OFFSET);
+  DMA_CL_WRITE(size, IDMA_REG32_3D_LENGTH_LOW_REG_OFFSET);
+  DMA_CL_WRITE(cfg, IDMA_REG32_3D_CONF_REG_OFFSET);
+  DMA_CL_WRITE(src_stride, IDMA_REG32_3D_SRC_STRIDE_2_LOW_REG_OFFSET);
+  DMA_CL_WRITE(dst_stride, IDMA_REG32_3D_DST_STRIDE_2_LOW_REG_OFFSET);
+  DMA_CL_WRITE(num_reps, IDMA_REG32_3D_REPS_2_LOW_REG_OFFSET);
+
+  asm volatile("" : : : "memory");
+  dma_tx_id = DMA_CL_READ(IDMA_REG32_3D_NEXT_ID_1_REG_OFFSET);
+  return dma_tx_id;
+}
 
 static inline int pulp_idma_zeromem(unsigned int dst, unsigned short size, idma_prot_t dst_prot) {
   unsigned int dma_tx_id;
@@ -583,10 +764,29 @@ static inline int pulp_idma_zeromem(unsigned int dst, unsigned short size, idma_
   asm volatile("" : : : "memory");
   return dma_tx_id;
 }
+static inline int pulp_cl_idma_zeromem(unsigned int dst, unsigned short size, idma_prot_t dst_prot) {
+  unsigned int dma_tx_id;
+  unsigned int cfg = IDMA_DEFAULT_CONFIG;
+  cfg = pulp_idma_set_conf_prot(cfg, IDMA_PROT_INIT, dst_prot);
+  DMA_CL_WRITE(dst, IDMA_REG32_3D_DST_ADDR_LOW_REG_OFFSET);
+  DMA_CL_WRITE(size, IDMA_REG32_3D_LENGTH_LOW_REG_OFFSET);
+  DMA_CL_WRITE(cfg, IDMA_REG32_3D_CONF_REG_OFFSET);
+  if (dst_prot == IDMA_PROT_AXI)
+    dma_tx_id = DMA_CL_READ(IDMA_REG32_3D_NEXT_ID_0_REG_OFFSET);
+  else
+    dma_tx_id = DMA_CL_READ(IDMA_REG32_3D_NEXT_ID_1_REG_OFFSET);
+  asm volatile("" : : : "memory");
+  return dma_tx_id;
+}
 
 
 static inline void plp_dma_barrier() {
   while(plp_dma_status()) {
+    eu_evt_maskWaitAndClr(1 << IDMA_EVENT);
+  }
+}
+static inline void plp_cl_dma_barrier() {
+  while(plp_cl_dma_status()) {
     eu_evt_maskWaitAndClr(1 << IDMA_EVENT);
   }
 }
