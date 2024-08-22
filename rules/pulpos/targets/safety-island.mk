@@ -8,7 +8,13 @@ PULP_ARCH_OBJDFLAGS ?=
 
 PULP_CFLAGS    += -fdata-sections -ffunction-sections -include chips/safety-island/config.h -I$(PULPRT_HOME)/include/chips/safety-island
 PULP_OMP_CFLAGS    += -fopenmp -mnativeomp
-PULP_LDFLAGS += -nostartfiles -nostdlib -Wl,--gc-sections -L$(PULPRT_HOME)/kernel -Tchips/safety-island/link.ld -lgcc
+PULP_LDFLAGS += -nostartfiles -nostdlib -Wl,--gc-sections -L$(PULPRT_HOME)/kernel -lgcc
+
+ifdef SAFED_CACHE
+PULP_LDFLAGS += -Tchips/safety-island/link_cache.ld
+else
+PULP_LDFLAGS += -Tchips/safety-island/link.ld
+endif
 
 PULP_CC = riscv32-unknown-elf-gcc
 PULP_AR ?= riscv32-unknown-elf-ar
