@@ -43,7 +43,7 @@ typedef unsigned int dma_ext_t;
 #define IDMA_DEFAULT_CONFIG_L2TOL1 (IDMA_DEFAULT_CONFIG | (IDMA_PROT_AXI << IDMA_REG32_3D_CONF_SRC_PROTOCOL_OFFSET) | (IDMA_PROT_OBI << IDMA_REG32_3D_CONF_DST_PROTOCOL_OFFSET))
 #define IDMA_DEFAULT_CONFIG_L1TOL1 (IDMA_DEFAULT_CONFIG | (IDMA_PROT_OBI << IDMA_REG32_3D_CONF_SRC_PROTOCOL_OFFSET) | (IDMA_PROT_OBI << IDMA_REG32_3D_CONF_DST_PROTOCOL_OFFSET))
 
-#define IDMA_DEFAULT_CONFIG_2D 0x8
+#define IDMA_DEFAULT_CONFIG_2D 0x400
 #define IDMA_DEFAULT_CONFIG_L1TOL2_2D (IDMA_DEFAULT_CONFIG_2D | (IDMA_PROT_OBI << IDMA_REG32_3D_CONF_SRC_PROTOCOL_OFFSET) | (IDMA_PROT_AXI << IDMA_REG32_3D_CONF_DST_PROTOCOL_OFFSET))
 #define IDMA_DEFAULT_CONFIG_L2TOL1_2D (IDMA_DEFAULT_CONFIG_2D | (IDMA_PROT_AXI << IDMA_REG32_3D_CONF_SRC_PROTOCOL_OFFSET) | (IDMA_PROT_OBI << IDMA_REG32_3D_CONF_DST_PROTOCOL_OFFSET))
 #define IDMA_DEFAULT_CONFIG_L1TOL1_2D (IDMA_DEFAULT_CONFIG_2D | (IDMA_PROT_OBI << IDMA_REG32_3D_CONF_SRC_PROTOCOL_OFFSET) | (IDMA_PROT_OBI << IDMA_REG32_3D_CONF_DST_PROTOCOL_OFFSET))
@@ -391,17 +391,17 @@ static inline int plp_cl_dma_memcpy(dma_ext_t ext, unsigned int loc, unsigned sh
 }
 
 static inline int plp_dma_l1ToExt(dma_ext_t ext, unsigned int loc, unsigned short size) {
-  pulp_idma_L1ToL2(loc, ext, size);
+  return pulp_idma_L1ToL2(loc, ext, size);
 }
 static inline int plp_cl_dma_l1ToExt(dma_ext_t ext, unsigned int loc, unsigned short size) {
-  pulp_cl_idma_L1ToL2(loc, ext, size);
+  return pulp_cl_idma_L1ToL2(loc, ext, size);
 }
 
 static inline int plp_dma_extToL1(unsigned int loc, dma_ext_t ext, unsigned short size) {
-  pulp_idma_L2ToL1(ext, loc, size);
+  return pulp_idma_L2ToL1(ext, loc, size);
 }
 static inline int plp_cl_dma_extToL1(unsigned int loc, dma_ext_t ext, unsigned short size) {
-  pulp_cl_idma_L2ToL1(ext, loc, size);
+  return pulp_cl_idma_L2ToL1(ext, loc, size);
 }
 
 static inline int plp_dma_memcpy_2d(dma_ext_t ext, unsigned int loc, unsigned int size, unsigned int stride, unsigned int length, int ext2loc) {
