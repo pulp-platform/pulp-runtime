@@ -35,7 +35,7 @@ pos_init_entry:
 #elif PULP_CHIP == CHIP_ASTRAL
     li t0, 0x5003FFF0
 #else
-    li t0, 0x1003FF0
+    li t0, 0x1003FFF0
 #endif
     sw x0, 0(t0)
     # We check if the offset of the core is zero, so that even if the cluster
