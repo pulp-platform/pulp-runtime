@@ -48,11 +48,16 @@ typedef unsigned int dma_ext_t;
 #define IDMA_DEFAULT_CONFIG_L2TOL1 (IDMA_DEFAULT_CONFIG | (IDMA_PROT_AXI << IDMA_REG32_3D_CONF_SRC_PROTOCOL_OFFSET) | (IDMA_PROT_OBI << IDMA_REG32_3D_CONF_DST_PROTOCOL_OFFSET))
 #define IDMA_DEFAULT_CONFIG_L1TOL1 (IDMA_DEFAULT_CONFIG | (IDMA_PROT_OBI << IDMA_REG32_3D_CONF_SRC_PROTOCOL_OFFSET) | (IDMA_PROT_OBI << IDMA_REG32_3D_CONF_DST_PROTOCOL_OFFSET))
 
-#define IDMA_DEFAULT_CONFIG_2D 0x400
+#define IDMA_DEFAULT_CONFIG_2D 0x400 // 0x1 << 10 = 0x400
 #define IDMA_DEFAULT_CONFIG_L1TOL2_2D (IDMA_DEFAULT_CONFIG_2D | (IDMA_PROT_OBI << IDMA_REG32_3D_CONF_SRC_PROTOCOL_OFFSET) | (IDMA_PROT_AXI << IDMA_REG32_3D_CONF_DST_PROTOCOL_OFFSET))
 #define IDMA_DEFAULT_CONFIG_L2TOL1_2D (IDMA_DEFAULT_CONFIG_2D | (IDMA_PROT_AXI << IDMA_REG32_3D_CONF_SRC_PROTOCOL_OFFSET) | (IDMA_PROT_OBI << IDMA_REG32_3D_CONF_DST_PROTOCOL_OFFSET))
 #define IDMA_DEFAULT_CONFIG_L1TOL1_2D (IDMA_DEFAULT_CONFIG_2D | (IDMA_PROT_OBI << IDMA_REG32_3D_CONF_SRC_PROTOCOL_OFFSET) | (IDMA_PROT_OBI << IDMA_REG32_3D_CONF_DST_PROTOCOL_OFFSET))
 
+// TODO add 3D support
+// #define IDMA_DEFAULT_CONFIG_3D 0x800 // 0x1 << 11 = 0x800
+// #define IDMA_DEFAULT_CONFIG_L1TOL2_3D (IDMA_DEFAULT_CONFIG_3D | (IDMA_PROT_OBI << IDMA_REG32_3D_CONF_SRC_PROTOCOL_OFFSET) | (IDMA_PROT_AXI << IDMA_REG32_3D_CONF_DST_PROTOCOL_OFFSET))
+// #define IDMA_DEFAULT_CONFIG_L2TOL1_3D (IDMA_DEFAULT_CONFIG_3D | (IDMA_PROT_AXI << IDMA_REG32_3D_CONF_SRC_PROTOCOL_OFFSET) | (IDMA_PROT_OBI << IDMA_REG32_3D_CONF_DST_PROTOCOL_OFFSET))
+// #define IDMA_DEFAULT_CONFIG_L1TOL1_3D (IDMA_DEFAULT_CONFIG_3D | (IDMA_PROT_OBI << IDMA_REG32_3D_CONF_SRC_PROTOCOL_OFFSET) | (IDMA_PROT_OBI << IDMA_REG32_3D_CONF_DST_PROTOCOL_OFFSET))
 
 /** @name High-level DMA memory copy functions; compatible with MCHAN driver interface
  * The following functions can be used to trigger DMA transfers to copy data between the cluster memory (L1) and another memory outside the cluster (another cluster L1 or L2).
@@ -234,6 +239,20 @@ static inline struct dma_id pulp_cl_idma_L1ToL2_2d(unsigned int src, unsigned in
 static inline struct dma_id pulp_idma_L2ToL1_2d(unsigned int src, unsigned int dst, unsigned short size, unsigned int src_stride, unsigned int dst_stride, unsigned int num_reps);
 static inline struct dma_id pulp_cl_idma_L2ToL1_2d(unsigned int src, unsigned int dst, unsigned short size, unsigned int src_stride, unsigned int dst_stride, unsigned int num_reps);
 
+/** Intra-cluster memory 2-dimensional transfer with event-based completion.
+ *
+  \param   src    Address in the cluster memory where to store the data. There is no restriction on memory alignment.
+  \param   dst    Address in the cluster memory where to load the data. There is no restriction on memory alignment.
+  \param   size   Number of bytes to be transfered. The only restriction is that this size must fit 16 bits, i.e. must be inferior to 65536.
+  \param   src_stride 2D stride, which is the number of bytes which are added to the beginning of the current line to switch to the next one. Must fit 16 bits, i.e. must be inferior to 65536.
+  \param   dst_stride 2D stride, which is the number of bytes which are added to the beginning of the current line to switch to the next one. Must fit 16 bits, i.e. must be inferior to 65536.
+  \param   num_reps   Number of 1D transfers that comprise the 2D transfer.
+
+  \return         The identifier of the transfer. This can be used with plp_dma_wait to wait for the completion of this transfer.
+  */
+static inline struct dma_id pulp_idma_L1ToL1_2d(unsigned int src, unsigned int dst, unsigned short size, unsigned int src_stride, unsigned int dst_stride, unsigned int num_reps);
+static inline struct dma_id pulp_cl_idma_L1ToL1_2d(unsigned int src, unsigned int dst, unsigned short size, unsigned int src_stride, unsigned int dst_stride, unsigned int num_reps);
+
 /** DMA-based zeromem using the "init" protocol.
  *
   \param   dst      Address in memory to fill with zeros. There is no restriction on memory alignment.
@@ -250,8 +269,8 @@ static inline struct dma_id pulp_cl_idma_zeromem(unsigned int dst, unsigned shor
 /** DMA barrier.
  * This blocks the core until no transfer is on-going in the DMA.
  */
-static inline void plp_dma_barrier();
-static inline void plp_cl_dma_barrier();
+static inline void plp_dma_barrier(struct dma_id id);
+static inline void plp_cl_dma_barrier(struct dma_id id);
 
 /** DMA wait.
   * This blocks the core until the specified transfer is finished.
@@ -347,8 +366,8 @@ static inline unsigned int pulp_cl_idma_tx_cplt(struct dma_id id);
  *
   \return             DMA status. 1 means there are still on-going transfers, 0 means nothing is on-going.
   */
-static inline unsigned int plp_dma_status();
-static inline unsigned int plp_cl_dma_status();
+static inline unsigned int plp_dma_status(struct dma_id id);
+static inline unsigned int plp_cl_dma_status(struct dma_id id);
 
 
 //!@}
@@ -492,12 +511,26 @@ static inline unsigned int pulp_cl_idma_tx_cplt(struct dma_id id) {
   }
 }
 
-
-static inline unsigned int plp_dma_status() {
-  return DMA_READ(IDMA_REG32_3D_STATUS_0_REG_OFFSET);
+static inline unsigned int plp_dma_status(struct dma_id id) {
+    unsigned int status;
+    if (id.dma_strm_id == 0) {
+      status = DMA_READ(IDMA_REG32_3D_STATUS_0_REG_OFFSET);
+    } else {
+      status = DMA_READ(IDMA_REG32_3D_STATUS_1_REG_OFFSET);
+    }
+    
+    return status ? 1 : 0;
 }
-static inline unsigned int plp_cl_dma_status() {
-  return DMA_CL_READ(IDMA_REG32_3D_STATUS_0_REG_OFFSET);
+
+static inline unsigned int plp_cl_dma_status(struct dma_id id) {
+    unsigned int status;
+    if (id.dma_strm_id == 0) {
+        status = DMA_CL_READ(IDMA_REG32_3D_STATUS_0_REG_OFFSET);
+    } else {
+        status = DMA_CL_READ(IDMA_REG32_3D_STATUS_1_REG_OFFSET);
+    }
+
+    return status ? 1 : 0;
 }
 
 static inline void plp_dma_wait(struct dma_id id) {
@@ -838,13 +871,13 @@ static inline struct dma_id pulp_cl_idma_zeromem(unsigned int dst, unsigned shor
   return id;
 }
 
-static inline void plp_dma_barrier() {
-  while(plp_dma_status()) {
+static inline void plp_dma_barrier(struct dma_id id) {
+  while(plp_dma_status(id)) {
     eu_evt_maskWaitAndClr(1 << IDMA_EVENT);
   }
 }
-static inline void plp_cl_dma_barrier() {
-  while(plp_cl_dma_status()) {
+static inline void plp_cl_dma_barrier(struct dma_id id) {
+  while(plp_cl_dma_status(id)) {
     eu_evt_maskWaitAndClr(1 << IDMA_EVENT);
   }
 }
