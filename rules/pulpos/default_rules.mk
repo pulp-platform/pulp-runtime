@@ -153,7 +153,13 @@ endif
 # VERILATOR Flags
 #
 verilator_flags ?= --trace
+ifdef bootmode
+ifeq ($(bootmode), fast_debug)
+verilator_flags += +bootmode=fast_debug_preload
+else
 verilator_flags += +bootmode=jtag
+endif
+endif
 verilator_flags += +log_file=trace_core.log +itb_file=$(TARGETS).itb
 
 #
