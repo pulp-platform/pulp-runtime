@@ -1,11 +1,11 @@
 ifdef USE_IBEX
-PULP_LDFLAGS +=
+PULP_LDFLAGS += -nostartfiles -nostdlib -Wl,--gc-sections -L$(PULPRT_HOME)/kernel -Tchips/pulpissimo/link.ld -lgcc
 PULP_CFLAGS += -D__ibex__ -U__riscv__ -UARCHI_CORE_HAS_PULPV2 -DRV_ISA_RV32
 PULP_ARCH_CFLAGS ?= -march=rv32imc
 PULP_ARCH_LDFLAGS ?= -march=rv32imc
 PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imc
 else ifdef USE_CV32E40P
-PULP_LDFLAGS +=
+PULP_LDFLAGS += -nostartfiles -nostdlib -Wl,--gc-sections -L$(PULPRT_HOME)/kernel -Tchips/pulpissimo/link.ld -lgcc
 PULP_CFLAGS += -D__cv32e40p__ -U__riscv__ -UARCHI_CORE_HAS_PULPV2
 ifdef CONFIG_USE_ZFINX
 PULP_ARCH_CFLAGS ?=  -march=rv32imc_zfinx_xcorev -mno-pulp-hwloop
@@ -16,13 +16,18 @@ PULP_ARCH_LDFLAGS ?=  -march=rv32imfc_xcorev -mno-pulp-hwloop
 endif
 PULP_ARCH_OBJDFLAGS ?=
 else ifdef USE_CV32E40X
-PULP_LDFLAGS      +=
+PULP_LDFLAGS += -nostartfiles -nostdlib -Wl,--gc-sections -L$(PULPRT_HOME)/kernel -Tchips/pulpissimo/link.ld
 PULP_CFLAGS       +=  -D__riscv__ -UARCHI_CORE_HAS_PULPV2 -DRV_ISA_RV32 -DPULP_LLVM
 PULP_ARCH_CFLAGS ?=  -march=rv32imcxfir --target=riscv32
 PULP_ARCH_LDFLAGS ?=  -march=rv32imcxfir --target=riscv32
 PULP_ARCH_OBJDFLAGS ?= -D
+# use LLVM for CV32E40X
+PULP_CC = clang
+PULP_AR = llvm-ar
+PULP_LD = clang
+PULP_OBJDUMP = llvm-objdump
 else
-PULP_LDFLAGS      +=
+PULP_LDFLAGS += -nostartfiles -nostdlib -Wl,--gc-sections -L$(PULPRT_HOME)/kernel -Tchips/pulpissimo/link.ld -lgcc
 PULP_CFLAGS       +=  -D__riscv__
 PULP_ARCH_CFLAGS ?=  -march=rv32imcxgap9
 PULP_ARCH_LDFLAGS ?=  -march=rv32imcxgap9
@@ -31,12 +36,11 @@ endif
 
 PULP_CFLAGS    += -fdata-sections -ffunction-sections -include chips/pulpissimo/config.h -I$(PULPRT_HOME)/include/chips/pulpissimo
 PULP_OMP_CFLAGS    += -fopenmp -mnativeomp
-PULP_LDFLAGS += -nostartfiles -nostdlib -Wl,--gc-sections -L$(PULPRT_HOME)/kernel -Tchips/pulpissimo/link.ld
 
-PULP_CC = clang
-PULP_AR ?= llvm-ar
-PULP_LD ?= clang
-PULP_OBJDUMP ?= llvm-objdump
+PULP_CC ?= riscv32-unknown-elf-gcc
+PULP_AR ?= riscv32-unknown-elf-ar
+PULP_LD ?= riscv32-unknown-elf-gcc
+PULP_OBJDUMP ?= riscv32-unknown-elf-objdump
 
 fc/archi=riscv
 pe/archi=riscv
@@ -70,6 +74,10 @@ PULP_CFLAGS += -I$(PULPRT_HOME)/drivers/gpio/include
 
 # Pad Multiplexing
 ifeq '$(platform)' 'rtl'
+PULP_SRCS += drivers/pulpissimo/rtl_sim/io_mux/src/io_mux.c
+PULP_CFLAGS += -I$(PULPRT_HOME)/drivers/pulpissimo/rtl_sim/io_mux/include
+endif
+ifeq '$(platform)' 'verilator'
 PULP_SRCS += drivers/pulpissimo/rtl_sim/io_mux/src/io_mux.c
 PULP_CFLAGS += -I$(PULPRT_HOME)/drivers/pulpissimo/rtl_sim/io_mux/include
 endif

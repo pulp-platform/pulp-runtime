@@ -66,6 +66,9 @@ endif
 ifeq '$(platform)' 'fpga'
 PULP_CFLAGS += -D__PLATFORM__=ARCHI_PLATFORM_FPGA
 endif
+ifeq '$(platform)' 'verilator'
+PULP_CFLAGS += -D__PLATFORM__=ARCHI_PLATFORM_RTL
+endif
 
 ifdef CONFIG_NB_PE
 PULP_CFLAGS += -DARCHI_CLUSTER_NB_PE=$(CONFIG_NB_PE)
@@ -145,6 +148,13 @@ LOAD_MODE := JTAG
 else
 LOAD_MODE := JTAG
 endif
+
+#
+# VERILATOR Flags
+#
+verilator_flags ?= --trace
+verilator_flags += +bootmode=jtag
+verilator_flags += +log_file=trace_core.log +itb_file=$(TARGETS).itb
 
 #
 # VSIM Flags
@@ -353,3 +363,28 @@ help:
 	@echo "Makefile options:"
 	@echo "  CONFIG_TRACE_LEVEL=<level>    Activate traces for the specified level (0=none, 1=fatal, 2=error, 3=warning, 4=info, 5=debug, 6=trace)."
 	@echo "  CONFIG_TRACE_ALL=1            Activate all traces. Other traces can be individually activated with CONFIG_TRACE_<NAME>."
+
+ifeq '$(platform)' 'verilator'
+
+$(TARGET_BUILD_DIR)/Vtb_pulp:
+ifndef VERILATOR_PATH
+	$(error "VERILATOR_PATH is undefined. Either call \
+	'source $$YOUR_HW_DIR/setup/verilator.sh' or set it manually.")
+endif
+	ln -sfn $(VERILATOR_PATH)/obj_dir/Vtb_pulp $@
+
+# ITB file needed by CV32E40X tracer
+$(TARGETS).itb:
+	$(PULP_OBJDUMP) -d -l -s $(disopt) $(TARGETS) > $(TARGETS).dis
+	$(PULPRT_HOME)/bin/objdump2itb.py $(TARGETS).dis > $(TARGETS).itb
+
+run: $(TARGET_BUILD_DIR)/Vtb_pulp $(TARGETS).itb
+	$(PULPRT_HOME)/bin/stim_utils.py --binary=$(TARGETS) --vectors=$(TARGET_BUILD_DIR)/vectors/stim.txt
+	$(PULPRT_HOME)/bin/plp_mkflash  --flash-boot-binary=$(TARGETS)  --stimuli=$(TARGET_BUILD_DIR)/vectors/qspi_stim.slm --flash-type=spi --qpi
+	$(PULPRT_HOME)/bin/slm_hyper.py  --input=$(TARGET_BUILD_DIR)/vectors/qspi_stim.slm  --output=$(TARGET_BUILD_DIR)/vectors/hyper_stim.slm
+ifndef VERILATOR_PATH
+	$(error "VERILATOR_PATH is undefined. Either call \
+	'source $$YOUR_HW_DIR/setup/verilator.sh' or set it manually.")
+endif
+	cd $(TARGET_BUILD_DIR) && ./Vtb_pulp $(verilator_flags) +stimuli=$(TARGET_BUILD_DIR)/vectors/stim.txt
+endif

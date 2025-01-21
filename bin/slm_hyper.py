@@ -21,7 +21,7 @@ if args.output_file is None:
     raise Exception('Specify the output file with --output=<path> (ex. --output=./build/pulpissimo/slm_files/hyper_flash_stim.slm')
 
 delimiter=" "
-with open(args.input_file, "rU") as fi:
+with open(args.input_file, "r") as fi:
     data = list(map(lambda x:x.split(delimiter), fi.read().strip().split("\n")))
 fo=open(args.output_file, "w")
 A=np.array(data)
