@@ -36,6 +36,10 @@ ifdef io
 ifeq '$(io)' 'uart'
 CONFIG_IO_UART=1
 endif
+ifeq '$(io)' 'host_uart'
+CONFIG_IO_UART=2
+PULP_APP_CFLAGS += -I$(PULPRT_HOME)/drivers/include
+endif
 endif
 
 VPATH = $(PULPRT_HOME)
