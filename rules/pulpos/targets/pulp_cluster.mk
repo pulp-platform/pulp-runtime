@@ -78,5 +78,9 @@ ifndef gui
 vsim-flags = -c
 endif
 
-run: $(TARGETS)
-	cd $(TARGET_BUILD_DIR); $(QUESTA) vsim $(vsim-flags) -do "set  VSIM_PATH $(VSIM_PATH); source $(VSIM_PATH)/scripts/start.tcl"
+run:
+ifdef gui
+	$(QUESTA) vsim $(vsim-flags) -do "set  VSIM_PATH $(VSIM_PATH); set  APP $(TARGET_BUILD_DIR)/$(PULP_APP)/$(PULP_APP); source $(VSIM_PATH)/scripts/start.tcl"
+else
+	$(QUESTA) vsim $(vsim-flags) -do "set  VSIM_PATH $(VSIM_PATH); set  APP $(TARGET_BUILD_DIR)/$(PULP_APP)/$(PULP_APP); source $(VSIM_PATH)/scripts/run_and_exit.tcl"
+endif
