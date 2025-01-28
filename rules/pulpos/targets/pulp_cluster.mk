@@ -66,15 +66,17 @@ endif
 
 include $(PULPRT_HOME)/rules/pulpos/default_rules.mk
 
+HOSTNAME := $(shell hostname)
+ETH_HOST = $(shell echo $(HOSTNAME) | grep -q "\.ee\.ethz\.ch$$" && echo 1 || echo 0)
+ifeq ($(ETH_HOST),1)
+QUESTA ?= questa-2023.4-zr
+else
+QUESTA ?= 
+endif
+
 ifndef gui
 vsim-flags = -c
 endif
 
-VSIM ?= vsim
-
-run:
-ifdef gui
-	$(VSIM) $(vsim-flags) -do "set  VSIM_PATH $(VSIM_PATH); set  APP $(TARGET_BUILD_DIR)/$(PULP_APP)/$(PULP_APP); source $(VSIM_PATH)/scripts/start.tcl"
-else
-	$(VSIM) $(vsim-flags) -do "set  VSIM_PATH $(VSIM_PATH); set  APP $(TARGET_BUILD_DIR)/$(PULP_APP)/$(PULP_APP); source $(VSIM_PATH)/scripts/run_and_exit.tcl"
-endif
+run: $(TARGETS)
+	cd $(TARGET_BUILD_DIR); $(QUESTA) vsim $(vsim-flags) -do "set  VSIM_PATH $(VSIM_PATH); source $(VSIM_PATH)/scripts/start.tcl"

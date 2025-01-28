@@ -1,6 +1,6 @@
 HOSTNAME := $(shell hostname)
 ETH_HOST = $(shell echo $(HOSTNAME) | grep -q "\.ee\.ethz\.ch$$" && echo 1 || echo 0)
-ifeq (ETH_HOST,1)
+ifeq ($(ETH_HOST),1)
 QUESTA ?= questa-2022.3
 else
 QUESTA ?= 
