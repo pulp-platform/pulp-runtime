@@ -13,4 +13,6 @@ PULP_ASM_SRCS += kernel/irq_asm.S
 
 ifneq '$(cluster/version)' ''
 PULP_SRCS += kernel/cluster.c
+else
+PULP_SRCS += kernel/nocluster.c
 endif
