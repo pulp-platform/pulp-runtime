@@ -1,12 +1,12 @@
 ifdef USE_IBEX
 PULP_LDFLAGS += -nostartfiles -nostdlib -Wl,--gc-sections -L$(PULPRT_HOME)/kernel -Tchips/pulpissimo/link.ld -lgcc
-PULP_CFLAGS += -D__ibex__ -U__riscv__ -UARCHI_CORE_HAS_PULPV2 -DRV_ISA_RV32
+PULP_CFLAGS += -D__ibex__ -D__riscv__ -UARCHI_CORE_HAS_PULPV2 -DRV_ISA_RV32
 PULP_ARCH_CFLAGS ?= -march=rv32imc
 PULP_ARCH_LDFLAGS ?= -march=rv32imc
 PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imc
 else ifdef USE_CV32E40P
 PULP_LDFLAGS += -nostartfiles -nostdlib -Wl,--gc-sections -L$(PULPRT_HOME)/kernel -Tchips/pulpissimo/link.ld -lgcc
-PULP_CFLAGS += -D__cv32e40p__ -U__riscv__ -UARCHI_CORE_HAS_PULPV2
+PULP_CFLAGS += -D__cv32e40p__ -D__riscv__ -UARCHI_CORE_HAS_PULPV2
 ifdef CONFIG_USE_ZFINX
 PULP_ARCH_CFLAGS ?=  -march=rv32imc_zfinx_xcorev -mno-pulp-hwloop
 PULP_ARCH_LDFLAGS ?=  -march=rv32imc_zfinx_xcorev -mno-pulp-hwloop
