@@ -34,7 +34,12 @@ PULP_ARCH_LDFLAGS ?=  -march=rv32imcxgap9
 PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imcxgap9
 endif
 
+# without -fno-tree-loop-distribute-patterns, gcc would insert memset & co where it shouldn't! only avoid this option in CV32E40X+LLVM
+ifdef USE_CV32E40X
 PULP_CFLAGS    += -fdata-sections -ffunction-sections -include chips/pulpissimo/config.h -I$(PULPRT_HOME)/include/chips/pulpissimo
+else
+PULP_CFLAGS    += -fno-tree-loop-distribute-patterns  -fdata-sections -ffunction-sections -include chips/pulpissimo/config.h -I$(PULPRT_HOME)/include/chips/pulpissimo
+endif
 PULP_OMP_CFLAGS    += -fopenmp -mnativeomp
 
 PULP_CC ?= riscv32-unknown-elf-gcc
