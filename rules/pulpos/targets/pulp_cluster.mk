@@ -55,8 +55,10 @@ PULP_SRCS     += kernel/freq-domains.c
 PULP_SRCS     += kernel/chips/pulp_cluster/soc.c
 
 # HMR
+ifdef ARCHI_HMR
 PULP_CFLAGS += -DARCHI_HMR
 PULP_SRCS += kernel/hmr_synch.c
+endif
 
 include $(PULPRT_HOME)/rules/pulpos/configs/default.mk
 
