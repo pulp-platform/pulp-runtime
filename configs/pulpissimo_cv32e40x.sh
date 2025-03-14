@@ -5,6 +5,7 @@ export PULPRUN_TARGET=pulpissimo
 export USE_CV32E40X=1
 export CONFIG_PLUSARG_SIM=1
 export bootmode=fast_debug
+export CC=riscv32-unknown-elf-
 
 if [  -n "${ZSH_VERSION:-}" ]; then
         DIR="$(readlink -f -- "${(%):-%x}")"

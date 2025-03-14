@@ -18,8 +18,8 @@ PULP_ARCH_OBJDFLAGS ?=
 else ifdef USE_CV32E40X
 PULP_LDFLAGS      +=
 PULP_CFLAGS       +=  -D__riscv__ -UARCHI_CORE_HAS_PULPV2 -DRV_ISA_RV32 -DPULP_LLVM
-PULP_ARCH_CFLAGS ?=  -march=rv32imc --target=riscv32
-PULP_ARCH_LDFLAGS ?=  -march=rv32imc --target=riscv32
+PULP_ARCH_CFLAGS ?=  -march=rv32imc $(PULP_TARGET)
+PULP_ARCH_LDFLAGS ?=  -march=rv32imc $(PULP_TARGET)
 PULP_ARCH_OBJDFLAGS ?= -D
 else
 PULP_LDFLAGS      +=
@@ -33,10 +33,20 @@ PULP_CFLAGS    += -fdata-sections -ffunction-sections -include chips/pulpissimo/
 PULP_OMP_CFLAGS    += -fopenmp -mnativeomp
 PULP_LDFLAGS += -nostartfiles -nostdlib -Wl,--gc-sections -L$(PULPRT_HOME)/kernel -Tchips/pulpissimo/link.ld
 
-PULP_CC = clang
-PULP_AR ?= llvm-ar
-PULP_LD ?= clang
-PULP_OBJDUMP ?= llvm-objdump
+# CC is exported in the configs bash script
+ifeq ($(CC),clang)
+GCC :=
+LLVM := llvm-
+PULP_TARGET := --target=riscv32
+else
+GCC := gcc
+LLVM := $(CC)
+endif
+
+PULP_CC = $(CC)$(GCC)
+PULP_AR ?= $(LLVM)ar
+PULP_LD ?= $(CC)$(GCC)
+PULP_OBJDUMP ?= $(LLVM)objdump
 
 fc/archi=riscv
 pe/archi=riscv
