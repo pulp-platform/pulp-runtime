@@ -382,7 +382,7 @@ endif
 # ITB file needed by CV32E40X tracer
 $(TARGETS).itb:
 	$(PULP_OBJDUMP) -d -l -s $(disopt) $(TARGETS) > $(TARGETS).dis
-	$(PULPRT_HOME)/bin/objdump2itb.py $(TARGETS).dis > $(TARGETS).itb
+	python3 $(PULPRT_HOME)/bin/objdump2itb.py $(TARGETS).dis > $(TARGETS).itb
 
 run: $(TARGET_BUILD_DIR)/Vtb_pulp $(TARGETS).itb
 	$(PULPRT_HOME)/bin/stim_utils.py --binary=$(TARGETS) --vectors=$(TARGET_BUILD_DIR)/vectors/stim.txt
