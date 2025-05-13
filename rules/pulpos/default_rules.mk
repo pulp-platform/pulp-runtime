@@ -335,7 +335,7 @@ $(TARGET_BUILD_DIR)/fs:
 # ITB file needed by CV32E40X tracer
 $(TARGETS).itb:
 	$(PULP_OBJDUMP) -d -l -s $(disopt) $(TARGETS) > $(TARGETS).dis
-	$(PULPRT_HOME)/bin/objdump2itb.py $(TARGETS).dis > $(TARGETS).itb
+	python3 $(PULPRT_HOME)/bin/objdump2itb.py $(TARGETS).dis > $(TARGETS).itb
 
 run: $(TARGET_BUILD_DIR)/modelsim.ini $(TARGET_BUILD_DIR)/work  $(TARGET_BUILD_DIR)/boot $(TARGET_BUILD_DIR)/tcl_files $(TARGET_BUILD_DIR)/stdout $(TARGET_BUILD_DIR)/fs $(TARGET_BUILD_DIR)/waves $(TARGETS).itb
 	$(PULPRT_HOME)/bin/stim_utils.py --binary=$(TARGETS) --vectors=$(TARGET_BUILD_DIR)/vectors/stim.txt
