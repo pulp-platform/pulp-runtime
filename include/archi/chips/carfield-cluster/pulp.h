@@ -47,5 +47,6 @@
 #include "archi/udma/udma_v3.h"
 #include "archi/hmr/hmr_v1.h"
 #include "archi/tcdm_scrubber/tcdm_scrubber.h"
+#include "archi/hwpe_hci_ecc/hwpe_hci_ecc.h"
 
 #endif
