@@ -172,13 +172,12 @@ static inline void perf_stop(void) {
 }
 
 /**
- * @brief Resets all performance counters to 0 without stopping them
+ * @brief Resets all performance counters to 0 and stop them
  */
 static inline void perf_reset(void) {
 #ifdef CSR_PCER_ALL_EVENTS_MASK
   perf_stop();
   cpu_perf_setall(0);
-  perf_start();
 #elif defined(__cv32e40p__)
   cpu_perf_setall(0xffffffff);
 #endif
