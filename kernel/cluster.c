@@ -93,7 +93,7 @@ void cluster_start(int cid, int (*entry)())
     alloc_init_l1(cid);
 
     // Activate icache
-    hal_icache_cluster_enable(cid);
+    // hal_icache_cluster_enable(cid);
 
     #ifndef ARCHI_NO_FC
     if (!hal_is_fc())
@@ -102,7 +102,7 @@ void cluster_start(int cid, int (*entry)())
     }
     #endif
 
-    alloc_init_l1(cid);
+    // alloc_init_l1(cid);
 
     cluster_stacks = pi_l1_malloc(cid, ARCHI_CLUSTER_NB_PE*CLUSTER_STACK_SIZE);
     if (cluster_stacks == NULL)

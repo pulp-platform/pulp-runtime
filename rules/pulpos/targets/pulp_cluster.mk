@@ -5,11 +5,11 @@ PULP_ARCH_CFLAGS ?=  -march=rv32imc
 PULP_ARCH_LDFLAGS ?=  -march=rv32imc
 PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imc
 else ifdef USE_CV32E40P
-PULP_LDFLAGS += 
-PULP_CFLAGS += -D__cv32e40p__ -U__riscv__ -UARCHI_CORE_HAS_PULPV2 
-PULP_ARCH_CFLAGS ?=  -march=rv32imcxgap9 -mnohwloop
-PULP_ARCH_LDFLAGS ?=  -march=rv32imcxgap9 -mnohwloop
-PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imcxgap9 -mnohwloop
+PULP_LDFLAGS +=
+PULP_CFLAGS += -D__cv32e40p__ -U__riscv__
+PULP_ARCH_CFLAGS ?=  -march=rv32imfc_xcvalu_xcvbi_xcvbitmanip_xcvhwlp_xcvmac_xcvmem_xcvsimd_xcvelw  -mabi=ilp32f
+PULP_ARCH_LDFLAGS ?=  -march=rv32imfc_xcvalu_xcvbi_xcvbitmanip_xcvhwlp_xcvmac_xcvmem_xcvsimd_xcvelw  -mabi=ilp32f
+PULP_ARCH_OBJDFLAGS ?=
 else
 PULP_LDFLAGS      += 
 PULP_CFLAGS       +=  -D__riscv__
@@ -22,10 +22,10 @@ PULP_CFLAGS    += -fdata-sections -ffunction-sections -include chips/pulp_cluste
 PULP_OMP_CFLAGS    += -fopenmp -mnativeomp
 PULP_LDFLAGS += -nostartfiles -nostdlib -Wl,--gc-sections -L$(PULPRT_HOME)/kernel -Tchips/pulp_cluster/link.ld -lgcc
 
-PULP_CC = riscv32-unknown-elf-gcc 
-PULP_AR ?= riscv32-unknown-elf-ar
-PULP_LD ?= riscv32-unknown-elf-gcc
-PULP_OBJDUMP ?= riscv32-unknown-elf-objdump
+PULP_CC = riscv64-unknown-elf-gcc
+PULP_AR ?= riscv64-unknown-elf-ar
+PULP_LD ?= riscv64-unknown-elf-gcc
+PULP_OBJDUMP ?= riscv64-unknown-elf-objdump
 
 fc/archi=riscv
 pe/archi=riscv
