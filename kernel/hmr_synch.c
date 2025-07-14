@@ -364,7 +364,11 @@ void __attribute__((naked)) pos_hmr_synch() {
     "sll t1, ra, " QU(EU_BARRIER_SIZE_LOG2) " \n\t"
     "li t2, " QU(ARCHI_EU_DEMUX_ADDR + EU_BARRIER_DEMUX_OFFSET) " \n\t" // t1 is tmr base address
     "add t1, t1, t2 \n\t"
+#ifdef __cv32e40p__
+    "cv.elw zero, " QU(EU_HW_BARR_TRIGGER_WAIT_CLEAR) "(t1) \n\t" // barrier
+#else
     "p.elw zero, " QU(EU_HW_BARR_TRIGGER_WAIT_CLEAR) "(t1) \n\t" // barrier
+#endif
     /* Removing the following nops to allow the cores to continue executing */
     // "nop\n\t"
     // "nop\n\t"
@@ -395,7 +399,11 @@ void __attribute__((naked)) pos_hmr_synch() {
     "sll t1, ra, " QU(EU_BARRIER_SIZE_LOG2) " \n\t"
     "li t2, " QU(ARCHI_EU_DEMUX_ADDR + EU_BARRIER_DEMUX_OFFSET) " \n\t"
     "add t1, t1, t2 \n\t" // t1 is tmr base address
+#ifdef __cv32e40p__
+    "cv.elw zero, " QU(EU_HW_BARR_TRIGGER_WAIT_CLEAR) "(t1) \n\t" // barrier
+#else
     "p.elw zero, " QU(EU_HW_BARR_TRIGGER_WAIT_CLEAR) "(t1) \n\t" // barrier
+#endif
   : : : "memory");
 
   // several nops to delay and allow for core reset
