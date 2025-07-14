@@ -176,10 +176,10 @@ static inline void perf_stop(void) {
  */
 static inline void perf_reset(void) {
 #ifdef CSR_PCER_ALL_EVENTS_MASK
+#if defined(__riscv__) || defined(__cv32e40p__)
   perf_stop();
   cpu_perf_setall(0);
-#elif defined(__cv32e40p__)
-  cpu_perf_setall(0xffffffff);
+#endif
 #endif
   // TODO this is failing on most targets, please include that also for specific ones
 #if 0

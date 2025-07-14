@@ -24,6 +24,7 @@
 #include "archi/gpio/gpio_v3.h"
 #ifdef __ibex__
 #include "archi/ibex/mhpm.h"
+#include "archi/riscv/priv_1_10.h"
 #elif defined(__cv32e40p__)
 #include "archi/cv32e40p/cv32e40p.h"
 #include "archi/riscv/priv_1_11.h"
@@ -32,7 +33,6 @@
 #include "archi/riscv/priv_1_10.h"
 #endif // __ibex__
 #include "archi/itc/itc_v1.h"
-#include "archi/riscv/priv_1_10.h"
 
 #include "archi/chips/pulp_cluster/memory_map.h"
 #include "archi/chips/pulp_cluster/apb_soc.h"

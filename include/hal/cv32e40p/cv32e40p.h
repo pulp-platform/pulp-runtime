@@ -332,7 +332,7 @@ static inline void cpu_perf_start() {
  * the rest of the config can be given through conf parameter */
 static inline void cpu_perf_stop() {
 #ifndef PLP_NO_PERF_COUNTERS
- asm volatile("csrw 0x320, %0" : : "r"(0xffffffff));
+ asm volatile("csrw 0x320, %0" : : "r"(0xfffffffd));
 #endif
 }
 
@@ -344,7 +344,21 @@ static inline void cpu_perf_set(unsigned int counterId, unsigned int value) {
 /* Set all counters to the specified value */
 static inline void cpu_perf_setall(unsigned int value) {
 #ifndef PLP_NO_PERF_COUNTERS
-  asm volatile("csrw 0x320, %0" : : "r"(value));
+  asm volatile ("csrw 0xB00, %0" : : "r"(value));
+  asm volatile ("csrw 0xB02, %0" : : "r"(value));
+  asm volatile ("csrw 0xB03, %0" : : "r"(value));
+  asm volatile ("csrw 0xB04, %0" : : "r"(value));
+  asm volatile ("csrw 0xB05, %0" : : "r"(value));
+  asm volatile ("csrw 0xB06, %0" : : "r"(value));
+  asm volatile ("csrw 0xB07, %0" : : "r"(value));
+  asm volatile ("csrw 0xB08, %0" : : "r"(value));
+  asm volatile ("csrw 0xB09, %0" : : "r"(value));
+  asm volatile ("csrw 0xB0A, %0" : : "r"(value));
+  asm volatile ("csrw 0xB0B, %0" : : "r"(value));
+  asm volatile ("csrw 0xB0C, %0" : : "r"(value));
+  asm volatile ("csrw 0xB0D, %0" : : "r"(value));
+  asm volatile ("csrw 0xB0E, %0" : : "r"(value));
+  asm volatile ("csrw 0xB0F, %0" : : "r"(value));
 #endif
 }
 
