@@ -261,6 +261,8 @@ $(foreach app, $(PULP_APPS), $(eval $(call declare_app,$(app))))
 
 conf:
 
+build: all
+
 all: $(TARGETS)
 
 .PHONY:clean
