@@ -271,7 +271,7 @@ clean:
 .PHONY: run
 ifeq '$(platform)' 'gvsoc'
 run:
-	pulp-run --platform=$(platform) --config=$(PULPRUN_TARGET) --dir=$(TARGET_BUILD_DIR) --binary=$(TARGETS) $(runner_args) prepare run
+	gvsoc --target $(PULPRUN_TARGET) --work-dir=$(TARGET_BUILD_DIR) --binary=$(TARGETS) $(runner_args) run
 endif
 
 ifeq '$(platform)' 'rtl'
