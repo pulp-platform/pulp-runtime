@@ -63,3 +63,19 @@ The uart can be selected for the printf with this option:
 The baudrate can also be specified with:
 
     $ make all run io=uart CONFIG_IO_UART_BAUDRATE=9600
+
+### GVSOC
+
+Before using GVSOC, it must be cloned from git@github.com:gvsoc/gvsoc.git and properly built and
+setup for the desired target.
+
+For example, for pulp-open target, these commands are required:
+
+    $ git clone git@github.com:gvsoc/gvsoc.git
+    $ cd gvsoc
+    $ source sourceme.sh
+    $ make TARGETS=pulp-open all
+
+Execution can then be launched on GVSOC from an example with this command:
+
+    $ make all run platform=gvsoc
