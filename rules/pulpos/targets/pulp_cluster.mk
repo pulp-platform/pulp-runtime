@@ -10,12 +10,18 @@ PULP_CFLAGS += -D__cv32e40p__ -U__riscv__ -UARCHI_CORE_HAS_PULPV2
 PULP_ARCH_CFLAGS ?=  -march=rv32imcxgap9 -mnohwloop
 PULP_ARCH_LDFLAGS ?=  -march=rv32imcxgap9 -mnohwloop
 PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imcxgap9 -mnohwloop
-else
+else ifdef USE_TNN_CORE
 PULP_LDFLAGS      += 
 PULP_CFLAGS       +=  -D__riscv__
 PULP_ARCH_CFLAGS ?=  -march=rv32imcxpulpnn
 PULP_ARCH_LDFLAGS ?=  -march=rv32imcxpulpnn
 PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imcxpulpnn
+else
+PULP_LDFLAGS      += 
+PULP_CFLAGS       +=  -D__riscv__
+PULP_ARCH_CFLAGS ?=  -march=rv32imcxgap9
+PULP_ARCH_LDFLAGS ?=  -march=rv32imcxgap9
+PULP_ARCH_OBJDFLAGS ?= -Mmarch=rv32imcxgap9
 endif
 
 ifndef LEGACY_DMA
