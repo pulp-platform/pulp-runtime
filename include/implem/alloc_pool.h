@@ -21,4 +21,13 @@ void pos_allocs_init();
 
 void alloc_init_l1(int cid);
 
+/*
+ * pos_alloc_user_data and pos_free_user_data will allocate memory in the best
+ * location based on the available hardware. The preferred memories are (in
+ * order): FC_TCDM > L2_private_bank_0 > L2_private_bank_1 > L2_share_banks
+ */
+void *pos_alloc_user_data(int size);
+
+void pos_free_user_data(void *_chunk, int size);
+
 #endif
