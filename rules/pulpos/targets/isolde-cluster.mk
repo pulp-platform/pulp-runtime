@@ -1,10 +1,3 @@
-HOSTNAME := $(shell hostname)
-ETH_HOST = $(shell echo $(HOSTNAME) | grep -q "\.ee\.ethz\.ch$$" && echo 1 || echo 0)
-ifeq ($(ETH_HOST),1)
-QUESTA ?= questa-2022.3
-else
-QUESTA ?= 
-endif
 ifdef USE_IBEX
 PULP_LDFLAGS      +=
 PULP_CFLAGS       +=  -D__ibex__ -U__riscv__ -UARCHI_CORE_HAS_PULPV2 -DRV_ISA_RV32
@@ -29,12 +22,10 @@ PULP_CFLAGS    += -fdata-sections -ffunction-sections -include chips/astral-clus
 PULP_OMP_CFLAGS    += -fopenmp -mnativeomp
 PULP_LDFLAGS += -nostartfiles -nostdlib -Wl,--gc-sections -L$(PULPRT_HOME)/kernel -Tchips/astral-cluster/link.ld -lgcc
 
-PULPD_RISCV ?= riscv32-unknown-elf
-
-PULP_CC ?= $(PULPD_RISCV)-gcc
-PULP_AR ?= $(PULPD_RISCV)-ar
-PULP_LD ?= $(PULPD_RISCV)-gcc
-PULP_OBJDUMP ?= $(PULPD_RISCV)-objdump
+PULP_CC = riscv32-unknown-elf-gcc 
+PULP_AR ?= riscv32-unknown-elf-ar
+PULP_LD ?= riscv32-unknown-elf-gcc
+PULP_OBJDUMP ?= riscv32-unknown-elf-objdump
 
 fc/archi=riscv
 pe/archi=riscv
@@ -82,9 +73,21 @@ endif
 
 include $(PULPRT_HOME)/rules/pulpos/default_rules.mk
 
+HOSTNAME := $(shell hostname)
+ETH_HOST = $(shell echo $(HOSTNAME) | grep -q "\.ee\.ethz\.ch$$" && echo 1 || echo 0)
+ifeq ($(ETH_HOST),1)
+QUESTA ?= questa-2023.4-zr
+else
+QUESTA ?= 
+endif
+
 ifndef gui
 vsim-flags = -c
 endif
 
-run: $(TARGETS)
-	cd $(TARGET_BUILD_DIR); $(QUESTA) vsim $(vsim-flags) -do "set  VSIM_PATH $(VSIM_PATH); source $(VSIM_PATH)/scripts/start.tcl"
+run:
+ifdef gui
+	$(QUESTA) vsim $(vsim-flags) -do "set  VSIM_PATH $(VSIM_PATH); set  APP $(TARGET_BUILD_DIR)/$(PULP_APP)/$(PULP_APP); source $(VSIM_PATH)/scripts/start.tcl"
+else
+	$(QUESTA) vsim $(vsim-flags) -do "set  VSIM_PATH $(VSIM_PATH); set  APP $(TARGET_BUILD_DIR)/$(PULP_APP)/$(PULP_APP); source $(VSIM_PATH)/scripts/run_and_exit.tcl"
+endif
