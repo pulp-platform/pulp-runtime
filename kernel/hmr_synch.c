@@ -21,7 +21,24 @@
 
 #define HMR_STATE_ALLOC_SIZE 0xA0
 
-void __attribute__((naked)) pos_hmr_store_part_to_stack() {
+/* Attribute guards */
+#ifndef __has_attribute
+#  define __has_attribute(x) 0
+#endif
+
+#if (defined(__GNUC__) || defined(__clang__)) && __has_attribute(naked)
+#  define ATTR_NAKED __attribute__((naked))
+#else
+#  define ATTR_NAKED
+#endif
+
+#if (defined(__GNUC__) || defined(__clang__)) && __has_attribute(interrupt)
+#  define ATTR_ISR __attribute__((interrupt))
+#else
+#  define ATTR_ISR
+#endif
+
+void ATTR_NAKED pos_hmr_store_part_to_stack() {
     __asm__ __volatile__ (
     // Allocate space on the stack
     "add  sp, sp, -" QU(HMR_STATE_ALLOC_SIZE) " \n\t"
@@ -36,7 +53,7 @@ void __attribute__((naked)) pos_hmr_store_part_to_stack() {
     : : : "memory");
 }
 
-void __attribute((naked)) pos_hmr_store_rest_to_stack() {
+void ATTR_NAKED pos_hmr_store_rest_to_stack() {
   __asm__ __volatile__ (
     "sw   gp,  0x04(sp) \n\t"                //  x3
     "sw   tp,  0x08(sp) \n\t"                //  x4
@@ -105,16 +122,14 @@ void __attribute((interrupt)) pos_hmr_load_part_from_stack() {
     : : : "memory");
 }
 
-
-void __attribute__((naked)) pos_hmr_store_state_to_stack() {
+void ATTR_NAKED pos_hmr_store_state_to_stack() {
 
   pos_hmr_store_part_to_stack();
   pos_hmr_store_rest_to_stack();
 }
 
-
 // loads state from stack, except for ra which is stored at `0x00(sp)` before and `-HMR_STATE_ALLOC_SIZE(sp)` afterwards
-void __attribute__((naked)) pos_hmr_load_state_from_stack() {
+void ATTR_NAKED pos_hmr_load_state_from_stack() {
   __asm__ __volatile__ (
     // Manually load necessary CSRs
     "lw   t1,  0x78(sp) \n\t"                // mepc
@@ -180,7 +195,7 @@ void __attribute__((naked)) pos_hmr_load_state_from_stack() {
     : : : "memory");
 }
 
-void __attribute__((interrupt)) pos_hmr_sw_reload() {
+void ATTR_ISR pos_hmr_sw_reload() {
   // get sp from tmr reg
   __asm__ __volatile__(
     "csrr t0, 0xf14 \n\t" // Read core id
@@ -204,7 +219,7 @@ void __attribute__((interrupt)) pos_hmr_sw_reload() {
   // __asm__ __volatile__("mret" : : : "memory");
 }
 
-void __attribute__((naked)) pos_hmr_tmr_irq() {
+void ATTR_NAKED pos_hmr_tmr_irq() {
   pos_hmr_store_state_to_stack();
   
   // store sp to hmr core reg
@@ -230,7 +245,7 @@ void __attribute__((naked)) pos_hmr_tmr_irq() {
 
 #define LOCAL_NUM_TMR_CORES 12
 
-void __attribute__((naked)) pos_hmr_synch() {
+void ATTR_NAKED pos_hmr_synch() {
   pos_hmr_store_part_to_stack(); // ra, t0, t1, t2
 
   // if (master_core(core_id()) { (using only empty regs)
@@ -410,7 +425,7 @@ void __attribute__((naked)) pos_hmr_synch() {
   pos_hmr_sw_reload();
 }
 
-void __attribute__((naked)) pos_hmr_tmr_synch_entry() {
+void ATTR_NAKED pos_hmr_tmr_synch_entry() {
   pos_hmr_store_part_to_stack();
   pos_hmr_store_rest_to_stack();
 
@@ -425,7 +440,7 @@ void __attribute__((naked)) pos_hmr_tmr_synch_entry() {
   : : : "memory");
 }
 
-void __attribute__((naked)) pos_hmr_tmr_synch_exit() {
+void ATTR_NAKED pos_hmr_tmr_synch_exit() {
   // enter barrier -> this should lock the cores together
   eu_bar_trig_wait_clr(eu_bar_addr(TMR_BARRIER_ID(TMR_GROUP_ID(core_id()))));
 
@@ -441,12 +456,12 @@ void __attribute__((naked)) pos_hmr_tmr_synch_exit() {
   pos_hmr_sw_reload();
 }
 
-void __attribute__((naked)) pos_hmr_tmr_synch() {
+void ATTR_NAKED pos_hmr_tmr_synch() {
   pos_hmr_tmr_synch_entry();
   pos_hmr_tmr_synch_exit();
 }
 
-void __attribute__((naked)) pos_hmr_dmr_synch_entry() {
+void ATTR_NAKED pos_hmr_dmr_synch_entry() {
   pos_hmr_store_part_to_stack();
   pos_hmr_store_rest_to_stack();
 
@@ -461,7 +476,7 @@ void __attribute__((naked)) pos_hmr_dmr_synch_entry() {
   : : : "memory");
 }
 
-void __attribute__((naked)) pos_hmr_dmr_synch_exit() {
+void ATTR_NAKED pos_hmr_dmr_synch_exit() {
   // enter barrier -> this should lock the cores together
   eu_bar_trig_wait_clr(eu_bar_addr(DMR_BARRIER_ID(DMR_GROUP_ID(core_id()))));
 
@@ -477,7 +492,7 @@ void __attribute__((naked)) pos_hmr_dmr_synch_exit() {
   pos_hmr_sw_reload();
 }
 
-void __attribute__((naked)) pos_hmr_dmr_synch() {
+void ATTR_NAKED pos_hmr_dmr_synch() {
   pos_hmr_dmr_synch_entry();
   pos_hmr_dmr_synch_exit();
 }

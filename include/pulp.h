@@ -36,26 +36,26 @@ typedef enum {
 } pi_freq_domain_e;
 
 #ifdef ARCHI_HMR
-  void __attribute__((naked)) pos_hmr_store_part_to_stack();
-  void __attribute((naked)) pos_hmr_store_rest_to_stack();
-  void __attribute((interrupt)) pos_hmr_load_part_from_stack();
-  void __attribute__((naked)) pos_hmr_store_state_to_stack();
-  void __attribute__((naked)) pos_hmr_load_state_from_stack();
-  void __attribute__((interrupt)) pos_hmr_sw_reload();
-  void __attribute__((naked)) pos_hmr_tmr_irq();
-  void __attribute__((naked)) pos_hmr_synch();
-  void __attribute__((naked)) pos_hmr_tmr_synch_entry();
-  void __attribute__((naked)) pos_hmr_tmr_synch_exit();
-  void __attribute__((naked)) pos_hmr_tmr_synch();
-  void __attribute__((naked)) pos_hmr_dmr_synch_entry();
-  void __attribute__((naked)) pos_hmr_dmr_synch_exit();
-  void __attribute__((naked)) pos_hmr_dmr_synch();
-  int hmr_tmr_critical_section(int (*function_handle)());
-  int hmr_dmr_critical_section(int (*function_handle)());
-  void hmr_tmr_performance_section(void (*function_handle)());
-  void hmr_tmr_perf_setup_sp();
-  void hmr_dmr_performance_section(void (*function_handle)());
-  void hmr_dmr_perf_setup_sp();
+  void pos_hmr_store_part_to_stack(void);
+  void pos_hmr_store_rest_to_stack(void);
+  void pos_hmr_load_part_from_stack(void);
+  void pos_hmr_store_state_to_stack(void);
+  void pos_hmr_load_state_from_stack(void);
+  void pos_hmr_sw_reload(void);
+  void pos_hmr_tmr_irq(void);
+  void pos_hmr_synch(void);
+  void pos_hmr_tmr_synch_entry(void);
+  void pos_hmr_tmr_synch_exit(void);
+  void pos_hmr_tmr_synch(void);
+  void pos_hmr_dmr_synch_entry(void);
+  void pos_hmr_dmr_synch_exit(void);
+  void pos_hmr_dmr_synch(void);
+  int  hmr_tmr_critical_section(int (*function_handle)(void));
+  int  hmr_dmr_critical_section(int (*function_handle)(void));
+  void hmr_tmr_performance_section(void (*function_handle)(void));
+  void hmr_tmr_perf_setup_sp(void);
+  void hmr_dmr_performance_section(void (*function_handle)(void));
+  void hmr_dmr_perf_setup_sp(void);
 #endif
 
 #ifdef ARCHI_HAS_CLUSTER
