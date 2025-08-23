@@ -26,6 +26,14 @@ pos_init_entry:
 #if defined(ARCHI_HAS_CLUSTER)
     csrr    a0, 0xF14
     andi    a1, a0, 0x1f
+#ifdef ARCHI_NO_FC
+    # PEs from 1 to 7 will go to sync_loop and wait. PE0 will reach them
+    # later after the pos_init_start. Then, they'll set up their stack into
+    # the L1 and jump to cluster_entry_stub
+    li t0, 0x10000000
+    sw x0, 0(t0)
+    bnez    a0,  sync_loop
+#else   
     srli    a0, a0, 5
 #ifdef ARCHI_CL_BOOT
 
@@ -45,7 +53,7 @@ pos_init_entry:
 
 #endif
 
-
+#endif
 
     # Clear the bss segment
     la      t0, _bss_start
@@ -65,7 +73,14 @@ pos_init_entry:
     /* Do all other initializations from C code */
     jal  x1, pos_init_start
 
-
+#ifdef ARCHI_NO_FC
+    csrr    a0, 0xF14
+    andi    a1, a0, 0x1f
+    li t0, 0x10000000
+    li t1, 0x1
+    sw t1, 0(t0)
+    j pe_start
+#endif
 
 .section .text
 
@@ -134,6 +149,39 @@ pos_init_entry:
     .org 0x80
     .global _start
 _start:
+    /* Make sure to properly initialize latch based RF */
+    lui x1, 0
+    lui x2, 0
+    lui x3, 0
+    lui x4, 0
+    lui x5, 0
+    lui x6, 0
+    lui x7, 0
+    lui x8, 0
+    lui x9, 0
+    lui x10, 0
+    lui x11, 0
+    lui x12, 0
+    lui x13, 0
+    lui x14, 0
+    lui x15, 0
+    lui x16, 0
+    lui x17, 0
+    lui x18, 0
+    lui x19, 0
+    lui x20, 0
+    lui x21, 0
+    lui x22, 0
+    lui x23, 0
+    lui x24, 0
+    lui x25, 0
+    lui x26, 0
+    lui x27, 0
+    lui x28, 0
+    lui x29, 0
+    lui x30, 0
+    lui x31, 0
+    /* Move on to normal boot */
     jal x0, pos_init_entry
 
 
@@ -174,3 +222,8 @@ loop:
     sw x0, 0(x2)
     wfi
     j loop
+
+sync_loop:
+    lw t1, 0(t0)
+    bnez    t1,  pe_start
+    j sync_loop
