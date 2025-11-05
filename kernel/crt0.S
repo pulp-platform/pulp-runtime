@@ -26,6 +26,23 @@ pos_init_entry:
 #if defined(ARCHI_HAS_CLUSTER)
     csrr    a0, 0xF14
     andi    a1, a0, 0x1f
+#ifdef ARCHI_NO_FC
+    # PEs from 1 to 7 will go to sync_loop and wait. PE0 will reach them
+    # later after the pos_init_start. Then, they'll set up their stack into
+  # the L1 and jump to cluster_entry_stub
+#if PULP_CHIP == CHIP_CARFIELD
+    li t0, 0x5003FFF0
+#elif PULP_CHIP == CHIP_ASTRAL
+    li t0, 0x5003FFF0
+#else
+    li t0, 0x1003FFF0
+#endif
+    sw x0, 0(t0)
+    # We check if the offset of the core is zero, so that even if the cluster
+    # ID is not zero, the execution does not break here
+    andi    a2, a0, 0x0f
+    bnez    a2, sync_loop
+#else   
     srli    a0, a0, 5
 #ifdef ARCHI_CL_BOOT
 
@@ -45,7 +62,7 @@ pos_init_entry:
 
 #endif
 
-
+#endif
 
     # Clear the bss segment
     la      t0, _bss_start
@@ -65,7 +82,20 @@ pos_init_entry:
     /* Do all other initializations from C code */
     jal  x1, pos_init_start
 
-
+#ifdef ARCHI_NO_FC
+    csrr    a0, 0xF14
+    andi    a1, a0, 0x1f
+#if PULP_CHIP == CHIP_CARFIELD
+    li t0, 0x5003FFF0
+#elif PULP_CHIP == CHIP_ASTRAL
+    li t0, 0x5003FFF0
+#else
+    li t0, 0x1003FFF0
+#endif
+    li t1, 0x1
+    sw t1, 0(t0)
+    j pe_start
+#endif
 
 .section .text
 
@@ -134,6 +164,39 @@ pos_init_entry:
     .org 0x80
     .global _start
 _start:
+    /* Make sure to properly initialize latch based RF */
+    lui x1, 0
+    lui x2, 0
+    lui x3, 0
+    lui x4, 0
+    lui x5, 0
+    lui x6, 0
+    lui x7, 0
+    lui x8, 0
+    lui x9, 0
+    lui x10, 0
+    lui x11, 0
+    lui x12, 0
+    lui x13, 0
+    lui x14, 0
+    lui x15, 0
+    lui x16, 0
+    lui x17, 0
+    lui x18, 0
+    lui x19, 0
+    lui x20, 0
+    lui x21, 0
+    lui x22, 0
+    lui x23, 0
+    lui x24, 0
+    lui x25, 0
+    lui x26, 0
+    lui x27, 0
+    lui x28, 0
+    lui x29, 0
+    lui x30, 0
+    lui x31, 0
+    /* Move on to normal boot */
     jal x0, pos_init_entry
 
 
@@ -153,6 +216,15 @@ pos_semihosting_call:
 
 #if defined(ARCHI_HAS_CLUSTER)
 pe_start:
+#if defined(ARCHI_HMR)
+    csrr t0, 0xf14
+    li   t1, ARCHI_HMR_ADDR + HMR_CORE_OFFSET
+    andi t0, t0, 0x01f
+    sll  t0, t0, HMR_CORE_SLL
+    add  t0, t0, t1
+    lw   t1, HMR_CORE_REGS_SP_STORE_REG_OFFSET(t0)
+    bnez t1, pos_hmr_sw_reload
+#endif
     la   x2, cluster_stacks
     lw   x2, 0(x2)
     li   x3, CLUSTER_STACK_SIZE
@@ -174,3 +246,8 @@ loop:
     sw x0, 0(x2)
     wfi
     j loop
+
+sync_loop:
+    lw t1, 0(t0)
+    bnez    t1,  pe_start
+    j sync_loop

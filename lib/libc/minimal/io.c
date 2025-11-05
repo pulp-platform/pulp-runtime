@@ -357,8 +357,9 @@ static void __attribute__((noreturn)) pos_wait_forever()
 
 void exit(int status)
 {
+#ifndef ARCHI_NO_FC
     apb_soc_status_set(status);
-
+#endif
     pos_wait_forever();
 }
 

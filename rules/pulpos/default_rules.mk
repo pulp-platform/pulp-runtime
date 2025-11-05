@@ -11,18 +11,25 @@ endif
 platform ?= rtl
 VSIM ?= vsim
 
+ifdef PULP_RISCV_GCC_TOOLCHAIN
+ifndef PULP_RUNTIME_GCC_TOOLCHAIN
+PULP_RUNTIME_GCC_TOOLCHAIN := $(PULP_RISCV_GCC_TOOLCHAIN)
+endif
+endif
 
 ifdef PULP_RUNTIME_GCC_TOOLCHAIN
 PULP_CC := $(PULP_RUNTIME_GCC_TOOLCHAIN)/bin/$(PULP_CC)
 PULP_LD := $(PULP_RUNTIME_GCC_TOOLCHAIN)/bin/$(PULP_LD)
-else
-ifdef PULP_RISCV_GCC_TOOLCHAIN
+PULP_OBJDUMP := $(PULP_RUNTIME_GCC_TOOLCHAIN)/bin/$(PULP_OBJDUMP)
+PULP_AR := $(PULP_RUNTIME_GCC_TOOLCHAIN)/bin/$(PULP_AR)
+else ifdef PULP_RISCV_GCC_TOOLCHAIN
 PULP_CC := $(PULP_RISCV_GCC_TOOLCHAIN)/bin/$(PULP_CC)
 PULP_LD := $(PULP_RISCV_GCC_TOOLCHAIN)/bin/$(PULP_LD)
+PULP_OBJDUMP := $(PULP_RISCV_GCC_TOOLCHAIN)/bin/$(PULP_OBJDUMP)
+PULP_AR := $(PULP_RISCV_GCC_TOOLCHAIN)/bin/$(PULP_AR)
 else
 $(warning "Warning: Neither PULP_RUNTIME_GCC_TOOLCHAIN nor PULP_RISCV_GCC_TOOLCHAIN is set.\
 Using defaults.")
-endif
 endif
 
 
@@ -149,10 +156,15 @@ else
 LOAD_MODE := JTAG
 endif
 
+ifeq '$(pulp_chip)' 'carfield-cluster'
+ENTRY=0x78008080
+else
+ENTRY=0x1c008080
+endif
 #
 # VSIM Flags
 #
-vsim_flags ?= +ENTRY_POINT=0x1c008080 -permit_unmatched_virtual_intf -gBAUDRATE=115200
+vsim_flags ?= +ENTRY_POINT=$(ENTRY) -permit_unmatched_virtual_intf -gBAUDRATE=115200
 
 ifdef CONFIG_PLUSARG_SIM
 
@@ -210,7 +222,7 @@ endif
 
 define declare_app
 
-$(eval PULP_APP_SRCS_$(1) += $(PULP_APP_SRCS)$(PULP_APP_FC_SRCS) $(PULP_SRCS) $(PULP_APP_CL_SRCS) $(PULP_CL_SRCS))
+$(eval PULP_APP_SRCS_$(1) += $(PULP_APP_SRCS) $(PULP_APP_FC_SRCS) $(PULP_SRCS) $(PULP_APP_CL_SRCS) $(PULP_CL_SRCS))
 $(eval PULP_APP_ASM_SRCS_$(1) += $(PULP_APP_ASM_SRCS) $(PULP_ASM_SRCS) $(PULP_APP_CL_ASM_SRCS) $(PULP_CL_ASM_SRCS))
 $(eval PULP_APP_OBJS_$(1) += $(patsubst %.c,$(TARGET_BUILD_DIR)/$(1)/%.o,$(PULP_APP_SRCS_$(1))))
 $(eval PULP_APP_OBJS_$(1) += $(patsubst %.S,$(TARGET_BUILD_DIR)/$(1)/%.o,$(PULP_APP_ASM_SRCS_$(1))))
@@ -283,35 +295,35 @@ ifndef VSIM_PATH
 	$(error "VSIM_PATH is undefined. Either call \
 	'source $$YOUR_HW_DIR/setup/vsim.sh' or set it manually.")
 endif
-	ln -s $(VSIM_PATH)/modelsim.ini $@
+	ln -sfn $(VSIM_PATH)/modelsim.ini $@
 
 $(TARGET_BUILD_DIR)/work:
 ifndef VSIM_PATH
 	$(error "VSIM_PATH is undefined. Either call \
 	'source $$YOUR_HW_DIR/setup/vsim.sh' or set it manually.")
 endif
-	ln -s $(VSIM_PATH)/work $@
+	ln -sfn $(VSIM_PATH)/work $@
 
 $(TARGET_BUILD_DIR)/boot:
 ifndef VSIM_PATH
 	$(error "VSIM_PATH is undefined. Either call \
 	'source $$YOUR_HW_DIR/setup/vsim.sh' or set it manually.")
 endif
-	ln -s $(VSIM_PATH)/boot $@
+	ln -sfn $(VSIM_PATH)/boot $@
 
 $(TARGET_BUILD_DIR)/tcl_files:
 ifndef VSIM_PATH
 	$(error "VSIM_PATH is undefined. Either call \
 	'source $$YOUR_HW_DIR/setup/vsim.sh' or set it manually.")
 endif
-	ln -s $(VSIM_PATH)/tcl_files $@
+	ln -sfn $(VSIM_PATH)/tcl_files $@
 
 $(TARGET_BUILD_DIR)/waves:
 ifndef VSIM_PATH
 	$(error "VSIM_PATH is undefined. Either call \
 	'source $$YOUR_HW_DIR/setup/vsim.sh' or set it manually.")
 endif
-	ln -s $(VSIM_PATH)/waves $@
+	ln -sfn $(VSIM_PATH)/waves $@
 
 $(TARGET_BUILD_DIR)/stdout:
 	mkdir -p $@

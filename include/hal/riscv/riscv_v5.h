@@ -158,7 +158,13 @@ static inline unsigned int cluster_id() {
   asm("csrr %0, 0xF10" : "=r" (hart_id) : );
 #endif
   // in PULP the hart id is {22'b0, cluster_id, core_id}
+#if PULP_CHIP == CHIP_CARFIELD
+  return (hart_id >> 6);
+#elif PULP_CHIP == CHIP_ASTRAL
+  return (hart_id >> 6);
+#else
   return (hart_id >> 5) & 0x3f;
+#endif
 }
 
 #ifndef PLP_NO_BUILTIN
@@ -220,7 +226,13 @@ static inline __attribute__((always_inline)) unsigned int hal_cluster_id() {
   asm("csrr %0, 0xF10" : "=r" (hart_id) : );
 #endif
   // in PULP the hart id is {22'b0, cluster_id, core_id}
+#if PULP_CHIP == CHIP_CARFIELD
+  return (hart_id >> 6);
+#elifif PULP_CHIP == CHIP_ASTRAL
+  return (hart_id >> 6);
+#else
   return (hart_id >> 5) & 0x3f;
+#endif
 }
 
 static inline __attribute__((always_inline)) unsigned int hal_has_fc() {

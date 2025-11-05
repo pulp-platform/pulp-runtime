@@ -246,7 +246,7 @@ the pyyaml library which is not installed.""",
                   file=sys.stderr)
             exit(1)
         with open(args.test_file) as f:
-            testyaml = yaml.load(f)
+            testyaml = yaml.load(f, Loader=yaml.Loader)
             for testsetname, testv in testyaml.items():
                 for testname, insn in testv.items():
                     cmd = shlex.split(insn['command'])

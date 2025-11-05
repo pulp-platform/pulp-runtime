@@ -35,7 +35,32 @@ typedef enum {
   PI_FREQ_NB_DOMAINS    = 3
 } pi_freq_domain_e;
 
+#ifdef ARCHI_HMR
+  void pos_hmr_store_part_to_stack(void);
+  void pos_hmr_store_rest_to_stack(void);
+  void pos_hmr_load_part_from_stack(void);
+  void pos_hmr_store_state_to_stack(void);
+  void pos_hmr_load_state_from_stack(void);
+  void pos_hmr_sw_reload(void);
+  void pos_hmr_tmr_irq(void);
+  void pos_hmr_synch(void);
+  void pos_hmr_tmr_synch_entry(void);
+  void pos_hmr_tmr_synch_exit(void);
+  void pos_hmr_tmr_synch(void);
+  void pos_hmr_dmr_synch_entry(void);
+  void pos_hmr_dmr_synch_exit(void);
+  void pos_hmr_dmr_synch(void);
+  int  hmr_tmr_critical_section(int (*function_handle)(void));
+  int  hmr_dmr_critical_section(int (*function_handle)(void));
+  void hmr_tmr_performance_section(void (*function_handle)(void));
+  void hmr_tmr_perf_setup_sp(void);
+  void hmr_dmr_performance_section(void (*function_handle)(void));
+  void hmr_dmr_perf_setup_sp(void);
+#endif
+
 #ifdef ARCHI_HAS_CLUSTER
+
+extern L1_DATA char *cluster_stacks;
 
 void cluster_start(int cid, int (*entry)());
 

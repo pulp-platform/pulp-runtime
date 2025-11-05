@@ -35,6 +35,10 @@ static inline void hal_cluster_ctrl_eoc_set(int value) {
   pulp_write32(ARCHI_CLUSTER_CTRL_ADDR, value);
 }
 
+static inline void hal_cluster_ctrl_eoc_set_remote(int cid, int value){
+  pulp_write32(ARCHI_CLUSTER_PERIPHERALS_GLOBAL_ADDR(cid)+ARCHI_CLUSTER_CTRL_OFFSET, value);
+}
+
 static inline void plp_ctrl_fetchen_base(unsigned int base, unsigned int mask) {
   pulp_write32(base + ARCHI_CLUSTER_CTRL_OFFSET + EOC_FETCH_OFFSET, mask);
 }
@@ -61,6 +65,10 @@ static inline void plp_ctrl_core_bootaddr_set_remote(int cid, int core, unsigned
 
 static inline unsigned int plp_ctrl_bootaddr_get() {
   return pulp_read32(ARCHI_CLUSTER_CTRL_ADDR + 0x40);
+}
+
+static inline void hal_cluster_ctrl_return_set_remote(int cid, int value){
+  pulp_write32(ARCHI_CLUSTER_PERIPHERALS_GLOBAL_ADDR(cid)+ARCHI_CLUSTER_CTRL_OFFSET+ARCHI_CLUSTER_CTRL_RETURN, value | 1 << ARCHI_CLUSTER_CTRL_RETURN_SHIFT_BITS);
 }
 
 #endif

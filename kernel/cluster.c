@@ -40,19 +40,39 @@ static void cluster_core_init()
 {
     eu_evt_maskSet((1<<PULP_DISPATCH_EVENT) | (1<<PULP_MUTEX_EVENT) | (1<<PULP_HW_BAR_EVENT));
 
+#ifdef ARCHI_HMR
+    // Enable resynch and synch requests
+    eu_irq_maskSet(1<<24 | 1<<23);
+    rt_irq_set_handler(24, pos_hmr_tmr_irq);
+    rt_irq_set_handler(23, pos_hmr_synch);
+    hal_spr_write(0x304, 1<<24|1<<23);
+    hal_irq_enable();
+
+    eu_bar_setup(eu_bar_addr(0), hmr_get_active_cores(0));
+#else
     eu_bar_setup(eu_bar_addr(0), (1<<ARCHI_CLUSTER_NB_PE) - 1);
+#endif
 }
 
 void cluster_entry_stub()
 {
     cluster_core_init();
 
+    synch_barrier();
+
     int retval = ((int (*)())cluster_entry)();
+
+    synch_barrier();
 
     if (hal_core_id() == 0)
     {
         cluster_retval = retval;
         cluster_running = 0;
+        #ifdef ARCHI_NO_FC
+        hal_cluster_ctrl_return_set_remote(hal_cluster_id(), cluster_retval);
+        hal_cluster_ctrl_eoc_set_remote(hal_cluster_id(), 1);
+        exit(cluster_retval);
+        #endif
     }
 
     pos_wait_forever();
@@ -65,18 +85,22 @@ void cluster_start(int cid, int (*entry)())
     cluster_entry = entry;
 
     // Init FLL
+    #ifndef ARCHI_NO_FC
     pos_fll_init(POS_FLL_CL);
-      
+    #endif
+
     // Initialize cluster L1 memory allocator
     alloc_init_l1(cid);
 
     // Activate icache
     hal_icache_cluster_enable(cid);
 
+    #ifndef ARCHI_NO_FC
     if (!hal_is_fc())
     {
         cluster_core_init();
     }
+    #endif
 
     alloc_init_l1(cid);
 
@@ -87,12 +111,14 @@ void cluster_start(int cid, int (*entry)())
     cluster_running = 1;
 
     // Fetch all cores
+    #ifndef ARCHI_NO_FC
     for (int i=0; i<ARCHI_CLUSTER_NB_PE; i++)
     {
       plp_ctrl_core_bootaddr_set_remote(cid, i, (int)_start);
     }
 
     eoc_fetch_enable_remote(cid, (1<<ARCHI_CLUSTER_NB_PE) - 1);
+    #endif
 }
 
 
