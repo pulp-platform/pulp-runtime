@@ -19,6 +19,12 @@
 #define __ARCHI_CHIPS_PULP_PROPERTIES_H__
 
 /*
+ * DMA
+ */
+
+#define ARCHI_HAS_DMA_DEMUX 1
+
+/*
  * FPGA
  */
 

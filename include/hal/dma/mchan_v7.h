@@ -266,20 +266,18 @@ static inline unsigned int plp_dma_status();
 
 /// @cond IMPLEM
 
-#if defined(__riscv__) && !defined(RV_ISA_RV32) && !defined(__LLVM__)
-#ifdef ARCHI_HAS_DMA_DEMUX
-#define DMA_WRITE_DEMUX(value, offset) __builtin_pulp_OffsetedWrite((value), (int *)ARCHI_MCHAN_DEMUX_ADDR, (offset))
-#define DMA_READ_DEMUX(offset) __builtin_pulp_OffsetedRead((int *)ARCHI_MCHAN_DEMUX_ADDR, (offset))
-#endif // ARCHI_HAS_DMA_DEMUX
-#define DMA_WRITE(value, offset) __builtin_pulp_OffsetedWrite((value), (int *)ARCHI_MCHAN_EXT_ADDR, (offset))
-#define DMA_READ(offset) __builtin_pulp_OffsetedRead((int *)ARCHI_MCHAN_EXT_ADDR, (offset))
+#if ARCHI_HAS_DMA_DEMUX
+#define MCHAN_ADDR ARCHI_MCHAN_DEMUX_ADDR
 #else
-#ifdef ARCHI_HAS_DMA_DEMUX
-#define DMA_WRITE_DEMUX(value, offset) pulp_write32(ARCHI_MCHAN_DEMUX_ADDR + (offset), (value))
-#define DMA_READ_DEMUX(value, offset) pulp_read32(ARCHI_MCHAN_DEMUX_ADDR + (offset))
-#endif // ARCHI_HAS_DMA_DEMUX
-#define DMA_WRITE(value, offset) pulp_write32(ARCHI_MCHAN_EXT_ADDR + (offset), (value))
-#define DMA_READ(offset) pulp_read32(ARCHI_MCHAN_EXT_ADDR + (offset))
+#define MCHAN_ADDR ARCHI_MCHAN_EXT_ADDR
+#endif
+
+#if defined(__riscv__) && !defined(RV_ISA_RV32) && !defined(__LLVM__)
+#define DMA_WRITE(value, offset) __builtin_pulp_OffsetedWrite((value), (int *)MCHAN_ADDR, (offset))
+#define DMA_READ(offset) __builtin_pulp_OffsetedRead((int *)MCHAN_ADDR, (offset))
+#else
+#define DMA_WRITE(value, offset) pulp_write32(MCHAN_ADDR + (offset), (value))
+#define DMA_READ(offset) pulp_read32(MCHAN_ADDR + (offset))
 #endif
 
 static inline int plp_dma_counter_alloc() {
@@ -311,11 +309,12 @@ static inline unsigned int plp_dma_getCmd(int ext2loc, unsigned int size, int is
   unsigned int res;
   res = __builtin_bitinsert(0,  ext2loc,      1, MCHAN_CMD_CMD_TYPE_BIT);
   res = __builtin_bitinsert(res, PLP_DMA_INC, 1, MCHAN_CMD_CMD_INC_BIT);
-  res = __builtin_bitinsert(res, is2D,        1, MCHAN_CMD_CMD__2D_EXT_BIT);
+  res = __builtin_bitinsert(res, (!ext2loc && is2D), 1, MCHAN_CMD_CMD__2D_EXT_BIT);
   res = __builtin_bitinsert(res, size,        MCHAN_CMD_CMD_LEN_WIDTH, MCHAN_CMD_CMD_LEN_BIT);
   res = __builtin_bitinsert(res, trigEvt,     1, MCHAN_CMD_CMD_ELE_BIT);
   res = __builtin_bitinsert(res, trigIrq,     1, MCHAN_CMD_CMD_ILE_BIT);
   res = __builtin_bitinsert(res, broadcast,   1, MCHAN_CMD_CMD_BLE_BIT);
+  res = __builtin_bitinsert(res, (ext2loc && is2D),        1, MCHAN_CMD_CMD__2D_TCDM_BIT);
   return res;
 #else
   return (ext2loc << MCHAN_CMD_CMD_TYPE_BIT) | (PLP_DMA_INC << MCHAN_CMD_CMD_INC_BIT) | (is2D << MCHAN_CMD_CMD__2D_EXT_BIT) | (size << MCHAN_CMD_CMD_LEN_BIT) | (trigEvt<<MCHAN_CMD_CMD_ELE_BIT) | (trigIrq<<MCHAN_CMD_CMD_ILE_BIT) | (broadcast<<MCHAN_CMD_CMD_BLE_BIT);
@@ -339,13 +338,13 @@ static inline void plp_dma_cmd_push(unsigned int cmd, unsigned int locAddr, mcha
 
 static inline void plp_cl_dma_cmd_push(unsigned int cmd, unsigned int locAddr, mchan_ext_t extAddr) {
 #ifdef ARCHI_HAS_DMA_DEMUX
-  DMA_WRITE_DEMUX(cmd, MCHAN_CMD_OFFSET);
-  DMA_WRITE_DEMUX(locAddr, MCHAN_CMD_OFFSET);
+  DMA_WRITE(cmd, MCHAN_CMD_OFFSET);
+  DMA_WRITE(locAddr, MCHAN_CMD_OFFSET);
 #if defined(ARCHI_HAS_MCHAN_64) && ARCHI_HAS_MCHAN_64 == 1
-  DMA_WRITE_DEMUX((int)extAddr, MCHAN_CMD_OFFSET);
-  DMA_WRITE_DEMUX((int)(extAddr>>32), MCHAN_CMD_OFFSET);
+  DMA_WRITE((int)extAddr, MCHAN_CMD_OFFSET);
+  DMA_WRITE((int)(extAddr>>32), MCHAN_CMD_OFFSET);
 #else
-  DMA_WRITE_DEMUX(extAddr, MCHAN_CMD_OFFSET);
+  DMA_WRITE(extAddr, MCHAN_CMD_OFFSET);
 #endif
 #else // ARCHI_HAS_DMA_DEMUX
   plp_dma_cmd_push(cmd, locAddr, extAddr);
@@ -360,9 +359,9 @@ static inline void plp_dma_cmd_push_2d(unsigned int cmd, unsigned int locAddr, m
 
 static inline void plp_cl_dma_cmd_push_2d(unsigned int cmd, unsigned int locAddr, mchan_ext_t extAddr, unsigned int stride, unsigned int length) {
 #ifdef ARCHI_HAS_DMA_DEMUX
-  plp_cl_dma_cmd_push(cmd, locAddr, extAddr);
-  DMA_WRITE_DEMUX(length, MCHAN_CMD_OFFSET);
-  DMA_WRITE_DEMUX(stride, MCHAN_CMD_OFFSET);
+  plp_cl_mchan_cmd_push(cmd, locAddr, extAddr);
+  DMA_WRITE(length, MCHAN_CMD_OFFSET);
+  DMA_WRITE(stride, MCHAN_CMD_OFFSET);
 #else // ARCHI_HAS_DMA_DEMUX
   plp_dma_cmd_push_2d(cmd, locAddr, extAddr, stride, length);
 #endif // ARCHI_HAS_DMA_DEMUX
@@ -605,10 +604,10 @@ static inline void plp_dma_barrier() {
 
 static inline void plp_cl_dma_barrier() {
 #ifdef ARCHI_HAS_DMA_DEMUX
-  while(DMA_READ_DEMUX(MCHAN_STATUS_OFFSET) & 0xFFFF) {
+  while(DMA_READ(MCHAN_STATUS_OFFSET) & 0xFFFF) {
     eu_evt_maskWaitAndClr(1<<ARCHI_CL_EVT_DMA0);
   }
-  DMA_WRITE_DEMUX(-1, MCHAN_STATUS_OFFSET);
+  DMA_WRITE(-1, MCHAN_STATUS_OFFSET);
 #else // ARCHI_HAS_DMA_DEMUX
   plp_dma_barrier();
 #endif // ARCHI_HAS_DMA_DEMUX
@@ -623,7 +622,7 @@ static inline void plp_dma_wait(unsigned int counter) {
 
 static inline void plp_cl_dma_wait(unsigned int counter) {
 #ifdef ARCHI_HAS_DMA_DEMUX
-  while(DMA_READ_DEMUX(MCHAN_STATUS_OFFSET) & (1 << counter)) {
+  while(DMA_READ(MCHAN_STATUS_OFFSET) & (1 << counter)) {
     eu_evt_maskWaitAndClr(1<<ARCHI_CL_EVT_DMA0);
   }
   plp_dma_counter_free(counter);
@@ -638,7 +637,7 @@ static inline unsigned int plp_dma_status() {
 
 static inline unsigned int plp_cl_dma_status() {
 #ifdef ARCHI_HAS_DMA_DEMUX
-  return DMA_READ_DEMUX(MCHAN_STATUS_OFFSET);
+  return DMA_READ(MCHAN_STATUS_OFFSET);
 #else // ARCHI_HAS_DMA_DEMUX
   return plp_dma_status();
 #endif // ARCHI_HAS_DMA_DEMUX
