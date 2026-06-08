@@ -72,13 +72,6 @@ pos_init_entry:
     addi    t0, t0, 4
     bltu    t0, t1, 1b
 
-
-
-    # Stack initialization
-    la   x2, stack
-
-
-
     /* Do all other initializations from C code */
     jal  x1, pos_init_start
 
@@ -196,6 +189,8 @@ _start:
     lui x29, 0
     lui x30, 0
     lui x31, 0
+    # Stack initialization
+    la   x2, stack
     /* Move on to normal boot */
     jal x0, pos_init_entry
 

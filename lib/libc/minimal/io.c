@@ -239,12 +239,21 @@ static void pos_libc_putc_uart(char c)
 }
 #endif
 
+#if defined(CONFIG_IO_UART) && CONFIG_IO_UART == 2
+static void pos_libc_putc_host_uart(char c)
+{
+    uart_write(ARCHI_HOST_UART_ADDR, c);
+    uart_write_flush(ARCHI_HOST_UART_ADDR);
+}
+#endif
 
 
 static void pos_putc(char c)
 {
 #if defined(CONFIG_IO_UART) && CONFIG_IO_UART == 1
     pos_libc_putc_uart(c);
+#elif defined(CONFIG_IO_UART) && CONFIG_IO_UART == 2
+    pos_libc_putc_host_uart(c);
 #else
     pos_libc_putc_stdout(c);
 #endif

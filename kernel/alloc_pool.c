@@ -15,6 +15,7 @@
  */
 
 #include "pulp.h"
+#include "implem/trace.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -28,6 +29,11 @@ pos_alloc_t pos_alloc_fc_tcdm;
 
 #if defined(ARCHI_HAS_L2)
 pos_alloc_t pos_alloc_l2[POS_NB_ALLOC_L2];
+
+#define POS_L2_PRIV0    0
+#define POS_L2_PRIV1    1
+#define POS_L2_SHARED   2
+
 #endif
 
 #ifdef CONFIG_ALLOC_L2_PWD_NB_BANKS
@@ -38,7 +44,7 @@ static uint32_t pos_alloc_account_1[CONFIG_ALLOC_L2_PWD_NB_BANKS];
 #if defined(ARCHI_HAS_FC_TCDM)
 static inline pos_alloc_t *get_fc_alloc() { return &pos_alloc_fc_tcdm; }
 #else
-static inline pos_alloc_t *get_fc_alloc() { return &pos_alloc_l2[0]; }
+static inline pos_alloc_t *get_fc_alloc() { return &pos_alloc_l2[POS_L2_PRIV0]; }
 #endif
 
 
@@ -49,31 +55,31 @@ void pos_allocs_init()
 #if defined(ARCHI_HAS_L2)
 #if defined(ARCHI_HAS_L2_MULTI)
 
-    //pos_trace(//pos_trace_INIT, "Initializing L2 private bank0 allocator (base: 0x%8x, size: 0x%8x)\n", (int)pos_l2_priv0_base(), pos_l2_priv0_size());
-    pos_alloc_init(&pos_alloc_l2[0], pos_l2_priv0_base(), pos_l2_priv0_size());
+    ALLOC_TRACE(POS_LOG_TRACE, "Initializing L2 private bank0 allocator (base: 0x%8x, size: 0x%8x)\n", (int)pos_l2_priv0_base(), pos_l2_priv0_size());
+    pos_alloc_init(&pos_alloc_l2[POS_L2_PRIV0], pos_l2_priv0_base(), pos_l2_priv0_size());
 
-    //pos_trace(//pos_trace_INIT, "Initializing L2 private bank1 allocator (base: 0x%8x, size: 0x%8x)\n", (int)pos_l2_priv1_base(), pos_l2_priv1_size());
-    pos_alloc_init(&pos_alloc_l2[1], pos_l2_priv1_base(), pos_l2_priv1_size());
+    ALLOC_TRACE(POS_LOG_TRACE, "Initializing L2 private bank1 allocator (base: 0x%8x, size: 0x%8x)\n", (int)pos_l2_priv1_base(), pos_l2_priv1_size());
+    pos_alloc_init(&pos_alloc_l2[POS_L2_PRIV1], pos_l2_priv1_base(), pos_l2_priv1_size());
 
-    //pos_trace(//pos_trace_INIT, "Initializing L2 shared banks allocator (base: 0x%8x, size: 0x%8x)\n", (int)pos_l2_shared_base(), pos_l2_shared_size());
-    pos_alloc_init(&pos_alloc_l2[2], pos_l2_shared_base(), pos_l2_shared_size());
+    ALLOC_TRACE(POS_LOG_TRACE, "Initializing L2 shared banks allocator (base: 0x%8x, size: 0x%8x)\n", (int)pos_l2_shared_base(), pos_l2_shared_size());
+    pos_alloc_init(&pos_alloc_l2[POS_L2_SHARED], pos_l2_shared_base(), pos_l2_shared_size());
 
 #ifdef CONFIG_ALLOC_L2_PWD_NB_BANKS
-    pos_alloc_l2[2].track_pwd = 1;
-    pos_alloc_l2[2].pwd_count = pos_alloc_account_0;
-    pos_alloc_l2[2].ret_count = pos_alloc_account_0;
+    pos_alloc_l2[POS_L2_SHARED].track_pwd = 1;
+    pos_alloc_l2[POS_L2_SHARED].pwd_count = pos_alloc_account_0;
+    pos_alloc_l2[POS_L2_SHARED].ret_count = pos_alloc_account_0;
     for (int i=0; i<CONFIG_ALLOC_L2_PWD_NB_BANKS; i++)
     {
-        pos_alloc_l2[2].pwd_count[i] = 0;
-        pos_alloc_l2[2].ret_count[i] = 0;
+        pos_alloc_l2[POS_L2_SHARED].pwd_count[i] = 0;
+        pos_alloc_l2[POS_L2_SHARED].ret_count[i] = 0;
     }
-    pos_alloc_l2[2].bank_size_log2 = CONFIG_ALLOC_L2_PWD_BANK_SIZE_LOG2;
-    pos_alloc_l2[2].first_bank_addr = ARCHI_L2_SHARED_ADDR;
-    pos_alloc_account_free(&pos_alloc_l2[2], pos_l2_shared_base() - sizeof(pos_alloc_chunk_t), pos_l2_shared_size() + sizeof(pos_alloc_chunk_t));
+    pos_alloc_l2[POS_L2_SHARED].bank_size_log2 = CONFIG_ALLOC_L2_PWD_BANK_SIZE_LOG2;
+    pos_alloc_l2[POS_L2_SHARED].first_bank_addr = ARCHI_L2_SHARED_ADDR;
+    pos_alloc_account_free(&pos_alloc_l2[POS_L2_SHARED], pos_l2_shared_base() - sizeof(pos_alloc_chunk_t), pos_l2_shared_size() + sizeof(pos_alloc_chunk_t));
 #endif
 #else
-  //pos_trace(//pos_trace_INIT, "Initializing L2 allocator (base: 0x%8x, size: 0x%8x)\n", (int)pos_l2_base(), pos_l2_size());
-    pos_alloc_init(&pos_alloc_l2[0], pos_l2_base(), pos_l2_size());
+  ALLOC_TRACE(POS_LOG_TRACE, "Initializing L2 allocator (base: 0x%8x, size: 0x%8x)\n", (int)pos_l2_base(), pos_l2_size());
+    pos_alloc_init(&pos_alloc_l2[POS_L2_PRIV0], pos_l2_base(), pos_l2_size());
 #endif
 #endif
 
@@ -82,6 +88,7 @@ void pos_allocs_init()
     pos_alloc_init(&pos_alloc_fc_tcdm, pos_fc_tcdm_base(), pos_fc_tcdm_size());
 #endif
 }
+
 
 
 
@@ -104,16 +111,17 @@ void pi_l1_free(int cid, void *chunk, int size)
 #endif
 
 
-
+#if defined(ARCHI_HAS_L2)
 void *pi_l2_malloc(int size)
 {
-    return pos_alloc(&pos_alloc_l2[0], size);
+    return pos_alloc(&pos_alloc_l2[POS_L2_SHARED], size);
 }
 
 void pi_l2_free(void *_chunk, int size)
 {
-    return pos_free(&pos_alloc_l2[0], _chunk, size);
+    return pos_free(&pos_alloc_l2[POS_L2_SHARED], _chunk, size);
 }
+#endif
 
 #if defined(ARCHI_HAS_FC_TCDM)
 void *pi_fc_tcdm_malloc(int size)

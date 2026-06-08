@@ -93,12 +93,12 @@ void _start();
 #ifdef ARCHI_CLUSTER_NB_PE
 static inline int get_core_num() { return ARCHI_CLUSTER_NB_PE; }
 #endif
-
-
+#if defined(CONFIG_IO_UART) && CONFIG_IO_UART == 1
 int uart_open(int uart_id, int baudrate);
 void uart_close(int uart_id);
 int uart_write(int uart_id, void *buffer, uint32_t size);
 int uart_read(int uart_id, void *buffer, uint32_t size);
+#endif
 
 void synch_barrier();
 

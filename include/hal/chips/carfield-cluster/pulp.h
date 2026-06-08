@@ -43,5 +43,6 @@
 #include "hal/udma/uart/udma_uart_v1.h"
 #include "hal/hmr/hmr_v1.h"
 #include "hal/tcdm_scrubber/tcdm_scrubber.h"
+#include "hal/hwpe_hci_ecc/hwpe_hci_ecc.h"
 
 #endif
