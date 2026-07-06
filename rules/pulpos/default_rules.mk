@@ -201,16 +201,16 @@ endif
 ifeq '$(platform)' 'rtl'
 
 $(TARGET_BUILD_DIR)/modelsim.ini:
-	ln -s $(VSIM_PATH)/modelsim.ini $@
+	ln -sf $(VSIM_PATH)/modelsim.ini $@
 
 $(TARGET_BUILD_DIR)/boot:
-	ln -s $(VSIM_PATH)/boot $@
+	ln -sf $(VSIM_PATH)/boot $@
 
 $(TARGET_BUILD_DIR)/tcl_files:
-	ln -s $(VSIM_PATH)/tcl_files $@
+	ln -sf $(VSIM_PATH)/tcl_files $@
 
 $(TARGET_BUILD_DIR)/waves:
-	ln -s $(VSIM_PATH)/waves $@
+	ln -sf $(VSIM_PATH)/waves $@
 
 
 run: $(TARGET_BUILD_DIR)/modelsim.ini  $(TARGET_BUILD_DIR)/boot $(TARGET_BUILD_DIR)/tcl_files $(TARGET_BUILD_DIR)/waves

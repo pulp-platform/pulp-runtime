@@ -145,7 +145,7 @@ void check_uint32(testresult_t* result, const char* fail_msg, uint32_t actual, u
 }
 
 void perf_print_all(void) {
-#ifdef __riscv__
+#if defined(__riscv__) || defined(__cv32e40p__)
   printf("Perf CYCLES: %d\n",      cpu_perf_get(0));
   printf("Perf INSTR: %d\n",       cpu_perf_get(1));
   printf("Perf CINSTR: %d\n",      cpu_perf_get(10));
@@ -211,7 +211,7 @@ void illegal_insn_handler_c(void)
 {
 #ifndef __ariane__
   unsigned int exception_address, insn;
-#ifdef __riscv__
+#if defined(__riscv__) || defined(__cv32e40p__)
   asm("csrr %0, 0x341" : "=r" (exception_address) : );
 #else
   exception_address = hal_spr_read(SPR_EPCR_BASE);

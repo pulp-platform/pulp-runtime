@@ -140,7 +140,7 @@ void check_uint32(testresult_t* result, const char* fail_msg, uint32_t actual, u
  */
 static inline void perf_start(void) {
 #ifdef CSR_PCER_ALL_EVENTS_MASK
-#ifdef __riscv__
+#if defined(__riscv__) || defined(__cv32e40p__)
   cpu_perf_conf_events(CSR_PCER_ALL_EVENTS_MASK);
   cpu_perf_conf(CSR_PCMR_ACTIVE | CSR_PCMR_SATURATE);
 #else
@@ -185,7 +185,7 @@ static inline void perf_reset(void) {
  */
 static inline void perf_enable_id( int eventid){
 #ifdef CSR_PCER_ALL_EVENTS_MASK
-#ifdef __riscv__
+#if defined(__riscv__) || defined(__cv32e40p__)
   cpu_perf_conf_events(CSR_PCER_EVENT_MASK(eventid));
   cpu_perf_conf(CSR_PCMR_ACTIVE | CSR_PCMR_SATURATE);
 #else
