@@ -49,8 +49,7 @@ typedef struct {
 typedef struct {
     uint32_t tx_oe:1;
     uint32_t rx_oe:1;
-    uint32_t rx_pe:1;
-    uint32_t unused:29;
+    uint32_t unused:30;
 } __attribute__ ((packed)) plpUdmaUartStatus_t;
 
 typedef struct {

@@ -20,6 +20,7 @@
 // UART custom registers offset definition
 #define UART_STATUS_OFFSET               (0x00)
 #define UART_SETUP_OFFSET                (0x04)
+#define UART_ERROR_OFFSET                (0x08)
 
 // UART custom registers bitfields offset, mask, value definition
 // STATUS
@@ -32,11 +33,6 @@
 #define UART_RX_BUSY_WIDTH    1
 #define UART_RX_BUSY_MASK   (0x1 << UART_RX_BUSY_OFFSET)
 #define UART_RX_BUSY      (0x1 << UART_RX_BUSY_OFFSET)
-
-#define UART_RX_PE_OFFSET   2
-#define UART_RX_PE_WIDTH    1
-#define UART_RX_PE_MASK     (0x1 << UART_RX_PE_OFFSET)
-#define UART_RX_PE      (0x1 << UART_RX_PE_OFFSET)
 
 // SETUP
 #define UART_PARITY_OFFSET    0
@@ -75,6 +71,17 @@
 #define UART_CLKDIV_WIDTH   16
 #define UART_CLKDIV_MASK    (0xffff << UART_CLKDIV_OFFSET)
 #define UART_CLKDIV(val)    (val << UART_CLKDIV_OFFSET)
+
+// ERROR (cleared on read)
+#define UART_RX_ERR_OVERFLOW_OFFSET   0
+#define UART_RX_ERR_OVERFLOW_WIDTH    1
+#define UART_RX_ERR_OVERFLOW_MASK   (0x1 << UART_RX_ERR_OVERFLOW_OFFSET)
+#define UART_RX_ERR_OVERFLOW      (0x1 << UART_RX_ERR_OVERFLOW_OFFSET)
+
+#define UART_RX_ERR_PARITY_OFFSET   1
+#define UART_RX_ERR_PARITY_WIDTH    1
+#define UART_RX_ERR_PARITY_MASK   (0x1 << UART_RX_ERR_PARITY_OFFSET)
+#define UART_RX_ERR_PARITY      (0x1 << UART_RX_ERR_PARITY_OFFSET)
 
 #define ARCHI_UDMA_UART_RX_EVT           0
 #define ARCHI_UDMA_UART_TX_EVT           1
